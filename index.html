@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARON — The Shadow Keeper</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+<div id="game-container">
+  <canvas id="game-canvas"></canvas>
+
+  <!-- HUD Overlay -->
+  <div id="hud">
+    <div id="hud-top">
+      <div id="balance-container">
+        <div id="tribe-a-label" class="tribe-label tribe-a-color">TRIBE ASHAN</div>
+        <div id="balance-bar-wrap">
+          <div id="balance-bar">
+            <div id="balance-fill-a"></div>
+            <div id="balance-marker"></div>
+            <div id="balance-fill-b"></div>
+          </div>
+          <div id="balance-text">BALANCE</div>
+        </div>
+        <div id="tribe-b-label" class="tribe-label tribe-b-color">TRIBE KORU</div>
+      </div>
+    </div>
+
+    <div id="hud-left">
+      <div id="player-panel" class="panel">
+        <div class="panel-title">SHADOW KEEPER</div>
+        <div class="stat-row"><span class="stat-label">Age:</span><span id="stat-age" class="stat-val">Stone Age</span></div>
+        <div class="stat-row"><span class="stat-label">Essence:</span><span id="stat-essence" class="stat-val">0</span></div>
+        <div class="stat-row"><span class="stat-label">Knowledge:</span><span id="stat-knowledge" class="stat-val">0</span></div>
+        <div class="progress-bar-wrap">
+          <div class="progress-label">Age Progress</div>
+          <div class="progress-bar"><div id="age-progress-fill"></div></div>
+        </div>
+        <div class="stat-row"><span class="stat-label">Suspicion A:</span><span id="stat-susp-a" class="stat-val">0%</span></div>
+        <div class="stat-row"><span class="stat-label">Suspicion B:</span><span id="stat-susp-b" class="stat-val">0%</span></div>
+      </div>
+
+      <div id="tribe-a-panel" class="panel tribe-a-border">
+        <div class="panel-title tribe-a-color">ASHAN</div>
+        <div class="stat-row"><span class="stat-label">Pop:</span><span id="a-pop" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Military:</span><span id="a-mil" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Tech:</span><span id="a-tech" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Territory:</span><span id="a-terr" class="stat-val">—</span></div>
+        <div class="stat-row res-row"><span id="a-res" class="stat-val res-val">—</span></div>
+      </div>
+
+      <div id="tribe-b-panel" class="panel tribe-b-border">
+        <div class="panel-title tribe-b-color">KORU</div>
+        <div class="stat-row"><span class="stat-label">Pop:</span><span id="b-pop" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Military:</span><span id="b-mil" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Tech:</span><span id="b-tech" class="stat-val">—</span></div>
+        <div class="stat-row"><span class="stat-label">Territory:</span><span id="b-terr" class="stat-val">—</span></div>
+        <div class="stat-row res-row"><span id="b-res" class="stat-val res-val">—</span></div>
+      </div>
+    </div>
+
+    <div id="hud-right">
+      <div id="actions-panel" class="panel">
+        <div class="panel-title">INFLUENCE ACTIONS</div>
+        <div id="actions-list"></div>
+      </div>
+    </div>
+
+    <div id="hud-bottom">
+      <div id="event-log-container" class="panel">
+        <div class="panel-title">EVENT LOG</div>
+        <div id="event-log"></div>
+      </div>
+      <div id="time-container">
+        <div id="time-display">Year 1</div>
+        <div id="age-display">Stone Age</div>
+        <button id="btn-speed-1" class="speed-btn active" data-speed="1">1x</button>
+        <button id="btn-speed-2" class="speed-btn" data-speed="2">2x</button>
+        <button id="btn-speed-4" class="speed-btn" data-speed="4">4x</button>
+        <button id="btn-pause" class="speed-btn" data-speed="0">⏸</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Target Overlay -->
+  <div id="action-modal" class="modal hidden">
+    <div class="modal-box">
+      <div id="modal-title" class="modal-title"></div>
+      <div id="modal-desc" class="modal-desc"></div>
+      <div id="modal-target-label">Select Target Tribe:</div>
+      <div id="modal-targets">
+        <button id="target-a" class="modal-btn tribe-a-color">ASHAN</button>
+        <button id="target-b" class="modal-btn tribe-b-color">KORU</button>
+      </div>
+      <div id="modal-cost"></div>
+      <div id="modal-footer">
+        <button id="modal-confirm" class="modal-btn confirm-btn">EXECUTE</button>
+        <button id="modal-cancel" class="modal-btn cancel-btn">CANCEL</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Game Over Screen -->
+  <div id="gameover-screen" class="modal hidden">
+    <div class="modal-box gameover-box">
+      <div id="gameover-title" class="gameover-title">DISCOVERED</div>
+      <div id="gameover-subtitle"></div>
+      <div id="gameover-stats"></div>
+      <button id="btn-restart" class="modal-btn confirm-btn">PLAY AGAIN</button>
+    </div>
+  </div>
+
+  <!-- Start Screen -->
+  <div id="start-screen" class="modal">
+    <div class="modal-box start-box">
+      <div class="game-logo">WARON</div>
+      <div class="game-subtitle">THE SHADOW KEEPER</div>
+      <div class="game-lore">
+        Two tribes clash at the dawn of time.<br>
+        You lurk between them — unseen, unheard.<br>
+        Feed the fire. Starve the peace.<br>
+        <em>Never let either side win.</em>
+      </div>
+      <div class="game-warning">If either tribe conquers the other — you lose.<br>If either tribe discovers you — you lose.</div>
+      <button id="btn-start" class="modal-btn confirm-btn">BEGIN IN SHADOWS</button>
+    </div>
+  </div>
+</div>
+
+<script src="js/config.js"></script>
+<script src="js/ages.js"></script>
+<script src="js/world.js"></script>
+<script src="js/tribe.js"></script>
+<script src="js/player.js"></script>
+<script src="js/actions.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/game.js"></script>
+</body>
+</html>
