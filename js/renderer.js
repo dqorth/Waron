@@ -44,6 +44,8 @@ class Renderer {
     this._mouseY = -9999;
     this._hoveredEntity = null;
     this._hoverFrame = 0;  // throttle hover detection
+    this._mouseDown = { x: 0, y: 0 };
+    this._selectedTile = null; // { x, y }
 
     this._clouds = [];
     this._rainDrops = [];
@@ -172,8 +174,10 @@ class Renderer {
   _setupEvents() {
     const c = this.canvas;
     c.addEventListener('mousedown', e => {
+      if (e.button !== 0) return;
       this._drag = true;
       this._dragStart = { x: e.clientX, y: e.clientY };
+      this._mouseDown = { x: e.clientX, y: e.clientY };
       this._camStart = { x: this.camX, y: this.camY };
     });
 
@@ -187,7 +191,18 @@ class Renderer {
       }
     });
 
-    c.addEventListener('mouseup', () => { this._drag = false; });
+    c.addEventListener('mouseup', e => {
+      const dragDist = Math.hypot(e.clientX - this._mouseDown.x, e.clientY - this._mouseDown.y);
+      this._drag = false;
+
+      // Treat tiny mouse movement as a click and inspect that tile.
+      if (dragDist <= 6) {
+        const rect = c.getBoundingClientRect();
+        const mx = e.clientX - rect.left;
+        const my = e.clientY - rect.top;
+        this._selectTileAtScreen(mx, my);
+      }
+    });
     c.addEventListener('mouseleave', () => { this._drag = false; this._mouseX = -9999; this._mouseY = -9999; });
 
     c.addEventListener('wheel', e => {
@@ -403,6 +418,184 @@ class Renderer {
       sx: (x - this.W / 2) / this.zoom + this.camX,
       sy: (y - this.H / 2) / this.zoom + this.camY,
     };
+  }
+
+  _selectTileAtScreen(mx, my) {
+    if (!this._worldRef) {
+      this._selectedTile = null;
+      return;
+    }
+    const picked = this._pickTileAtScreen(mx, my, this._worldRef);
+    this._selectedTile = picked ? { x: picked.x, y: picked.y } : null;
+  }
+
+  _pickTileAtScreen(mx, my, world) {
+    const w = this._screenToWorld(mx, my);
+    const sz = CONFIG.HEX_SIZE;
+    const vs = CONFIG.HEX_V_SCALE;
+    const sq3 = Math.sqrt(3);
+
+    const approxX = Math.round(w.sx / (sz * 1.5));
+    this._updateHexCorners();
+    const corners = this._hexCorners;
+
+    let best = null;
+    let bestDist = Infinity;
+
+    for (let x = approxX - 3; x <= approxX + 3; x++) {
+      if (x < 0 || x >= world.W) continue;
+
+      const off = (x % 2 !== 0) ? 0.5 : 0.0;
+      const approxY = Math.round(w.sy / (sq3 * sz * vs) - off);
+
+      for (let y = approxY - 3; y <= approxY + 3; y++) {
+        if (y < 0 || y >= world.H) continue;
+
+        const p = this._tileToScreen(x, y);
+        const s = this._worldToScreen(p.sx, p.sy);
+
+        if (this._pointInHex(mx, my, s.x, s.y, corners)) {
+          const d = Math.hypot(mx - s.x, my - s.y);
+          if (d < bestDist) {
+            best = { x, y };
+            bestDist = d;
+          }
+        }
+      }
+    }
+
+    return best;
+  }
+
+  _pointInHex(px, py, cx, cy, corners) {
+    // Standard even-odd polygon test against the 6-corner hex.
+    let inside = false;
+    for (let i = 0, j = corners.length - 1; i < corners.length; j = i++) {
+      const xi = cx + corners[i].dx;
+      const yi = cy + corners[i].dy;
+      const xj = cx + corners[j].dx;
+      const yj = cy + corners[j].dy;
+
+      const intersects = ((yi > py) !== (yj > py))
+        && (px < (xj - xi) * (py - yi) / ((yj - yi) || 1e-9) + xi);
+      if (intersects) inside = !inside;
+    }
+    return inside;
+  }
+
+  _tileTypeName(type) {
+    const T = CONFIG.TILE;
+    const names = {
+      [T.WATER]: 'Water',
+      [T.GRASS]: 'Grassland',
+      [T.FOREST]: 'Forest',
+      [T.MOUNTAIN]: 'Mountain',
+      [T.STONE]: 'Stone',
+      [T.DESERT]: 'Desert',
+      [T.SNOW]: 'Snow',
+      [T.RUINS]: 'Ruins',
+      [T.WETLAND]: 'Wetland',
+      [T.JUNGLE]: 'Jungle',
+      [T.SAVANNA]: 'Savanna',
+      [T.TUNDRA]: 'Tundra',
+    };
+    return names[type] || 'Unknown';
+  }
+
+  _drawSelectedTileTooltip(world) {
+    if (!this._selectedTile || !world) return;
+
+    const tx = this._selectedTile.x;
+    const ty = this._selectedTile.y;
+    if (tx < 0 || ty < 0 || tx >= world.W || ty >= world.H) return;
+
+    const tile = world.tiles?.[ty]?.[tx];
+    if (!tile) return;
+
+    const p = this._tileToScreen(tx, ty);
+    const s = this._worldToScreen(p.sx, p.sy);
+    this._updateHexCorners();
+
+    const ctx = this.ctx;
+    const corners = this._hexCorners;
+
+    // Highlight selected tile.
+    ctx.save();
+    ctx.strokeStyle = 'rgba(255,255,255,0.8)';
+    ctx.lineWidth = Math.max(1, this.zoom * 1.8);
+    ctx.beginPath();
+    ctx.moveTo(s.x + corners[0].dx, s.y + corners[0].dy);
+    for (let i = 1; i < corners.length; i++) {
+      ctx.lineTo(s.x + corners[i].dx, s.y + corners[i].dy);
+    }
+    ctx.closePath();
+    ctx.stroke();
+    ctx.restore();
+
+    const lines = [];
+    lines.push(`Tile ${tx}, ${ty} - ${this._tileTypeName(tile.type)}`);
+    lines.push(`Elevation: ${(tile.elevation || 0).toFixed(3)}`);
+    lines.push(`Walkable: ${world.isWalkable ? (world.isWalkable(tx, ty) ? 'yes' : 'no') : 'n/a'}`);
+    lines.push(`Owner: ${tile.owner ? tile.owner.toUpperCase() : 'none'}`);
+    lines.push(`Road: ${tile.road ? 'yes' : 'no'}`);
+
+    const yieldEntry = CONFIG.TILE_YIELD[tile.type] || {};
+    const yieldParts = Object.entries(yieldEntry).map(([k, v]) => `${k}:${v}`);
+    lines.push(`Base yield: ${yieldParts.length ? yieldParts.join('  ') : 'none'}`);
+
+    const node = tile.resourceNode;
+    if (node) {
+      const pct = Math.round((node.amount / Math.max(1, node.max)) * 100);
+      const resName = node.resource || Object.keys(yieldEntry)[0] || 'resource';
+      lines.push(`Amount of ${resName}: ${Math.round(node.amount)} / ${node.max} (${pct}%)`);
+    } else {
+      const fallbackRes = Object.keys(yieldEntry)[0] || 'resource';
+      lines.push(`Amount of ${fallbackRes}: none`);
+    }
+
+    const tree = world.treeMap ? world.treeMap[`${tx},${ty}`] : null;
+    if (tree) {
+      const gMax = tree.maxGrowth || 5;
+      lines.push(`Tree: stage ${tree.growth}/${gMax}`);
+    } else {
+      lines.push('Tree: none');
+    }
+
+    const pad = 8;
+    const lh = 14;
+    const fSize = 11;
+    ctx.font = `${fSize}px sans-serif`;
+    const maxW = Math.max(...lines.map(l => ctx.measureText(l).width));
+    const bw = maxW + pad * 2;
+    const bh = lines.length * lh + pad * 1.5;
+
+    let bx = s.x + 14;
+    let by = s.y - bh - 10;
+    if (bx + bw > this.W) bx = s.x - bw - 14;
+    if (bx < 6) bx = 6;
+    if (by < 6) by = s.y + 12;
+    if (by + bh > this.H - 6) by = this.H - bh - 6;
+
+    ctx.fillStyle = 'rgba(12,10,20,0.90)';
+    ctx.strokeStyle = 'rgba(255,255,255,0.42)';
+    ctx.lineWidth = 1.4;
+    if (ctx.roundRect) {
+      ctx.beginPath();
+      ctx.roundRect(bx, by, bw, bh, 4);
+      ctx.fill();
+      ctx.stroke();
+    } else {
+      ctx.fillRect(bx, by, bw, bh);
+      ctx.strokeRect(bx, by, bw, bh);
+    }
+
+    ctx.textAlign = 'left';
+    ctx.textBaseline = 'top';
+    lines.forEach((line, i) => {
+      ctx.font = i === 0 ? `bold ${fSize}px sans-serif` : `${fSize}px sans-serif`;
+      ctx.fillStyle = i === 0 ? '#e8d8a0' : '#b0c8d0';
+      ctx.fillText(line, bx + pad, by + pad * 0.75 + i * lh);
+    });
   }
 
   /**
@@ -648,52 +841,30 @@ class Renderer {
     const sz = CONFIG.HEX_SIZE * this.zoom;
     const vs = CONFIG.HEX_V_SCALE;
 
+    const visibleTiles = [];
     for (let y = yMin; y <= yMax; y++) {
       for (let x = xMin; x <= xMax; x++) {
         const tile = world.tiles[y][x];
         const p = this._tileToScreen(x, y);
         // Convert to buffer coordinates (buffer is offset by pad from screen)
-        /**
-         * One-line summary.
-         *
-         * @description MANDATORY detailed explanation (2-5 sentences).
-         *
-         * @workflow
-         * 1. Specific numbered steps
-         * 2. Include conditionals and loops
-         *
-         * @param {Type} name - Description
-         * @returns {Type} Description
-         *
-         * @dependencies stateManager.get(), etc.
-         * @modifies What state/DOM changes
-         * @triggers When/how called
-         * @performance O(n) complexity notes
-         */
         const bx = (p.sx - this.camX) * this.zoom + this.W / 2 + pad;
-        /**
-         * One-line summary.
-         *
-         * @description MANDATORY detailed explanation (2-5 sentences).
-         *
-         * @workflow
-         * 1. Specific numbered steps
-         * 2. Include conditionals and loops
-         *
-         * @param {Type} name - Description
-         * @returns {Type} Description
-         *
-         * @dependencies stateManager.get(), etc.
-         * @modifies What state/DOM changes
-         * @triggers When/how called
-         * @performance O(n) complexity notes
-         */
         const by = (p.sy - this.camY) * this.zoom + this.H / 2 + pad;
 
         if (bx < -sz * 4 || bx > bw + sz * 4 || by < -sz * 4 || by > bh + sz * 4) continue;
 
-        this._drawTileToBuffer(bufCtx, x, y, tile, bx, by, sz, vs, corners);
+        visibleTiles.push({ x, y, tile, bx, by });
       }
+    }
+
+    // Painter's order: draw deeper (lower on screen) tiles first.
+    // This prevents row-major overdraw from creating directional shadow bias.
+    visibleTiles.sort((a, b) => {
+      if (a.by !== b.by) return b.by - a.by;
+      return b.bx - a.bx;
+    });
+
+    for (const vt of visibleTiles) {
+      this._drawTileToBuffer(bufCtx, vt.x, vt.y, vt.tile, vt.bx, vt.by, sz, vs, corners);
     }
 
     this._tileBufCamX = this.camX;
@@ -773,6 +944,7 @@ class Renderer {
   _drawTileToBuffer(ctx, tx, ty, tile, sx, sy, sz, vs, corners) {
     const color = this._getTileColor(tile, '#c8502a', '#2a6ec8');
     const elev  = tile.elevation || 0;
+    const world = this._worldRef;
 
     // Translate pre-computed corners to tile position
     const c0x = sx + corners[0].dx, c0y = sy + corners[0].dy;
@@ -782,8 +954,37 @@ class Renderer {
     const c4x = sx + corners[4].dx, c4y = sy + corners[4].dy;
     const c5x = sx + corners[5].dx, c5y = sy + corners[5].dy;
 
-    // Ultra-low LOD — just fill the hex; altitude shading in the color
-    // already communicates height at this zoom level.
+    const tileDepth = tile.type === CONFIG.TILE.WATER
+      ? 0
+      : sz * vs * Math.min(2.45, Math.pow(elev, 1.06) * 3.15);
+
+    // For each visible lower edge, compare this tile's depth against the
+    // neighbor sharing that edge; only the exposed delta gets a side face.
+    const evenCol = (tx % 2 === 0);
+    const lowerRightNeighbor = evenCol ? { x: tx + 1, y: ty } : { x: tx + 1, y: ty + 1 };
+    const lowerLeftNeighbor = evenCol ? { x: tx - 1, y: ty } : { x: tx - 1, y: ty + 1 };
+    const bottomNeighbor = { x: tx, y: ty + 1 };
+
+    const getDepthAt = (nx, ny) => {
+      if (!world || nx < 0 || ny < 0 || nx >= world.W || ny >= world.H) return 0;
+      const nt = world.tiles[ny][nx];
+      if (!nt || nt.type === CONFIG.TILE.WATER) return 0;
+      const ne = nt.elevation || 0;
+      return sz * vs * Math.min(2.45, Math.pow(ne, 1.06) * 3.15);
+    };
+
+    // Exaggerate exposed deltas so subtle slopes are easier to read.
+    const exaggerateFace = (d) => {
+      if (d <= 0) return 0;
+      const boosted = Math.pow(d / (sz * vs), 0.72) * (sz * vs) * 1.35;
+      return Math.min(sz * vs * 2.65, boosted);
+    };
+
+    const faceDepthRight = exaggerateFace(Math.max(0, tileDepth - getDepthAt(lowerRightNeighbor.x, lowerRightNeighbor.y)));
+    const faceDepthBottom = exaggerateFace(Math.max(0, tileDepth - getDepthAt(bottomNeighbor.x, bottomNeighbor.y)));
+    const faceDepthLeft = exaggerateFace(Math.max(0, tileDepth - getDepthAt(lowerLeftNeighbor.x, lowerLeftNeighbor.y)));
+
+    // Ultra-low LOD — just fill the hex and add a tiny exposed-face hint.
     if (this.zoom < 0.16) {
       ctx.beginPath();
       ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y); ctx.lineTo(c2x, c2y);
@@ -791,10 +992,10 @@ class Renderer {
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
-      // Thin shadow strip on lower-left edge so height reads at max zoom-out
-      if (elev > 0.22) {
-        const miniD = sz * vs * Math.min(0.35, elev * 0.55);
-        ctx.fillStyle = this._darken(color, 0.55);
+      // Thin shadow strip on lower-left edge where this tile is truly exposed.
+      if (faceDepthLeft > 0.01) {
+        const miniD = Math.min(faceDepthLeft, sz * vs * 0.55);
+        ctx.fillStyle = this._darken(color, 0.68);
         ctx.beginPath();
         ctx.moveTo(c2x, c2y); ctx.lineTo(c3x, c3y);
         ctx.lineTo(c3x, c3y + miniD); ctx.lineTo(c2x, c2y + miniD);
@@ -815,31 +1016,33 @@ class Renderer {
     //   c2→c3  lower-left face   → darkest (shadow side)
     //
     // The three UPPER edges (c3→c4→c5→c0) get the rim highlight.
-    const depthY = tile.type === CONFIG.TILE.WATER
-      ? 0
-      : sz * vs * Math.min(1.85, elev * 2.4);
-
-    if (depthY > 0 && this.zoom >= 0.16) {
+    if (this.zoom >= 0.16) {
       // Lower-left face — deep shadow
-      ctx.fillStyle = this._darken(color, 0.62);
-      ctx.beginPath();
-      ctx.moveTo(c2x, c2y); ctx.lineTo(c3x, c3y);
-      ctx.lineTo(c3x, c3y + depthY); ctx.lineTo(c2x, c2y + depthY);
-      ctx.closePath(); ctx.fill();
+      if (faceDepthLeft > 0.01) {
+        ctx.fillStyle = this._darken(color, 0.72);
+        ctx.beginPath();
+        ctx.moveTo(c2x, c2y); ctx.lineTo(c3x, c3y);
+        ctx.lineTo(c3x, c3y + faceDepthLeft); ctx.lineTo(c2x, c2y + faceDepthLeft);
+        ctx.closePath(); ctx.fill();
+      }
 
       // Bottom face — mid shadow
-      ctx.fillStyle = this._darken(color, 0.44);
-      ctx.beginPath();
-      ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c2y);
-      ctx.lineTo(c2x, c2y + depthY); ctx.lineTo(c1x, c1y + depthY);
-      ctx.closePath(); ctx.fill();
+      if (faceDepthBottom > 0.01) {
+        ctx.fillStyle = this._darken(color, 0.54);
+        ctx.beginPath();
+        ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c2y);
+        ctx.lineTo(c2x, c2y + faceDepthBottom); ctx.lineTo(c1x, c1y + faceDepthBottom);
+        ctx.closePath(); ctx.fill();
+      }
 
       // Lower-right face — lightest (most lit)
-      ctx.fillStyle = this._darken(color, 0.22);
-      ctx.beginPath();
-      ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y);
-      ctx.lineTo(c1x, c1y + depthY); ctx.lineTo(c0x, c0y + depthY);
-      ctx.closePath(); ctx.fill();
+      if (faceDepthRight > 0.01) {
+        ctx.fillStyle = this._darken(color, 0.32);
+        ctx.beginPath();
+        ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y);
+        ctx.lineTo(c1x, c1y + faceDepthRight); ctx.lineTo(c0x, c0y + faceDepthRight);
+        ctx.closePath(); ctx.fill();
+      }
     }
 
     // Main hex top face
@@ -873,9 +1076,9 @@ class Renderer {
     }
 
     // Top-edge rim highlight — upper edges catch the light
-    if (depthY > 0 && this.zoom >= 0.16) {
-      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
-      ctx.lineWidth = Math.max(0.5, this.zoom * 0.8);
+    if (tileDepth > 0 && this.zoom >= 0.16) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.30)';
+      ctx.lineWidth = Math.max(0.65, this.zoom * 1.05);
       ctx.beginPath();
       ctx.moveTo(c3x, c3y); ctx.lineTo(c4x, c4y);
       ctx.lineTo(c5x, c5y); ctx.lineTo(c0x, c0y);
@@ -3072,6 +3275,7 @@ class Renderer {
         this._hoveredEntity = this._findHoveredEntity(this._mouseX, this._mouseY, tribeA, tribeB);
       }
     }
+    this._drawSelectedTileTooltip(world);
     if (this._hoveredEntity) this._drawTooltip(this._hoveredEntity);
   }
 
