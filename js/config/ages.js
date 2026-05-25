@@ -25,7 +25,7 @@ const AGES = [
     yearStart: 501,
     yearEnd: 1200,
     description: 'Metal forged. Cities rise. Armies march.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption'],
   },
   {
     id: 'iron',
@@ -39,7 +39,7 @@ const AGES = [
     yearStart: 1201,
     yearEnd: 2500,
     description: 'Iron dominates. Empires begin to form.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred'],
   },
   {
     id: 'classical',
@@ -53,7 +53,7 @@ const AGES = [
     yearStart: 2501,
     yearEnd: 5000,
     description: 'Philosophy, trade, and conquest define the era.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence','poison_wells','corrupt_general','inspire_prophet'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred','poison_wells','corrupt_general','inspire_prophet','broker_peace'],
   },
   {
     id: 'medieval',
@@ -67,7 +67,7 @@ const AGES = [
     yearStart: 5001,
     yearEnd: 10000,
     description: 'Feudal lords and cathedrals. Black death and crusades.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence','poison_wells','corrupt_general','inspire_prophet','plague_release','economic_sabotage','spy_network'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred','poison_wells','corrupt_general','inspire_prophet','broker_peace','plague_release','economic_sabotage','spy_network','break_treaty'],
   },
   {
     id: 'renaissance',
@@ -81,7 +81,7 @@ const AGES = [
     yearStart: 10001,
     yearEnd: 20000,
     description: 'Art, science, gunpowder. The world expands.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence','poison_wells','corrupt_general','inspire_prophet','plague_release','economic_sabotage','spy_network','gunpowder_accident','navigation_error','religious_schism'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred','corrupt_general','broker_peace','plague_release','economic_sabotage','spy_network','break_treaty','gunpowder_accident','navigation_error','religious_schism'],
   },
   {
     id: 'industrial',
@@ -95,7 +95,7 @@ const AGES = [
     yearStart: 20001,
     yearEnd: 50000,
     description: 'Steam and steel. Mass production. Total war.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence','corrupt_general','plague_release','economic_sabotage','spy_network','gunpowder_accident','religious_schism','factory_sabotage','propaganda','arms_deal'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred','corrupt_general','broker_peace','plague_release','economic_sabotage','spy_network','break_treaty','gunpowder_accident','religious_schism','factory_sabotage','propaganda','arms_deal'],
   },
   {
     id: 'atomic',
@@ -109,7 +109,7 @@ const AGES = [
     yearStart: 50001,
     yearEnd: 999999,
     description: 'The atom splits. Mutually assured destruction.',
-    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','manipulate_weather','kidnap_scientist','forge_evidence','corrupt_general','plague_release','economic_sabotage','spy_network','propaganda','arms_deal','nuclear_scare','cyber_disruption','satellite_interference'],
+    actions: ['sabotage_food','eliminate_leader','plant_agent','boost_research','cause_disease','gift_weapons','false_treaty','territorial_dispute','incite_riot','trade_disruption','manipulate_weather','kidnap_scientist','forge_evidence','incite_hatred','corrupt_general','broker_peace','plague_release','economic_sabotage','spy_network','break_treaty','propaganda','arms_deal','nuclear_scare','cyber_disruption','satellite_interference'],
   },
 ];
 

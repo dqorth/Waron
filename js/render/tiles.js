@@ -51,6 +51,9 @@ class TileRenderer {
     const wt = weather?.type || 'sunshine';
     if (this.r._tileBufWeatherType !== wt) return false;
     if (this.r._tileBufTerritoryGen !== (this.r._worldRef?._territoryGen || 0)) return false;
+    // Fog changes invalidate buffer (newly revealed tiles need terrain drawn)
+    const fogGen = (typeof Game !== 'undefined' && Game.fog) ? Game.fog.generation : 0;
+    if (this._tileBufFogGen !== fogGen) return false;
     // Camera pan within padding?
     const dx = Math.abs(this.r.camX - this.r._tileBufCamX);
     const dy = Math.abs(this.r.camY - this.r._tileBufCamY);
@@ -204,6 +207,10 @@ class TileRenderer {
 
         if (bx < -sz * 4 || bx > bw + sz * 4 || by < -sz * 4 || by > bh + sz * 4) continue;
 
+        // Skip fully unexplored tiles — fog overlay covers them, no need to render terrain
+        if (typeof Game !== 'undefined' && Game.fog
+            && Game.fog.getVisibility(x, y) === 0) continue;
+
         visibleTiles.push({ x, y, tile, bx, by });
       }
     }
@@ -226,6 +233,7 @@ class TileRenderer {
     this.r._tileBufH = this.r.H;
     this.r._tileBufWeatherType = weather?.type || 'sunshine';
     this.r._tileBufTerritoryGen = world._territoryGen || 0;
+    this._tileBufFogGen = (typeof Game !== 'undefined' && Game.fog) ? Game.fog.generation : 0;
     this.r._tileBufDirty = false;
   }
 

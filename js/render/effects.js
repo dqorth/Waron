@@ -56,7 +56,9 @@ class EffectsRenderer {
         const s = this.r._worldToScreen(p.sx, p.sy);
         if (!this.r._isOnScreen(s.x, s.y, sz * 4)) continue;
 
-        const alpha = vis === FOG.UNEXPLORED ? 0.85 : 0.4; // explored = dimmed, unexplored = dark
+        const alpha = vis === FOG.UNEXPLORED
+          ? (CONFIG.FOG && CONFIG.FOG.UNEXPLORED_ALPHA || 0.85)
+          : (CONFIG.FOG && CONFIG.FOG.EXPLORED_ALPHA || 0.40);
         ctx.fillStyle = `rgba(8,6,14,${alpha})`;
         ctx.beginPath();
         ctx.moveTo(s.x + corners[0].dx, s.y + corners[0].dy);

@@ -485,4 +485,111 @@ class UnitRenderer {
     return { ox: nx * forward + px * side, oy: (ny * forward + py * side) * 0.85, stanceSpeed, gaitAmp };
   }
 
+  // ── Wildlife Sprites ────────────────────────────────────────────────────
+  drawAnimals(ctx, wildlife, fog) {
+    if (!wildlife) return;
+    const living = wildlife.getLiving();
+    const r = this.r;
+    const s = r.zoom;
+    if (s < 0.25) return; // too zoomed out
+
+    for (const a of living) {
+      // Skip if fogged
+      if (fog && fog.getVisibility(a.x, a.y) < 2) continue;
+
+      const p = r.tileToScreen(a.x, a.y);
+      const sp = r.worldToScreen(p.sx, p.sy);
+      if (!r.isOnScreen(sp.x, sp.y)) continue;
+
+      switch (a.type) {
+        case 'deer': this._drawDeer(ctx, sp.x, sp.y, s); break;
+        case 'boar': this._drawBoar(ctx, sp.x, sp.y, s); break;
+        case 'fish': this._drawFish(ctx, sp.x, sp.y, s); break;
+        default: // generic dot
+          ctx.fillStyle = '#8a6a40';
+          ctx.beginPath(); ctx.arc(sp.x, sp.y - 2 * s, 2 * s, 0, Math.PI * 2); ctx.fill();
+      }
+    }
+  }
+
+  _drawDeer(ctx, x, y, s) {
+    const r = 3.0 * s;
+    // Body
+    ctx.fillStyle = '#a07040';
+    ctx.beginPath();
+    ctx.ellipse(x, y - r, r * 1.3, r * 0.7, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Head
+    ctx.fillStyle = '#b08050';
+    ctx.beginPath(); ctx.arc(x + r * 1.1, y - r * 1.1, r * 0.45, 0, Math.PI * 2); ctx.fill();
+    // Antlers (at higher zoom)
+    if (s > 0.4) {
+      ctx.strokeStyle = '#705030';
+      ctx.lineWidth = 0.7 * s;
+      ctx.beginPath();
+      ctx.moveTo(x + r * 1.3, y - r * 1.5);
+      ctx.lineTo(x + r * 1.6, y - r * 2.2);
+      ctx.moveTo(x + r * 1.3, y - r * 1.5);
+      ctx.lineTo(x + r * 1.8, y - r * 1.8);
+      ctx.stroke();
+    }
+    // Legs
+    ctx.strokeStyle = '#806040';
+    ctx.lineWidth = 0.6 * s;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.6, y - r * 0.3); ctx.lineTo(x - r * 0.6, y + r * 0.5);
+    ctx.moveTo(x + r * 0.4, y - r * 0.3); ctx.lineTo(x + r * 0.4, y + r * 0.5);
+    ctx.stroke();
+  }
+
+  _drawBoar(ctx, x, y, s) {
+    const r = 3.2 * s;
+    // Body — stockier than deer
+    ctx.fillStyle = '#5a4030';
+    ctx.beginPath();
+    ctx.ellipse(x, y - r * 0.8, r * 1.2, r * 0.9, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Snout
+    ctx.fillStyle = '#6a5040';
+    ctx.beginPath(); ctx.arc(x + r * 1.0, y - r * 0.6, r * 0.4, 0, Math.PI * 2); ctx.fill();
+    // Tusks at higher zoom
+    if (s > 0.4) {
+      ctx.strokeStyle = '#d0c8b0';
+      ctx.lineWidth = 0.8 * s;
+      ctx.beginPath();
+      ctx.moveTo(x + r * 1.2, y - r * 0.5);
+      ctx.lineTo(x + r * 1.5, y - r * 0.9);
+      ctx.stroke();
+    }
+    // Legs
+    ctx.strokeStyle = '#4a3020';
+    ctx.lineWidth = 0.7 * s;
+    ctx.beginPath();
+    ctx.moveTo(x - r * 0.5, y); ctx.lineTo(x - r * 0.5, y + r * 0.5);
+    ctx.moveTo(x + r * 0.3, y); ctx.lineTo(x + r * 0.3, y + r * 0.5);
+    ctx.stroke();
+  }
+
+  _drawFish(ctx, x, y, s) {
+    const r = 2.5 * s;
+    // Body
+    ctx.fillStyle = '#5080a0';
+    ctx.beginPath();
+    ctx.ellipse(x, y - r * 0.5, r * 1.4, r * 0.5, 0, 0, Math.PI * 2);
+    ctx.fill();
+    // Tail
+    ctx.fillStyle = '#407090';
+    ctx.beginPath();
+    ctx.moveTo(x - r * 1.3, y - r * 0.5);
+    ctx.lineTo(x - r * 2.0, y - r * 1.0);
+    ctx.lineTo(x - r * 2.0, y);
+    ctx.closePath();
+    ctx.fill();
+    // Eye
+    if (s > 0.4) {
+      ctx.fillStyle = '#e0e0e0';
+      ctx.beginPath(); ctx.arc(x + r * 0.8, y - r * 0.6, r * 0.15, 0, Math.PI * 2); ctx.fill();
+    }
+  }
+
 }

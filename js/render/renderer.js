@@ -1451,7 +1451,12 @@ class Renderer {
       this.bldg._drawBuilding(b);
     }
 
-    // 5. Units — update lerp, cull NORMAL at low zoom
+    // 5. Wildlife (between buildings and units — same depth layer)
+    if (typeof Game !== 'undefined' && Game.wildlife) {
+      this.units.drawAnimals(ctx, Game.wildlife, Game.fog || null);
+    }
+
+    // 6. Units — update lerp, cull NORMAL at low zoom
     const allUnits = [...tribeA.units, ...tribeB.units];
     const cullNormals = this.zoom < 0.35;
     const drawUnits = [];

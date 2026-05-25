@@ -898,6 +898,86 @@ const ACTIONS = {
       Game.eventLog(`${tribe.name}'s satellite network goes dark. Their forces scatter.`, 'danger');
     }
   },
+
+  // ── Diplomacy Actions ─────────────────────────────────────────────────
+  broker_peace: {
+    id: 'broker_peace',
+    name: 'Broker Peace Treaty',
+    desc: 'Forge a temporary ceasefire between the tribes. Buys time but risks complacency.',
+    cost: 200,
+    cooldownTicks: 250,
+    suspicion: 0.06,
+    requiresTarget: false,
+    icon: '🕊',
+    execute(player, tribeA, tribeB) {
+      if (typeof Game !== 'undefined' && Game.diplomacy) {
+        const duration = CONFIG.DIPLOMACY?.TREATY_DURATION || 200;
+        Game.diplomacy.proposeTreaty('a', 'b', duration, Game.day || 0);
+      }
+      Game.eventLog('A mysterious peace offer arrives. Both tribes agree to a ceasefire.', 'good');
+    }
+  },
+
+  incite_hatred: {
+    id: 'incite_hatred',
+    name: 'Incite Hatred',
+    desc: 'Spread lies and provocations to poison relations between the tribes.',
+    cost: 120,
+    cooldownTicks: 80,
+    suspicion: 0.10,
+    requiresTarget: false,
+    icon: '🗣',
+    execute(player, tribeA, tribeB) {
+      if (typeof Game !== 'undefined' && Game.diplomacy) {
+        Game.diplomacy.shift('a', 'b', -20, 'provocations and lies');
+      }
+      tribeA.morale = Math.min(1, tribeA.morale + 0.1);
+      tribeB.morale = Math.min(1, tribeB.morale + 0.1);
+      Game.eventLog('Whispered lies inflame both sides. Hatred deepens.', 'danger');
+    }
+  },
+
+  break_treaty: {
+    id: 'break_treaty',
+    name: 'Sabotage Treaty',
+    desc: 'Destroy an active peace treaty with forged evidence of betrayal.',
+    cost: 180,
+    cooldownTicks: 150,
+    suspicion: 0.14,
+    requiresTarget: false,
+    icon: '📜',
+    execute(player, tribeA, tribeB) {
+      if (typeof Game !== 'undefined' && Game.diplomacy) {
+        const rel = Game.diplomacy.getRelation('a', 'b');
+        if (rel.treatyUntilTick > 0) {
+          rel.treatyUntilTick = 0;
+          Game.diplomacy.shift('a', 'b', -25, 'treaty betrayal');
+          Game.eventLog('The peace is shattered! Forged evidence of betrayal ignites fury.', 'danger');
+        } else {
+          Game.eventLog('There is no active treaty to break.', 'warn');
+        }
+      }
+    }
+  },
+
+  trade_disruption: {
+    id: 'trade_disruption',
+    name: 'Disrupt Trade',
+    desc: 'Intercept and destroy trade caravans, worsening relations and draining both economies.',
+    cost: 140,
+    cooldownTicks: 100,
+    suspicion: 0.08,
+    requiresTarget: false,
+    icon: '🚫',
+    execute(player, tribeA, tribeB) {
+      if (typeof Game !== 'undefined' && Game.diplomacy) {
+        Game.diplomacy.shift('a', 'b', -12, 'trade disruption');
+      }
+      tribeA.drainResources(80);
+      tribeB.drainResources(80);
+      Game.eventLog('Trade caravans vanish. Both tribes blame each other.', 'warn');
+    }
+  },
 };
 
 /**

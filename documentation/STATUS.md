@@ -1,193 +1,156 @@
-# WARON — Development Status
+# Waron — Project Status
 
-**Last updated:** May 25, 2026  
-**Files:** 29 JS, 1 CSS, 1 HTML, 6 docs  
-**All files pass syntax check.**
+A living snapshot of what is built, what is partial, and what is planned in the
+Waron codebase. For *what the game is*, see [`../README.md`](../README.md); for
+the verbose per-function API, see [`CODEBASE_MAP.md`](CODEBASE_MAP.md).
 
----
+- **Last updated:** 2026-05-25
+- **Stage:** Playable prototype — the full loop (start → simulate → intervene → win/lose) runs end to end.
+- **Stack:** Vanilla JS + HTML5 Canvas, no build step, no dependencies. Served as static files.
+- **Architecture:** Composition pattern — subsystem classes hold parent references. Ready for ES module / TypeScript migration.
 
-## Structure refactor (May 25, 2026)
+## Legend
 
-The three monolithic files (`renderer.js` 3.6k, `tribe.js` 3.0k, `world.js` 1.4k) and
-`game.js` were split by **composition** into per-concern subsystem classes under
-`js/{config,world,tribe,systems,render,ui}/`. Subsystems hold a back-reference
-(`this.tribe` / `this.r` / `this.world`) and operate on the parent's shared state; the
-public API of each parent class is unchanged (delegators preserve external calls). The
-split was verified behavior-identical to the pre-split code by a deterministic headless
-trace comparison across multiple seeds. See `REFACTOR.md` and `DEVELOPMENT.md`.
+| Mark | Meaning |
+|---|---|
+| ✅ | Done — implemented with real effects and wired into the running game |
+| 🟡 | Partial — works but incomplete, simplified, or with known caveats |
+| 🔧 | Built but not wired — code exists and loads, but nothing calls it yet |
+| 📋 | Planned — referenced in code as future work, not started |
 
-> Known pre-existing issue (not caused by the refactor): some
-> `_stepTowardVaried(u, u.targetX, u.targetY)` call sites in `tribe/unit-ai.js` lack the
-> `u.targetX !== undefined` guard that the line ~387 call has, so a unit with an
-> undefined target can throw. Reproduces identically in the pre-refactor monolith.
+## At a Glance
 
----
+| System | Status | Notes |
+|---|---|---|
+| Hex map & procedural generation | ✅ | 192×192 flat-top grid, 12 tile types |
+| Resources, trees, harvesting | ✅ | Regenerating tile yields + tree-stage wood |
+| Calendar (periods/days/months/years) | ✅ | Linear year formula + time dilation |
+| Time dilation | ✅ | Per-era day scaling via `TimeDilation.getYearFromDays` |
+| Weather (seasonal state machine) | ✅ | 7 types, season-weighted, applies sim modifiers |
+| Tribe AI (build/grow/gather/fight) | ✅ | Autonomous factions via composition subsystems |
+| Hunger + personal food carry | ✅ | Per-unit carry, age-scaled, starvation death |
+| Tribe fracture / caravan / founding | ✅ | Single tribe splits, migrates, founds new settlement |
+| 8-age progression (tribe + player) | ✅ | Tribe = time-based, player = threshold-based |
+| Shadow actions | ✅ | 31 actions, all with real effects (27 original + 4 diplomacy) |
+| Army logistics | ✅ | Supply estimation, food provisioning, army size capping |
+| Fog of war | ✅ | Per-tribe visibility grid, combined player view, fog overlay, tile-skip optimization |
+| Diplomacy | ✅ | Relation score, 5 states, attack gating, treaties, drift, 4 player actions, HUD indicator |
+| Wildlife | ✅ | Deer/boar/fish spawn by biome, wander, flee, huntable by workers/scouts, respawn |
+| Suspicion + balance | 🟡 | Win/lose works; suspicion is a synced value, not pattern-derived |
+| Win / lose conditions | ✅ | Dominance, discovery, elimination |
+| Canvas renderer | ✅ | Tile buffer, fog-aware tile skip, wildlife sprites, weather particles |
+| HUD / modals / event log | ✅ | Full interaction layer + diplomacy indicator |
+| Multi-faction (3+ tribes) | 📋 | `DEV.STARTING_TRIBES` reserves 3+ as experimental |
 
-## Done — Shipped & Verified (40 items)
+## Module Status (`js/`)
 
-### Performance (8)
+### Config (`js/config/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 1 | Spatial hash on World — O(1) entity/wall lookups instead of O(N) | world.js |
-| 2 | Territory count caching with dirty flag | world.js |
-| 3 | Resource tick optimization — regen list instead of 36,864-tile full scan | world.js |
-| 4 | Color parse cache in renderer | renderer.js |
-| 5 | Offscreen tile buffer — tiles render once, blit per frame | renderer.js |
-| 6 | Pre-computed hex corner offsets (eliminates 120K trig calls/frame) | renderer.js |
-| 7 | NORMAL civilian unit culling at low zoom | renderer.js |
-| 8 | Hover detection throttled to every 3 frames | renderer.js |
+| File | Status | Summary |
+|---|---|---|
+| `dev.js` | ✅ | Developer overrides, debug flags, fracture narratives, system multipliers (fog, diplomacy, wildlife, army, terrain) |
+| `config.js` | ✅ | All game constants — geometry, balance, tile yields, costs, stats, calendar, hunger, food carry, army logistics, wildlife, fog, diplomacy, render thresholds |
+| `ages.js` | ✅ | 8 ages with year ranges, tribe caps, player thresholds, per-age action lists (including diplomatic actions) |
+| `time-dilation.js` | ✅ | Per-era `daysPerYear` checkpoints, called by `calendar.js` |
 
-### Bug Fixes (8)
+### World (`js/world/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 9 | Duplicate `_updateHunger` method removed | tribe.js |
-| 10 | `resources` setter was a no-op → `drainResources()` API | tribe.js, actions.js |
-| 11 | `gunpowder_accident` referenced nonexistent FORTRESS/CITY entities | actions.js |
-| 12 | `_drawAttackLines` read undefined `_lx/_ox/_gaitY` from attackTarget | renderer.js |
-| 13 | `_drawTowerBeams` same undefined property bug | renderer.js |
-| 14 | Phantom 3rd argument to `applyDebuff()` in several actions | actions.js |
-| 15 | Wall collision was O(N) linear scan → `hasEnemyWall()` via spatial hash | world.js, tribe.js |
-| 16 | Passive metal/stone trickle `Math.floor(0.083) = 0` → fractional accumulator with minimum 1 | tribe.js |
+| File | Status | Summary |
+|---|---|---|
+| `world.js` | ✅ | Map generation, spatial hash, tiles/biomes, resource nodes, pathfinding |
+| `territory.js` | ✅ | Territory ownership calculation with dirty-flag caching |
+| `trees.js` | ✅ | Tree spawn, 4-stage growth, harvest, planting, nearby search |
+| `wildlife.js` | ✅ | Animal spawn by biome, wander, flee from units, huntable for food, respawn timer |
+| `fog.js` | ✅ | Visibility grid (UNEXPLORED/EXPLORED/VISIBLE), per-tribe sight, combined player view |
 
-### Economy & Survival (6)
+### Tribe (`js/tribe/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 17 | Capitol food trickle (+2/tick while capitol exists) | tribe.js |
-| 18 | Starting resources increased (wood 80→120, food 150→200, metal 40→60, stone 40→60) | tribe.js |
-| 19 | Build timer reduced (25→15 ticks) | tribe.js |
-| 20 | Tech rate base 22→14, knowledge gain 1→2 per tick | tribe.js |
-| 21 | Hunger rebalanced: rate 7.5→2.0, restore 10→15, death ticks 35→50, threshold 30→25 | config.js |
-| 22 | Personal food carry — units carry supplies, eat from carry first, refill at food buildings, capacity scales with age (3 days base + 1 per age) | config.js, tribe.js |
+| File | Status | Summary |
+|---|---|---|
+| `tribe.js` | ✅ | Tribe class — state, init, tick orchestrator, public API |
+| `economy.js` | ✅ | Resource gathering, farm workers, tech, passive metal/stone trickle |
+| `building.js` | ✅ | Build logic, upgrades, placement, farm expansion |
+| `military.js` | ✅ | Spawn, army formation with supply logistics, attack (diplomacy-gated), towers |
+| `population.js` | ✅ | Growth, hunger, food carry, sync, spawning |
+| `unit-ai.js` | ✅ | Unit behavior (warrior, worker, scout, normal), movement, combat, hunting AI |
 
-### Fracture / Migration / Founding (5)
+### Systems (`js/systems/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 23 | Fracture system — 5 narrative causes, random selection, configurable tick window | game.js, dev.js |
-| 24 | Migration — splinter units packed with distance-calculated journey rations, march to new site | game.js |
-| 25 | Founding — triggers on arrival within 3 tiles, places capitol + homes from caravan resources | game.js |
-| 26 | Caravan resources — deducted from parent tribe, home costs deducted on placement | game.js |
-| 27 | End conditions suspended during migration, activate on founding | game.js |
+| File | Status | Summary |
+|---|---|---|
+| `calendar.js` | ✅ | Time conversion with time dilation integration |
+| `weather.js` | ✅ | Weather state machine, season weights, event messages |
+| `fracture.js` | ✅ | Fracture trigger, caravan migration, settlement founding |
+| `diplomacy.js` | ✅ | Relations, treaties, attack gating, drift, diplomatic events |
+| `actions.js` | ✅ | 31 player actions (27 original + 4 diplomatic: broker_peace, incite_hatred, break_treaty, trade_disruption) |
+| `player.js` | ✅ | Shadow Keeper state, essence/knowledge gain, suspicion, age progression |
 
-### Army Logistics (1)
+### Render (`js/render/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 28 | Army supply calculation — estimates distance, calculates food/soldier, caps army size to what tribe can feed, provisions each unit's carry before marching | tribe.js, config.js |
+| File | Status | Summary |
+|---|---|---|
+| `renderer.js` | ✅ | Camera, tile buffer, main render loop, hover, tooltip |
+| `tiles.js` | ✅ | Tile drawing, hex geometry, colors, fog-aware tile skip |
+| `buildings.js` | ✅ | 8 building sprite methods |
+| `units.js` | ✅ | 5 unit sprites + 3 wildlife sprites (deer, boar, fish), gait, visual seed |
+| `effects.js` | ✅ | Weather particles, fog overlay (CONFIG-driven alpha), battle line |
+| `combat.js` | ✅ | Attack lines, tower beams |
 
-### New Systems (3)
+### UI (`js/ui/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 29 | Fog of war — visibility grid (UNEXPLORED/EXPLORED/VISIBLE), per-tribe sight, combined player view, sight ranges by entity type, overlay rendering | fog.js, renderer.js, game.js |
-| 30 | Diplomacy — relation score (-100 to +100), 5 states, attack probability gating, drift toward hostility, treaty system | diplomacy.js, tribe.js, game.js |
-| 31 | Wildlife — deer/boar/fish spawn by biome, wander, flee from units, huntable for food, respawn timer | wildlife.js, config.js, game.js |
+| File | Status | Summary |
+|---|---|---|
+| `ui.js` | ✅ | HUD, balance bar, diplomacy indicator, suspicion meters, action panel, event log |
 
-### UI Fixes (2)
+### Game (`js/`)
 
-| # | Item | Files |
-|---|------|-------|
-| 32 | Time display fixed width (420px, no resize jitter) | style.css |
-| 33 | Event log flex layout (no bottom clipping) | style.css |
+| File | Status | Summary |
+|---|---|---|
+| `game.js` | ✅ | Main loop, speed control, system initialization (fog, diplomacy, wildlife), fracture orchestration, win/lose |
 
-### Visual (2)
+## Diplomatic Actions (new)
 
-| # | Item | Files |
-|---|------|-------|
-| 34 | Desaturated tile palette (muted earth tones) | renderer.js |
-| 35 | Territory tint reduced (blend 0.20→0.08, overlay 0.12→0.05) | renderer.js |
+| Action | Unlock Age | Cost | Suspicion | Effect |
+|---|---|---|---|---|
+| Trade Disruption | Bronze | 140 | 8% | Relations -12, drain 80 resources from both tribes |
+| Incite Hatred | Iron | 120 | 10% | Relations -20, boost both tribes' morale toward war |
+| Broker Peace | Classical | 200 | 6% | Activate ceasefire treaty, relations +15 |
+| Break Treaty | Medieval | 180 | 14% | Cancel active treaty, relations -25 |
 
-### Config & Documentation (5)
+## Known Gaps & Issues
 
-| # | Item | Files |
-|---|------|-------|
-| 36 | `dev.js` — comprehensive developer config with all system knobs | dev.js |
-| 37 | `config.js` — army, animal, fog, diplomacy, render threshold configs | config.js |
-| 38 | README.md — player-facing guide | README.md |
-| 39 | DEVELOPMENT.md — technical reference | documentation/DEVELOPMENT.md |
-| 40 | DESIGN.md — game design document | documentation/DESIGN.md |
+- **🟡 Suspicion is a synced value, not behavior-derived.** Suspicion rises from
+  action costs and decays over time, but is not yet computed from intervention
+  *patterns* (frequency, repetition, targeting), so it is not adaptive.
+- **🟡 Terrain detail balance.** Tree/biome detail zoom thresholds could use further
+  tuning — `CONFIG.RENDER` values exist but not all are wired into the tile renderer yet.
 
----
+## Planned / Future
 
-## Remaining — Not Yet Done (11 items)
+- **📋 Multi-faction (3+ tribes).** `DEV.STARTING_TRIBES` documents `3+` as experimental.
+- **📋 Pattern-derived suspicion.** Suspicion should increase based on intervention patterns, not just raw cost.
+- **📋 CONFIG.RENDER wiring.** Tile renderer should read all detail thresholds from `CONFIG.RENDER` instead of hardcoded zoom values.
 
-### Renderer — Fog Optimization (3)
+## Documentation
 
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 1 | **High** | Skip rendering UNEXPLORED tiles in tile buffer entirely — currently renders terrain under the fog overlay (wasted draw calls, biggest remaining perf win) | renderer.js |
-| 2 | **High** | Tile buffer doesn't invalidate on fog generation changes — newly revealed tiles show as dark until next cache miss from camera/territory/weather | renderer.js |
-| 3 | **Low** | Fog overlay uses hardcoded alpha (0.85/0.40) instead of reading `CONFIG.FOG.UNEXPLORED_ALPHA` / `EXPLORED_ALPHA` | renderer.js |
+| Doc | Purpose | Status |
+|---|---|---|
+| `README.md` | Game overview, mechanics, how to run | ✅ |
+| `documentation/CODEBASE_MAP.md` | Auto-generated verbose per-function JSDoc map | ✅ (regenerate via `generate_codebase_map.py`) |
+| `documentation/STATUS.md` | This file — implementation status | ✅ |
+| `documentation/DESIGN.md` | Game design document | ✅ |
+| `documentation/DEVELOPMENT.md` | Technical reference for developers | ✅ |
+| `documentation/REFACTOR.md` | Architecture plan (global classes + composition, TypeScript-ready) | ✅ |
+| `documentation/REFACTOR_TS.md` | ES module + TypeScript migration reference | ✅ |
 
-### Renderer — Config Wiring (1)
+## Running Locally
 
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 4 | **Medium** | `_drawTileToBuffer` uses hardcoded zoom thresholds instead of `CONFIG.RENDER.*` values — the config exists but isn't read | renderer.js |
+Serve the repository root with any static server, e.g.:
 
-### Renderer — Terrain Detail Balance (2)
+```bash
+python3 -m http.server 8000
+```
 
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 5 | **Medium** | Tree sprites too aggressively hidden (threshold at 0.45, should be `CONFIG.RENDER.TREE_DETAIL_MIN_ZOOM` = 0.35) | renderer.js |
-| 6 | **Low** | Biome micro-details (snow dots, wetland arcs, mountain caps) need threshold tuning for character without noise | renderer.js |
-
-### Renderer — Wildlife Sprites (1)
-
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 7 | **Medium** | Animal sprites not rendered — Wildlife system ticks but renderer doesn't draw them. Needs small sprite methods and a render pass after buildings | renderer.js |
-
-### Wildlife — Hunting AI (1)
-
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 8 | **Medium** | Unit AI doesn't hunt animals yet — workers/scouts should check `Game.wildlife.getHuntable()` when food carry is low, attack, and gain `carriedFood` | tribe.js |
-
-### Diplomacy — Player Actions (1)
-
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 9 | **Medium** | No diplomatic player actions in actions.js — need: `broker_peace` (treaty), `incite_hatred` (shift negative), `forge_alliance` (shift positive, high suspicion), `break_treaty` | actions.js |
-
-### Diplomacy — UI (1)
-
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 10 | **Low** | HUD doesn't show diplomatic state — relation score/state between tribes should be visible in the balance bar area or as an indicator | ui.js, style.css, index.html |
-
-### Code Structure (1)
-
-| # | Priority | Item | Files |
-|---|----------|------|-------|
-| 11 | **Medium** | Refactor per `documentation/REFACTOR.md` — split tribe.js (6 concerns), renderer.js (5 concerns), game.js (4 concerns) into focused files using prototype extension pattern | All major files |
-
----
-
-## File Inventory
-
-| File | Current Size | Original Size | Notes |
-|------|-------------|---------------|-------|
-| `js/dev.js` | 7.7 KB | *new* | Developer config |
-| `js/config.js` | 9.5 KB | 5.4 KB | Added army, animal, fog, diplomacy, render configs |
-| `js/ages.js` | 9.3 KB | 5.0 KB | JSDoc added |
-| `js/time_dilation.js` | 5.6 KB | *new* | Added externally (not by this session) |
-| `js/world.js` | 71 KB | 10 KB | Spatial hash, territory cache, regen list + JSDoc |
-| `js/fog.js` | 4.6 KB | *new* | Fog of war system |
-| `js/diplomacy.js` | 6.9 KB | *new* | Diplomacy system |
-| `js/wildlife.js` | 5.2 KB | *new* | Huntable animals |
-| `js/tribe.js` | 155 KB | 52 KB | Food carry, army supply, fractional accum + JSDoc |
-| `js/player.js` | 17 KB | 3.0 KB | JSDoc added |
-| `js/actions.js` | 27 KB | 12.7 KB | Bug fixes, drainResources + JSDoc |
-| `js/renderer.js` | 187 KB | 49 KB | Tile buffer, fog overlay, palette + JSDoc |
-| `js/ui.js` | 35 KB | 9.6 KB | JSDoc added |
-| `js/game.js` | 30 KB | 11.9 KB | Fracture, migration, founding, system hooks |
-| `css/style.css` | 11.6 KB | 11.2 KB | Time box + event log fixes |
-| `README.md` | 5.2 KB | *new* | Player-facing documentation |
-| `documentation/DEVELOPMENT.md` | 6.1 KB | *new* | Technical reference |
-| `documentation/DESIGN.md` | 5.5 KB | *new* | Game design document |
-| `documentation/STATUS.md` | 8.5 KB | *new* | Development status tracker |
-| `documentation/REFACTOR.md` | 11.9 KB | *new* | Refactoring plan |
+Then open `http://localhost:8000`. Tune gameplay or flip debug flags
+(`DEBUG_LOG`, `INSTANT_BUILD`, `NO_HUNGER`, `INVINCIBLE_TRIBES`, …) in
+`js/config/dev.js` without touching core files.

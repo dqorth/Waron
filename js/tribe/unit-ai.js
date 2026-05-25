@@ -286,6 +286,21 @@ class TribeUnitAI {
         const storageCap = CONFIG.STORAGE_BASE_CAP
           + storehouses.reduce((s, b) => s + CONFIG.STORAGE_PER_STOREHOUSE * (b.level || 1), 0);
 
+        // Hunt animals when food carry is low
+        if (u.carriedFood !== undefined && u.carriedFood < (u.carriedFoodMax || 1) * 0.5
+            && typeof Game !== 'undefined' && Game.wildlife) {
+          const prey = Game.wildlife.getHuntable(u.x, u.y, 2);
+          if (prey) {
+            const str = u.stats ? u.stats.strength : 5;
+            const food = Game.wildlife.hunt(prey, 1 + str * 0.3);
+            if (food > 0) {
+              u.carriedFood = Math.min(u.carriedFoodMax || 99, u.carriedFood + food);
+              u.state = 'working';
+              continue;
+            }
+          }
+        }
+
         const nearTree = this.tribe._world.getNearbyTree(u.x, u.y, 7);
         if (nearTree && this.tribe.res.wood < storageCap * 0.8) {
           u.resourceTarget = null;
@@ -425,6 +440,20 @@ class TribeUnitAI {
             ).length;
           }
           continue;
+        }
+
+        // Hunt animals when food carry is low (scouts range far from base)
+        if (u.carriedFood !== undefined && u.carriedFood < (u.carriedFoodMax || 1) * 0.4
+            && typeof Game !== 'undefined' && Game.wildlife) {
+          const prey = Game.wildlife.getHuntable(u.x, u.y, 2);
+          if (prey) {
+            const str = u.stats ? u.stats.strength : 5;
+            const food = Game.wildlife.hunt(prey, 1 + str * 0.2);
+            if (food > 0) {
+              u.carriedFood = Math.min(u.carriedFoodMax || 99, u.carriedFood + food);
+              continue;
+            }
+          }
         }
 
         const midX = CONFIG.MAP_W / 2;
