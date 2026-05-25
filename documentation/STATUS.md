@@ -1,8 +1,25 @@
 # WARON — Development Status
 
-**Last updated:** May 24, 2026  
-**Files:** 14 JS, 1 CSS, 1 HTML, 3 docs  
+**Last updated:** May 25, 2026  
+**Files:** 29 JS, 1 CSS, 1 HTML, 6 docs  
 **All files pass syntax check.**
+
+---
+
+## Structure refactor (May 25, 2026)
+
+The three monolithic files (`renderer.js` 3.6k, `tribe.js` 3.0k, `world.js` 1.4k) and
+`game.js` were split by **composition** into per-concern subsystem classes under
+`js/{config,world,tribe,systems,render,ui}/`. Subsystems hold a back-reference
+(`this.tribe` / `this.r` / `this.world`) and operate on the parent's shared state; the
+public API of each parent class is unchanged (delegators preserve external calls). The
+split was verified behavior-identical to the pre-split code by a deterministic headless
+trace comparison across multiple seeds. See `REFACTOR.md` and `DEVELOPMENT.md`.
+
+> Known pre-existing issue (not caused by the refactor): some
+> `_stepTowardVaried(u, u.targetX, u.targetY)` call sites in `tribe/unit-ai.js` lack the
+> `u.targetX !== undefined` guard that the line ~387 call has, so a unit with an
+> undefined target can throw. Reproduces identically in the pre-refactor monolith.
 
 ---
 
