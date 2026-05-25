@@ -11,16 +11,16 @@ const ACTIONS = {
     icon: '🌾',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -44,16 +44,16 @@ const ACTIONS = {
     icon: '☠',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -75,16 +75,16 @@ const ACTIONS = {
     icon: '👤',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -107,16 +107,16 @@ const ACTIONS = {
     icon: '📜',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -139,16 +139,16 @@ const ACTIONS = {
     icon: '💀',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -170,16 +170,16 @@ const ACTIONS = {
     icon: '⚔',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -201,16 +201,16 @@ const ACTIONS = {
     icon: '📜',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -235,16 +235,16 @@ const ACTIONS = {
     icon: '🗺',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -268,16 +268,16 @@ const ACTIONS = {
     icon: '🔥',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -304,16 +304,16 @@ const ACTIONS = {
     icon: '⛈',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -337,16 +337,16 @@ const ACTIONS = {
     icon: '🧠',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -370,16 +370,16 @@ const ACTIONS = {
     icon: '📋',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -405,16 +405,16 @@ const ACTIONS = {
     icon: '💧',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -437,16 +437,16 @@ const ACTIONS = {
     icon: '💰',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -470,16 +470,16 @@ const ACTIONS = {
     icon: '🔮',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -503,16 +503,16 @@ const ACTIONS = {
     icon: '🦠',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -536,16 +536,16 @@ const ACTIONS = {
     icon: '💸',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -569,16 +569,16 @@ const ACTIONS = {
     icon: '🕵',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -602,16 +602,16 @@ const ACTIONS = {
     icon: '💥',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -637,16 +637,16 @@ const ACTIONS = {
     icon: '🗺',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -671,16 +671,16 @@ const ACTIONS = {
     icon: '✝',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -707,16 +707,16 @@ const ACTIONS = {
     icon: '🏭',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -740,16 +740,16 @@ const ACTIONS = {
     icon: '📢',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -774,16 +774,16 @@ const ACTIONS = {
     icon: '🔫',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -807,16 +807,16 @@ const ACTIONS = {
     icon: '☢',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -842,16 +842,16 @@ const ACTIONS = {
     icon: '💻',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -877,16 +877,16 @@ const ACTIONS = {
     icon: '🛰',
     /**
      * One-line summary.
-     * 
+     *
      * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     *
      * @workflow
      * 1. Specific numbered steps
      * 2. Include conditionals and loops
-     * 
+     *
      * @param {Type} name - Description
      * @returns {Type} Description
-     * 
+     *
      * @dependencies stateManager.get(), etc.
      * @modifies What state/DOM changes
      * @triggers When/how called
@@ -901,21 +901,23 @@ const ACTIONS = {
 };
 
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Retrieves a list of available actions for a specific game age.
+ *
+ * @description This function takes an age object, which contains an array of action IDs, and maps these IDs to their corresponding action objects defined in the global `ACTIONS` constant. It filters out any potential `null` or `undefined` results if an action ID doesn't exist, ensuring only valid action objects are returned. This allows the game to present context-appropriate actions to the player based on the current game age.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Access the `actions` array from the `age` object.
+ * 2. Map each `id` in `age.actions` to its corresponding action object in `ACTIONS[id]`.
+ * 3. Filter the resulting array to remove any `null` or `undefined` entries (using `Boolean` as a predicate).
+ * 4. Return the filtered array of action objects.
+ *
+ * @param {object} age - An object representing a specific game age, expected to have an `actions` property which is an array of action IDs.
+ * @returns {Array<object>} An array of action objects available for the given age.
+ *
+ * @dependencies ACTIONS (global constant)
+ * @modifies None.
+ * @triggers Typically called by a game state manager or UI component to populate available actions when the game age changes or the action list needs to be refreshed.
+ * @performance O(N) where N is the number of actions defined for the age, due to `map` and `filter` operations.
  */
 function getActionsForAge(age) {
   return age.actions.map(id => ACTIONS[id]).filter(Boolean);

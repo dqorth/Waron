@@ -1,16 +1,16 @@
 // Main game controller — accessed globally as `Game`
 /**
  * One-line summary.
- * 
+ *
  * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ *
  * @workflow
  * 1. Specific numbered steps
  * 2. Include conditionals and loops
- * 
+ *
  * @param {Type} name - Description
  * @returns {Type} Description
- * 
+ *
  * @dependencies stateManager.get(), etc.
  * @modifies What state/DOM changes
  * @triggers When/how called
@@ -30,21 +30,23 @@ const Game = (() => {
                monthName:'Ashveil', year:1, season:'spring', seasonName:'Spring' };
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Initializes the game's core components and starts the main rendering loop.
+   *
+   * @description This function sets up the essential visual and interactive elements of the game. It creates a new `Renderer` instance, associating it with the 'game-canvas' HTML element, and initializes the `UI` system. Finally, it invokes `_requestLoop` to begin the continuous animation and game update cycle.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Retrieves the 'game-canvas' HTML element from the DOM.
+   * 2. Instantiates a new `Renderer` object, passing the canvas element.
+   * 3. Instantiates a new `UI` object.
+   * 4. Calls the private `_requestLoop` function to start the game's main loop.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies document.getElementById, Renderer constructor, UI constructor, _requestLoop.
+   * @modifies Global `renderer` and `ui` variables.
+   * @triggers Called once when the `DOMContentLoaded` event fires on the window.
+   * @performance O(1) for initialization, sets up a continuous render loop.
    */
   function init() {
     const canvas = document.getElementById('game-canvas');
@@ -54,21 +56,27 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Initializes a new game session, creating the world, player, and two rival tribes.
+   *
+   * @description This function sets up all dynamic entities and initial game state for a new playthrough. It creates the `World`, `Player`, and two `Tribe` instances with specific starting positions and colors. It then initializes the tribes, updates the initial territory, resets game progress variables, and displays introductory messages in the event log.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Instantiates a new `World` object.
+   * 2. Instantiates a new `Player` object.
+   * 3. Creates `tribeA` (Ashan) and `tribeB` (Koru) with specified IDs, names, starting coordinates, and colors based on `CONFIG` constants.
+   * 4. Calls `init` on both `tribeA` and `tribeB`, passing the `world` and the opposing tribe.
+   * 5. Calls `world.updateTerritory` to establish initial territorial control.
+   * 6. Resets game state variables: `year` to 1, `speed` to 1, `running` to true, and `totalTicks` to 0.
+   * 7. Updates the UI's actions list for the player.
+   * 8. Logs two introductory game messages using `eventLog`.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies World constructor, Player constructor, Tribe constructor, CONFIG, tribeA.init, tribeB.init, world.updateTerritory, ui.updateActionsList, eventLog.
+   * @modifies Global `world`, `player`, `tribeA`, `tribeB`, `speed`, `running`, `totalTicks` variables, and the UI.
+   * @triggers Called by a user action, likely from a "New Game" button in the UI.
+   * @performance O(N) where N is the number of tiles or initial entities for world and tribe initialization, but generally fast for game start.
    */
   function start() {
     world = new World();
@@ -94,21 +102,22 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Resets core game state variables to a paused, initial state.
+   *
+   * @description This function prepares the game for a potential restart or re-initialization by stopping its active simulation and resetting key progress metrics. It sets the `running` flag to `false` to halt game ticks, restores the game `speed` to its default value, and clears the `totalTicks` counter. Note that it does not re-instantiate `world`, `player`, or `tribes`.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Sets the `running` flag to `false`, pausing game updates.
+   * 2. Resets `speed` to its default value of 1.
+   * 3. Resets `totalTicks` to 0.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies None.
+   * @modifies Global `running`, `speed`, `totalTicks` variables.
+   * @triggers Called by a user action, likely from a "Reset Game" or "Game Over" screen.
+   * @performance O(1).
    */
   function reset() {
     running = false;
@@ -117,84 +126,99 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Sets the current simulation speed of the game.
+   *
+   * @description This function allows external control over how fast the game simulation progresses. The provided `s` value directly dictates the `speed` at which game ticks occur relative to real-time. A value of 0 typically pauses the game, while higher values accelerate it.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Assigns the input value `s` directly to the global `speed` variable.
+   *
+   * @param {number} s - The desired speed multiplier for the game. 0 means paused, 1 is normal speed, >1 is accelerated.
+   * @returns {void}
+   *
+   * @dependencies None.
+   * @modifies Global `speed` variable.
+   * @triggers Called by UI elements (e.g., speed buttons or a slider).
+   * @performance O(1).
    */
   function setSpeed(s) {
     speed = s;
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Adds a message to the game's event log if the UI is available.
+   *
+   * @description This is a utility function for logging important game events or messages to the user interface. It acts as a wrapper around the `ui.addLog` method, ensuring that messages are only processed and displayed if the `ui` object has been successfully initialized. This prevents errors if an event is logged before the UI is ready.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Checks if the `ui` object exists and is initialized.
+   * 2. If `ui` exists, calls `ui.addLog`, passing the provided `msg` and `type`.
+   *
+   * @param {string} msg - The message string to be logged.
+   * @param {string} type - The type or category of the message (e.g., 'age', 'warn', 'good', 'event', 'danger'), which may influence its styling.
+   * @returns {void}
+   *
+   * @dependencies ui.addLog.
+   * @modifies The game's UI by adding a new log entry.
+   * @triggers Called internally by various game logic components (e.g., `start`, `_advanceTribeTech`, `_checkEndConditions`, `_tickWeather`) to inform the player about significant events.
+   * @performance O(1), assuming `ui.addLog` is O(1).
    */
   function eventLog(msg, type) {
     if (ui) ui.addLog(msg, type);
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Displays a temporary notification message through the UI if available.
+   *
+   * @description This utility function is designed to show transient, often critical, notifications to the player. It acts as a safeguard around the `ui.notify` method, ensuring that a notification is only displayed if the `ui` component has been successfully initialized. This prevents runtime errors when attempting to display notifications before the UI is ready.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Checks if the `ui` object exists and is initialized.
+   * 2. If `ui` exists, calls `ui.notify`, passing the provided `msg` and `type`.
+   *
+   * @param {string} msg - The message string to be displayed as a notification.
+   * @param {string} type - The type or category of the notification (e.g., 'warn', 'danger'), which may influence its visual presentation.
+   * @returns {void}
+   *
+   * @dependencies ui.notify.
+   * @modifies The game's UI by displaying a temporary notification.
+   * @triggers Called internally by `_checkEndConditions` to warn the player about impending game over conditions.
+   * @performance O(1), assuming `ui.notify` is O(1).
    */
   function notify(msg, type) {
     if (ui) ui.notify(msg, type);
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Executes a single step of the game simulation, advancing time and updating all game entities.
+   *
+   * @description This central function drives the game's progression, being called at a regular interval. It increments the global tick counter, updates the calendar, and orchestrates the updates for the world, weather, both tribes, and the player. It also handles periodic tasks like territory recalculations, technology advancements, UI updates, and checks for game-ending conditions.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Checks if `running` is false; if so, exits immediately.
+   * 2. Increments `totalTicks`.
+   * 3. Updates the internal `_cal` object by calling `_getCalendar` with `totalTicks`.
+   * 4. Calls `world.tickResources()` to update landscape resources.
+   * 5. Calls `_tickWeather()` with the current season to advance weather state.
+   * 6. Assigns the current `_weather` and its corresponding `_weatherMods` to the `world` object.
+   * 7. Calls `tick` method on `tribeA`, `tribeB`, and `player`, passing relevant data like the current year.
+   * 8. Increments `territoryUpdateTimer`.
+   * 9. If `territoryUpdateTimer` reaches 10:
+   *    a. Resets `territoryUpdateTimer` to 0.
+   *    b. Calls `world.updateTerritory` for both tribes.
+   *    c. Calls `renderer.markTilesDirty()` to signal a need for re-rendering.
+   * 10. Calls `_advanceTribeTech` for both `tribeA` and `tribeB`.
+   * 11. Updates the HUD using `ui.updateHUD`.
+   * 12. If `totalTicks` is a multiple of 5, calls `ui.updateActionsList` for the player.
+   * 13. Calls `_checkEndConditions` to evaluate win/loss states.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies _getCalendar, world.tickResources, _tickWeather, tribeA.tick, tribeB.tick, player.tick, world.updateTerritory, renderer.markTilesDirty, _advanceTribeTech, ui.updateHUD, ui.updateActionsList, _checkEndConditions, _weather, _weatherMods, CONFIG.
+   * @modifies Global `totalTicks`, `_cal`, `world`, `_weather`, `tribeA`, `tribeB`, `player`, `territoryUpdateTimer`, and the UI state.
+   * @triggers Called by the `loop` function (within `_requestLoop`) at regular intervals based on `CONFIG.TICK_MS` and `speed`.
+   * @performance O(N) where N is the sum of operations within `world.tickResources`, `tribe.tick`, `player.tick`, and `world.updateTerritory`, which can be significant depending on map size and entity count.
    */
   function _tick() {
     if (!running) return;
@@ -238,21 +262,26 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Manages the technological advancement of a given tribe.
+   *
+   * @description This function evaluates if a tribe has accumulated enough knowledge to reach the next technology level, up to a maximum allowed by their current age. If the knowledge threshold is met and the tribe hasn't reached its age's max tech, its `techLevel` is incremented, and its `knowledge` is reset. Significant tech advancements (every 3 levels) are logged to the player.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Retrieves the `tribeMaxTech` from the tribe's current age.
+   * 2. Calculates the `techThreshold` required for the next level based on current `techLevel`.
+   * 3. Checks if `tribe.knowledge` is greater than or equal to `techThreshold` AND if `tribe.techLevel` is less than `maxTech`.
+   * 4. If both conditions are true:
+   *    a. Increments `tribe.techLevel`.
+   *    b. Resets `tribe.knowledge` to 0.
+   *    c. If the new `tribe.techLevel` is a multiple of 3, logs a "good" event message indicating the tribe's technological achievement.
+   *
+   * @param {Tribe} tribe - The tribe object whose technology level is to be checked and potentially advanced.
+   * @returns {void}
+   *
+   * @dependencies tribe.age.tribeMaxTech, tribe.knowledge, tribe.techLevel, eventLog.
+   * @modifies The `tribe.techLevel` and `tribe.knowledge` properties of the input `tribe` object, and the game's UI via `eventLog`.
+   * @triggers Called for each tribe during every game `_tick`.
+   * @performance O(1).
    */
   function _advanceTribeTech(tribe) {
     const maxTech = tribe.age.tribeMaxTech;
@@ -267,21 +296,35 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Evaluates various conditions that could lead to game over or trigger in-game warnings.
+   *
+   * @description This function is invoked periodically to determine if the player has won or lost, or if critical game states require a warning. It checks for tribe elimination, extreme power imbalances between tribes, and whether the player's hidden influence has been discovered by either tribe. Additionally, it provides critical and warning notifications through the UI if imbalances or suspicions are high but not yet game-ending.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Calculates `totalPower` of both tribes and their individual power fractions (`fracA`, `fracB`). Uses `|| 1` to prevent division by zero if both tribes have 0 power.
+   * 2. **Tribe Elimination Check:**
+   *    a. If `tribeA.isEliminated()` returns true, calls `_gameOver` with a specific Ashan elimination message and `true` for `byBalance`, then returns.
+   *    b. If `tribeB.isEliminated()` returns true, calls `_gameOver` with a specific Koru elimination message and `true` for `byBalance`, then returns.
+   * 3. **Massive Imbalance Check:**
+   *    a. If `fracA` or `fracB` meets `CONFIG.BALANCE_LOSE` threshold, determines the `winner` and `loser`.
+   *    b. Calls `_gameOver` with an imbalance-specific message including winner/loser names and `true` for `byBalance`, then returns.
+   * 4. **Suspicion Discovery Check:**
+   *    a. If `player.suspicionA` meets `CONFIG.SUSPICION_LOSE` threshold, calls `_gameOver` with an Ashan discovery message and `false` for `byBalance`, then returns.
+   *    b. If `player.suspicionB` meets `CONFIG.SUSPICION_LOSE` threshold, calls `_gameOver` with a Koru discovery message and `false` for `byBalance`, then returns.
+   * 5. **Balance Warnings (every 20 ticks):**
+   *    a. If `fracA` meets `CONFIG.BALANCE_CRIT` threshold and `totalTicks` is a multiple of 20, logs a "danger" event and displays a "danger" notification.
+   *    b. If `fracB` meets `CONFIG.BALANCE_CRIT` threshold and `totalTicks` is a multiple of 20, logs a "danger" event and displays a "danger" notification.
+   * 6. **Suspicion Warnings (every 30 ticks):**
+   *    a. If `player.suspicionA` meets `CONFIG.SUSPICION_CRIT` threshold and `totalTicks` is a multiple of 30, logs a "warn" event.
+   *    b. If `player.suspicionB` meets `CONFIG.SUSPICION_CRIT` threshold and `totalTicks` is a multiple of 30, logs a "warn" event.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies tribeA.power, tribeB.power, tribeA.isEliminated, tribeB.isEliminated, player.suspicionA, player.suspicionB, CONFIG.BALANCE_LOSE, CONFIG.SUSPICION_LOSE, CONFIG.BALANCE_CRIT, CONFIG.SUSPICION_CRIT, _gameOver, eventLog, notify, totalTicks.
+   * @modifies Calls `_gameOver` which modifies the `running` state and UI. Calls `eventLog` and `notify` which modify the UI.
+   * @triggers Called at the end of every game `_tick`.
+   * @performance O(1) as it involves simple arithmetic, property lookups, and conditional checks.
    */
   function _checkEndConditions() {
     const totalPower = tribeA.power + tribeB.power || 1;
@@ -351,21 +394,23 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Ends the game, stops the simulation, and displays the game over screen with stats.
+   *
+   * @description This function is called when any game-ending condition is met. It immediately pauses the game by setting the `running` flag to `false`. It then compiles a detailed summary of the player's performance and game progress, including days survived, years elapsed, age reached, essence harvested, actions used, and combined casualties. Finally, it delegates to the UI component to display the game over message and these generated statistics to the player.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Sets the `running` flag to `false`, halting further game ticks.
+   * 2. Constructs an HTML string `stats` using template literals, incorporating current game metrics such as `_cal.day`, `_cal.year`, `player.age.name`, `player.totalEssence`, `player.actionsUsed`, `tribeA.casualties`, and `tribeB.casualties`.
+   * 3. Calls `ui.showGameOver`, passing the `reason` for game over and the generated `stats` string.
+   *
+   * @param {string} reason - A message explaining why the game ended.
+   * @param {boolean} byBalance - A flag indicating if the game ended due to tribal power imbalance (currently unused in the function's logic beyond being passed).
+   * @returns {void}
+   *
+   * @dependencies _cal.day, _cal.year, player.age.name, player.totalEssence, player.actionsUsed, tribeA.casualties, tribeB.casualties, ui.showGameOver.
+   * @modifies Global `running` variable, and the game's UI by showing the game over screen.
+   * @triggers Called by `_checkEndConditions` when a game over condition (tribe elimination, extreme imbalance, or player discovery) is met.
+   * @performance O(1).
    */
   function _gameOver(reason, byBalance) {
     running = false;
@@ -381,39 +426,52 @@ const Game = (() => {
   }
 
   /**
-   * One-line summary.
-   * 
-   * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   * Initiates and manages the primary game loop using `requestAnimationFrame`.
+   *
+   * @description This function sets up the game's continuous update and rendering cycle. It defines a nested `loop` function that is recursively called by `requestAnimationFrame`. This `loop` calculates delta time, accumulates it for game ticks, and triggers `_tick` at intervals determined by `CONFIG.TICK_MS` and the current `speed`. It also ensures that the game world is always rendered, even when paused.
+   *
    * @workflow
-   * 1. Specific numbered steps
-   * 2. Include conditionals and loops
-   * 
-   * @param {Type} name - Description
-   * @returns {Type} Description
-   * 
-   * @dependencies stateManager.get(), etc.
-   * @modifies What state/DOM changes
-   * @triggers When/how called
-   * @performance O(n) complexity notes
+   * 1. Defines an inner function `loop(timestamp)` which will serve as the actual animation frame callback.
+   * 2. The outer `_requestLoop` function then makes an initial call to `requestAnimationFrame`.
+   *    a. This first call primes `lastTime` with the initial timestamp.
+   *    b. It then immediately calls `requestAnimationFrame` again, passing the `loop` function to start the recurring cycle.
+   *
+   * @param {void}
+   * @returns {void}
+   *
+   * @dependencies requestAnimationFrame, loop (inner function).
+   * @modifies Global `lastTime`.
+   * @triggers Called once by `Game.init` to start the main game loop.
+   * @performance O(1) for setup. The actual loop's performance depends on the `loop` function.
    */
   function _requestLoop() {
     /**
-     * One-line summary.
-     * 
-     * @description MANDATORY detailed explanation (2-5 sentences).
-     * 
+     * The core game loop function that handles frame updates, game state ticks, and rendering.
+     *
+     * @description This function is the heart of the game's real-time simulation, invoked by `requestAnimationFrame` roughly 60 times per second. It first schedules itself for the next frame. If the game is paused, it only performs rendering. Otherwise, it calculates delta time, accumulates it towards the next game tick, and calls the `_tick` function when enough time has passed, adjusted by the game `speed`. Finally, it renders the current game state to the canvas.
+     *
      * @workflow
-     * 1. Specific numbered steps
-     * 2. Include conditionals and loops
-     * 
-     * @param {Type} name - Description
-     * @returns {Type} Description
-     * 
-     * @dependencies stateManager.get(), etc.
-     * @modifies What state/DOM changes
-     * @triggers When/how called
-     * @performance O(n) complexity notes
+     * 1. Immediately requests the next animation frame, recursively calling `loop` itself.
+     * 2. **If `running` is false (game is paused):**
+     *    a. Checks if `renderer` and `world` exist.
+     *    b. If they exist, calls `renderer.render` to draw the current world state, providing placeholder empty arrays for tribes if they haven't been initialized yet, and the current `_weather`.
+     *    c. Returns, skipping game logic updates.
+     * 3. Calculates `dt` (delta time) as the difference between the current `timestamp` and `lastTime`.
+     * 4. Updates `lastTime` to the current `timestamp`.
+     * 5. Calculates `tickInterval` based on `CONFIG.TICK_MS` and `speed`. If `speed` is 0, `tickInterval` is `Infinity`.
+     * 6. Adds `dt` to `tickAccum`.
+     * 7. **If `speed` is greater than 0 AND `tickAccum` is greater than or equal to `tickInterval`:**
+     *    a. Subtracts `tickInterval` from `tickAccum`.
+     *    b. Calls the private `_tick` function to advance game state.
+     * 8. Calls `renderer.render` to draw the current `world`, `tribeA`, `tribeB`, and `_weather` to the canvas.
+     *
+     * @param {DOMHighResTimeStamp} timestamp - The current time in milliseconds, passed by `requestAnimationFrame`.
+     * @returns {void}
+     *
+     * @dependencies requestAnimationFrame, running, renderer, world, tribeA, tribeB, _weather, lastTime, CONFIG.TICK_MS, speed, tickAccum, _tick.
+     * @modifies Global `lastTime`, `tickAccum`. Calls `_tick` which modifies various game state variables. Calls `renderer.render` which modifies the canvas.
+     * @triggers Recursively called by `requestAnimationFrame` after an initial setup call from `_requestLoop`.
+     * @performance O(1) for the loop's own logic. The overall performance is dominated by `renderer.render` and `_tick`, potentially O(N) where N is map size/entity count.
      */
     function loop(timestamp) {
       requestAnimationFrame(loop);
@@ -463,21 +521,37 @@ const Game = (() => {
 
 // ── Calendar helper ────────────────────────────────────────────────────────────
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Calculates and returns the current calendar date and time period based on total game ticks.
+ *
+ * @description This helper function translates the game's internal `totalTicks` into a human-readable calendar format. It uses `CONFIG` constants for `TICKS_PER_DAY`, `DAYS_PER_MONTH`, `MONTHS_PER_YEAR`, and `DAYS_PER_YEAR` to derive the current time period index, total days, day within the month, month, and year. It also determines the current season based on the month.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Retrieves time-related constants from `CONFIG`: `TPD`, `DPM`, `MPY`, `DPY`.
+ * 2. Calculates `timePeriodIdx` by taking `ticks` modulo `TPD`.
+ * 3. Calculates `totalDays` by dividing `ticks` by `TPD` and flooring the result.
+ * 4. Calculates `dayInMonth` by taking `totalDays` modulo `DPM` and adding 1.
+ * 5. Calculates `monthIdx` by dividing `totalDays` by `DPM`, flooring, and then taking modulo `MPY`.
+ * 6. Calculates `month` by adding 1 to `monthIdx`.
+ * 7. Calculates `year` by dividing `totalDays` by `DPY`, flooring, and then adding 1.
+ * 8. Determines `season` based on the calculated `month` using a series of `if-else if` statements mapping month ranges to `CONFIG.SEASON` values.
+ * 9. Returns an object containing: `timePeriodIdx`, `timePeriodName` (from `CONFIG.TIME_PERIOD_NAMES`), `day` (totalDays + 1), `dayInMonth`, `month`, `monthName` (from `CONFIG.MONTH_NAMES`), `year`, `season`, and `seasonName` (capitalized season string).
+ *
+ * @param {number} ticks - The total number of game ticks that have elapsed since the start of the game.
+ * @returns {object} An object containing detailed calendar information:
+ *   - `{number} timePeriodIdx` - Index of the current time period within a day (0-4).
+ *   - `{string} timePeriodName` - Name of the current time period (e.g., 'Dawn').
+ *   - `{number} day` - The total number of days elapsed since game start (1-indexed).
+ *   - `{number} dayInMonth` - The current day within the month (1-indexed).
+ *   - `{number} month` - The current month number (1-indexed).
+ *   - `{string} monthName` - Name of the current month (e.g., 'Ashveil').
+ *   - `{number} year` - The current year (1-indexed).
+ *   - `{string} season` - The current season (e.g., 'spring').
+ *   - `{string} seasonName` - The capitalized name of the current season (e.g., 'Spring').
+ *
+ * @dependencies CONFIG.TICKS_PER_DAY, CONFIG.DAYS_PER_MONTH, CONFIG.MONTHS_PER_YEAR, CONFIG.DAYS_PER_YEAR, CONFIG.TIME_PERIOD_NAMES, CONFIG.MONTH_NAMES, CONFIG.SEASON.
+ * @modifies None (pure function).
+ * @triggers Called by `Game._tick` during every game tick to update the global `_cal` variable.
+ * @performance O(1), involves a fixed number of arithmetic operations and lookups.
  */
 function _getCalendar(ticks) {
   const TPD = CONFIG.TICKS_PER_DAY;   // 5
@@ -489,16 +563,16 @@ function _getCalendar(ticks) {
   const totalDays     = Math.floor(ticks / TPD);
   /**
    * One-line summary.
-   * 
+   *
    * @description MANDATORY detailed explanation (2-5 sentences).
-   * 
+   *
    * @workflow
    * 1. Specific numbered steps
    * 2. Include conditionals and loops
-   * 
+   *
    * @param {Type} name - Description
    * @returns {Type} Description
-   * 
+   *
    * @dependencies stateManager.get(), etc.
    * @modifies What state/DOM changes
    * @triggers When/how called
@@ -560,21 +634,34 @@ const _weatherEventMsgs = {
 };
 
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Updates the game's weather state based on season and random probabilities.
+ *
+ * @description This function manages the dynamic weather system. It increments an internal timer, and once the current weather duration expires, it determines a new weather type based on season-specific probability weights. A random duration is set for the new weather. If the weather type changes, a descriptive event message is logged. Finally, the weather's intensity is randomized.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Increments `_weather.timer`.
+ * 2. If `_weather.timer` is less than `_weather.duration`, returns early (current weather cycle is not over).
+ * 3. Resets `_weather.timer` to 0.
+ * 4. Sets a new random `_weather.duration` between `CONFIG.WEATHER_DURATION_MIN` and `CONFIG.WEATHER_DURATION_MAX`.
+ * 5. Retrieves `_seasonWeatherWeights` for the given `season`, defaulting to 'spring' if the season is not found.
+ * 6. Filters `weights` to include only weather types with a probability greater than 0, then calculates their `total` weight.
+ * 7. Generates a random number `r` between 0 and `total`.
+ * 8. Iterates through the `entries` of `weights`:
+ *    a. Accumulates weights in `acc`.
+ *    b. If `r` is less than or equal to `acc`, sets `nextType` to the current weather `type` and breaks the loop (this selects the new weather).
+ * 9. **If `nextType` is different from `_weather.type` (weather changed):**
+ *    a. Retrieves an array of messages `msgs` from `_weatherEventMsgs` for the `nextType`.
+ *    b. If `msgs` exist, logs a random message from the array using `Game.eventLog` with type 'event'.
+ * 10. Updates `_weather.type` to `nextType`.
+ * 11. Randomizes `_weather.intensity` to a value between 0.55 and 1.0.
+ *
+ * @param {string} season - The current season (e.g., 'spring', 'summer') which dictates weather probabilities.
+ * @returns {void}
+ *
+ * @dependencies _weather.timer, _weather.duration, _weather.type, _weather.intensity, CONFIG.WEATHER_DURATION_MIN, CONFIG.WEATHER_DURATION_MAX, _seasonWeatherWeights, _weatherEventMsgs, Game.eventLog, Math.random, Math.floor, Object.entries, Array.prototype.filter, Array.prototype.reduce.
+ * @modifies Global `_weather` object (its `timer`, `duration`, `type`, and `intensity` properties), and potentially the UI via `Game.eventLog`.
+ * @triggers Called by `Game._tick` during every game tick.
+ * @performance O(N) where N is the number of possible weather types (small constant, typically 7), due to iteration over weights. Effectively O(1).
  */
 function _tickWeather(season) {
   _weather.timer++;

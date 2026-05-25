@@ -114,21 +114,24 @@ const AGES = [
 ];
 
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Retrieves the historical age object corresponding to a given year.
+ *
+ * @description This function iterates through the `AGES` array in reverse order to find the correct historical age. It checks if the provided year falls within or after the `yearStart` of an age. This approach ensures that if a year falls into the range of a later age, that specific age is returned, otherwise it defaults to the earliest age.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Initialize a loop counter `i` to `AGES.length - 1` (the last index of the `AGES` array).
+ * 2. Continue the loop as long as `i` is greater than or equal to `0`.
+ * 3. In each iteration, check if the input `year` is greater than or equal to `AGES[i].yearStart`.
+ * 4. If the condition is true, return the `AGES[i]` object immediately.
+ * 5. If the loop completes without finding a matching age (i.e., the year is before the `yearStart` of the first age), return `AGES[0]` (the Stone Age).
+ *
+ * @param {number} year - The specific year for which to find the corresponding historical age.
+ * @returns {object} The age object from the `AGES` array that encompasses the given year, or the first age (`AGES[0]`) if no later age matches.
+ *
+ * @dependencies AGES (global constant array).
+ * @modifies None.
+ * @triggers Called when a specific historical age needs to be determined based on a year, likely for displaying game state or applying year-based logic.
+ * @performance O(n) where `n` is the number of ages in the `AGES` array, as it iterates through the array in the worst case.
  */
 function getAgeByYear(year) {
   for (let i = AGES.length - 1; i >= 0; i--) {
@@ -138,42 +141,46 @@ function getAgeByYear(year) {
 }
 
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Finds the index of an age in the `AGES` array based on its unique ID.
+ *
+ * @description This utility function searches the `AGES` array for an age object whose `id` property matches the provided `ageId`. It leverages the `findIndex` method for efficient searching. This is useful for internal operations that require an age's position within the ordered list.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Call the `findIndex` method on the global `AGES` array.
+ * 2. Pass a callback function `a => a.id === ageId` to `findIndex`.
+ * 3. The callback compares the `id` property of each age object (`a`) with the input `ageId`.
+ * 4. `findIndex` returns the index of the first element for which the callback returns true, or -1 if no element satisfies the condition.
+ *
+ * @param {string} ageId - The unique identifier of the age to find (e.g., 'stone', 'bronze').
+ * @returns {number} The zero-based index of the age in the `AGES` array, or -1 if the `ageId` is not found.
+ *
+ * @dependencies AGES (global constant array).
+ * @modifies None.
+ * @triggers Called internally by other functions (e.g., `getNextAge`) that need to locate an age by its ID to perform subsequent operations.
+ * @performance O(n) where `n` is the number of ages in the `AGES` array, as `findIndex` iterates through the array in the worst case.
  */
 function getAgeIndex(ageId) {
   return AGES.findIndex(a => a.id === ageId);
 }
 
 /**
- * One-line summary.
- * 
- * @description MANDATORY detailed explanation (2-5 sentences).
- * 
+ * Retrieves the next chronological age object following a given current age.
+ *
+ * @description This function first determines the index of the `currentAgeId` using `getAgeIndex`. It then checks if there is an age at the subsequent index in the `AGES` array. If the current age is not the last age in the sequence, it returns the next age object; otherwise, it returns `null` to indicate that no further age exists.
+ *
  * @workflow
- * 1. Specific numbered steps
- * 2. Include conditionals and loops
- * 
- * @param {Type} name - Description
- * @returns {Type} Description
- * 
- * @dependencies stateManager.get(), etc.
- * @modifies What state/DOM changes
- * @triggers When/how called
- * @performance O(n) complexity notes
+ * 1. Call `getAgeIndex` with `currentAgeId` to get the index of the current age. Store this in `idx`.
+ * 2. Check if `idx` is less than `AGES.length - 1`. This condition verifies if the current age is not the last age in the array.
+ * 3. If the condition is true, return the age object at `AGES[idx + 1]`.
+ * 4. If the condition is false (meaning `idx` is the last index or `currentAgeId` was not found), return `null`.
+ *
+ * @param {string} currentAgeId - The ID of the current historical age.
+ * @returns {object|null} The next chronological age object, or `null` if the current age is the last one in the sequence or the `currentAgeId` is invalid.
+ *
+ * @dependencies AGES (global constant array), getAgeIndex.
+ * @modifies None.
+ * @triggers Called when advancing the game's historical epoch or displaying information about the upcoming age.
+ * @performance O(n) due to the call to `getAgeIndex`, where `n` is the number of ages in the `AGES` array.
  */
 function getNextAge(currentAgeId) {
   const idx = getAgeIndex(currentAgeId);
