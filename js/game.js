@@ -1,4 +1,21 @@
 // Main game controller — accessed globally as `Game`
+/**
+ * One-line summary.
+ *
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ *
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ *
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ *
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 const Game = (() => {
   let world, tribeA, tribeB, player, renderer, ui;
   let fog = null;
@@ -18,6 +35,23 @@ const Game = (() => {
   let _cal = { timePeriodIdx:0, timePeriodName:'Dawn', day:1, dayInMonth:1, month:1,
                monthName:'Ashveil', year:1, season:'spring', seasonName:'Spring' };
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function init() {
     const canvas = document.getElementById('game-canvas');
     renderer = new Renderer(canvas);
@@ -25,6 +59,23 @@ const Game = (() => {
     _requestLoop();
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function start() {
     world = new World();
     player = new Player();
@@ -43,7 +94,41 @@ const Game = (() => {
       speed = DEV.DEFAULT_SPEED ?? 1;
     }
 
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const devTribes = (typeof DEV !== 'undefined') ? DEV.STARTING_TRIBES : 2;
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const tribeConfigs = (typeof DEV !== 'undefined' && DEV.TRIBES) ? DEV.TRIBES : [
       { id: 'a', name: 'Ashan', color: '#c8502a' },
       { id: 'b', name: 'Koru',  color: '#2a6ec8' },
@@ -59,6 +144,23 @@ const Game = (() => {
 
       // Give the unified tribe more starting pop and resources
       tribeA.population = Math.floor(tribeA.population * 1.8);
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const rm = (typeof DEV !== 'undefined') ? (DEV.STARTING_RESOURCE_MULT || 1) : 1;
       tribeA.res.wood  = Math.floor(tribeA.res.wood  * 1.5 * rm);
       tribeA.res.food  = Math.floor(tribeA.res.food  * 1.5 * rm);
@@ -105,6 +207,23 @@ const Game = (() => {
       tribeB = new Tribe(cfgB.id, cfgB.name, bx, by, cfgB.color);
 
       // Apply resource multiplier
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const rm = (typeof DEV !== 'undefined') ? (DEV.STARTING_RESOURCE_MULT || 1) : 1;
       if (rm !== 1) {
         for (const t of [tribeA, tribeB]) {
@@ -131,6 +250,23 @@ const Game = (() => {
     speed = (typeof DEV !== 'undefined' && DEV.DEFAULT_SPEED) ? DEV.DEFAULT_SPEED : 1;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function reset() {
     running = false;
     speed = 1;
@@ -138,14 +274,82 @@ const Game = (() => {
     fracture.reset();
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function setSpeed(s) { speed = s; }
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function eventLog(msg, type) { if (ui) ui.addLog(msg, type); }
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function notify(msg, type) { if (ui) ui.notify(msg, type); }
 
   // ══════════════════════════════════════════════════════════════════════════
   // TICK
   // ══════════════════════════════════════════════════════════════════════════
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _tick() {
     if (!running) return;
 
@@ -165,6 +369,23 @@ const Game = (() => {
     world.weatherMods = weather.currentMods;
 
     // Apply DEV debug flags
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const dev = (typeof DEV !== 'undefined') ? DEV : {};
 
     // Tick tribeA always
@@ -220,6 +441,23 @@ const Game = (() => {
     _checkEndConditions();
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _advanceTribeTech(tribe) {
     const maxTech = tribe.age.tribeMaxTech;
     const techThreshold = 50 + tribe.techLevel * 30;
@@ -232,6 +470,23 @@ const Game = (() => {
     }
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _checkEndConditions() {
     // Don't check balance/elimination before founding
     if (fracture.mode && (!fracture.done || !fracture.founded)) return;
@@ -288,6 +543,23 @@ const Game = (() => {
     }
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _gameOver(reason, byBalance) {
     running = false;
     const stats = `
@@ -301,7 +573,41 @@ const Game = (() => {
     ui.showGameOver(reason, stats);
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _requestLoop() {
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     function loop(timestamp) {
       requestAnimationFrame(loop);
 
@@ -313,6 +619,23 @@ const Game = (() => {
       const dt = timestamp - lastTime;
       lastTime = timestamp;
 
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const tickMs = (typeof DEV !== 'undefined' && DEV.TICK_MS_OVERRIDE) || CONFIG.TICK_MS;
       const tickInterval = speed > 0 ? tickMs / speed : Infinity;
       tickAccum += dt;

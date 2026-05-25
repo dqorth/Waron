@@ -1,5 +1,22 @@
 // Building: construction, upgrades, placement, farm expansion.
 class TribeBuilding {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(tribe) {
     this.tribe = tribe;
   }

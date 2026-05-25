@@ -1,6 +1,23 @@
 // Weather state machine — owns the current weather, season weighting, and event copy.
 // game.js ticks it each frame and mirrors `current`/`currentMods` onto `world`.
 class WeatherSystem {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor() {
     this.state = { type: CONFIG.WEATHER.SUNSHINE, intensity: 1.0, timer: 0, duration: 120 };
 
@@ -38,6 +55,23 @@ class WeatherSystem {
     return this._mods[this.state.type] || { foodSpoilMult: 1, moveMult: 1, farmMult: 1 };
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tick(season) {
     const w = this.state;
     w.timer++;

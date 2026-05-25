@@ -1,5 +1,22 @@
 // Tile layer: offscreen buffer, hex tile drawing, biome colors, trees, resource icons.
 class TileRenderer {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(r) {
     this.r = r;
   }
@@ -148,7 +165,41 @@ class TileRenderer {
         const tile = world.tiles[y][x];
         const p = this.r._tileToScreen(x, y);
         // Convert to buffer coordinates (buffer is offset by pad from screen)
+        /**
+         * One-line summary.
+         *
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         *
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         *
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         *
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const bx = (p.sx - this.r.camX) * this.r.zoom + this.r.W / 2 + pad;
+        /**
+         * One-line summary.
+         *
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         *
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         *
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         *
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const by = (p.sy - this.r.camY) * this.r.zoom + this.r.H / 2 + pad;
 
         if (bx < -sz * 4 || bx > bw + sz * 4 || by < -sz * 4 || by > bh + sz * 4) continue;
@@ -260,11 +311,45 @@ class TileRenderer {
 
     // For each visible lower edge, compare this tile's depth against the
     // neighbor sharing that edge; only the exposed delta gets a side face.
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const evenCol = (tx % 2 === 0);
     const lowerRightNeighbor = evenCol ? { x: tx + 1, y: ty } : { x: tx + 1, y: ty + 1 };
     const lowerLeftNeighbor = evenCol ? { x: tx - 1, y: ty } : { x: tx - 1, y: ty + 1 };
     const bottomNeighbor = { x: tx, y: ty + 1 };
 
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const getDepthAt = (nx, ny) => {
       if (!world || nx < 0 || ny < 0 || nx >= world.W || ny >= world.H) return 0;
       const nt = world.tiles[ny][nx];
@@ -274,6 +359,23 @@ class TileRenderer {
     };
 
     // Exaggerate exposed deltas so subtle slopes are easier to read.
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const exaggerateFace = (d) => {
       if (d <= 0) return 0;
       const boosted = Math.pow(d / (sz * vs), 0.72) * (sz * vs) * 1.35;

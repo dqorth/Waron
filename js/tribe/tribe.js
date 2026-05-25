@@ -619,6 +619,23 @@ class Tribe {
    * @performance O(U * B) where U is the number of units and B is the number of food buildings (for finding nearest).
    */
   // ── Food carry capacity: days of personal food, scales with age ─────────
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getFoodCarryCapacity() {
     const baseDays = CONFIG.FOOD_CARRY_BASE_DAYS || 3;
     const perAge   = CONFIG.FOOD_CARRY_PER_AGE_DAYS || 1;

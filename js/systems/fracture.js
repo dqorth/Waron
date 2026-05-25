@@ -2,6 +2,23 @@
 // caravan's migration, and the founding of the second tribe's settlement.
 // Holds the fracture lifecycle state that game.js used to keep as loose closure vars.
 class FractureSystem {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor() {
     this.mode = false;          // true when the game started with one tribe
     this.done = false;          // true once the fracture has fired
@@ -11,6 +28,23 @@ class FractureSystem {
     this._caravanRes = null;    // resources the caravan carries
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   reset() {
     this.mode = false;
     this.done = false;
@@ -21,6 +55,23 @@ class FractureSystem {
   }
 
   // Single-tribe start: schedule the fracture for a random tick in range.
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   schedule(devFractureCfg) {
     const fCfg = devFractureCfg || { tickMin: 120, tickMax: 250 };
     this.mode = true;
@@ -30,29 +81,114 @@ class FractureSystem {
   }
 
   // Classic two-tribe start: skip fracture entirely.
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   markClassicStart() {
     this.mode = false;
     this.done = true;
     this.founded = true;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   maybeTrigger(world, tribeA, tribeB, totalTicks) {
     if (this.mode && !this.done && totalTicks >= this.tick) {
       this._trigger(world, tribeA, tribeB);
     }
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   maybeFound(world, tribeA, tribeB, renderer) {
     if (this.done && !this.founded) {
       this._checkFounding(world, tribeA, tribeB, renderer);
     }
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _trigger(world, tribeA, tribeB) {
     if (this.done) return;
     this.done = true;
     this.founded = false;
 
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const fCfg = (typeof DEV !== 'undefined') ? DEV.FRACTURE : {};
     const ratio = fCfg.splitRatio ?? 0.42;
 
@@ -156,6 +292,23 @@ class FractureSystem {
     tribeA.morale = Math.max(0.4, tribeA.morale - 0.15);
 
     // ── Initialize tribeB as a migrating tribe (no buildings yet) ──────
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const cfgB = ((typeof DEV !== 'undefined') && DEV.TRIBES && DEV.TRIBES[1])
       ? DEV.TRIBES[1]
       : { id: 'b', name: 'Koru', color: '#2a6ec8' };
@@ -204,6 +357,23 @@ class FractureSystem {
   }
 
   // ── Check if the migrating tribe has reached their destination ─────────
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _checkFounding(world, tribeA, tribeB, renderer) {
     if (this.founded || !this._settleTarget || !this.done) return;
 
@@ -267,6 +437,23 @@ class FractureSystem {
   }
 
   // Find settlement location within reachable distance
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _findSettlementLocation(world, originX, originY, targetDist) {
     const W = CONFIG.MAP_W;
     const H = CONFIG.MAP_H;
@@ -278,6 +465,23 @@ class FractureSystem {
     let bestScore = -Infinity;
 
     for (let attempt = 0; attempt < 50; attempt++) {
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const angle = (Math.random() * Math.PI) - Math.PI / 2;
       const dist = minDist + Math.random() * (maxDist - minDist);
       let tx = Math.floor(originX + Math.cos(angle) * dist);

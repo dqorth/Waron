@@ -1,5 +1,22 @@
 // Military: spawning, army supply, attacks, towers.
 class TribeMilitary {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(tribe) {
     this.tribe = tribe;
   }
@@ -161,8 +178,59 @@ class TribeMilitary {
     if (!target) target = this.tribe._enemy.buildings[Math.floor(Math.random() * this.tribe._enemy.buildings.length)];
 
     // ── Army formation with supply logistics ────────────────────────────
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const minArmy = (typeof DEV !== 'undefined' && DEV.ARMY_MIN_SIZE) || CONFIG.ARMY_MIN_SIZE || 3;
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const maxArmy = (typeof DEV !== 'undefined' && DEV.ARMY_MAX_SIZE) || CONFIG.ARMY_MAX_SIZE || 50;
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const supplyMult = (typeof DEV !== 'undefined') ? (DEV.ARMY_SUPPLY_MULT || 1) : 1;
 
     // Estimate campaign distance

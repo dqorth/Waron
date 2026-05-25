@@ -427,6 +427,23 @@ class Renderer {
     };
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _selectTileAtScreen(mx, my) {
     if (!this._worldRef) {
       this._selectedTile = null;
@@ -436,6 +453,23 @@ class Renderer {
     this._selectedTile = picked ? { x: picked.x, y: picked.y } : null;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _pickTileAtScreen(mx, my, world) {
     const w = this._screenToWorld(mx, my);
     const sz = CONFIG.HEX_SIZE;
@@ -452,6 +486,23 @@ class Renderer {
     for (let x = approxX - 3; x <= approxX + 3; x++) {
       if (x < 0 || x >= world.W) continue;
 
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const off = (x % 2 !== 0) ? 0.5 : 0.0;
       const approxY = Math.round(w.sy / (sq3 * sz * vs) - off);
 
@@ -474,6 +525,23 @@ class Renderer {
     return best;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _pointInHex(px, py, cx, cy, corners) {
     // Standard even-odd polygon test against the 6-corner hex.
     let inside = false;
@@ -483,6 +551,23 @@ class Renderer {
       const xj = cx + corners[j].dx;
       const yj = cy + corners[j].dy;
 
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const intersects = ((yi > py) !== (yj > py))
         && (px < (xj - xi) * (py - yi) / ((yj - yi) || 1e-9) + xi);
       if (intersects) inside = !inside;
@@ -490,6 +575,23 @@ class Renderer {
     return inside;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _tileTypeName(type) {
     const T = CONFIG.TILE;
     const names = {
@@ -509,6 +611,23 @@ class Renderer {
     return names[type] || 'Unknown';
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawSelectedTileTooltip(world) {
     if (!this._selectedTile || !world) return;
 

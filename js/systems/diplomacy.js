@@ -24,6 +24,23 @@ const DIPLOMACY_STATES = {
   ALLIED:  'allied',
 };
 
+/**
+ * One-line summary.
+ *
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ *
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ *
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ *
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function getDiplomacyState(score) {
   if (score <= -60) return DIPLOMACY_STATES.HOSTILE;
   if (score <= -20) return DIPLOMACY_STATES.WARY;
@@ -33,6 +50,23 @@ function getDiplomacyState(score) {
 }
 
 class Diplomacy {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor() {
     // Relations indexed by "tribeIdA:tribeIdB" (alphabetical order)
     this._relations = {};
@@ -40,11 +74,45 @@ class Diplomacy {
     this._eventCooldown = 0; // ticks until next autonomous event
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _key(idA, idB) {
     return idA < idB ? `${idA}:${idB}` : `${idB}:${idA}`;
   }
 
   // Initialize a relationship between two tribes
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   initRelation(idA, idB, startingScore = -30) {
     const key = this._key(idA, idB);
     this._relations[key] = {
@@ -58,6 +126,23 @@ class Diplomacy {
   }
 
   // Get the current relation between two tribes
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getRelation(idA, idB) {
     const key = this._key(idA, idB);
     if (!this._relations[key]) {
@@ -66,15 +151,66 @@ class Diplomacy {
     return this._relations[key];
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getState(idA, idB) {
     return this.getRelation(idA, idB).state;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getScore(idA, idB) {
     return this.getRelation(idA, idB).score;
   }
 
   // Shift relation score (clamped -100 to 100)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   shift(idA, idB, amount, reason = '') {
     const rel = this.getRelation(idA, idB);
     const oldState = rel.state;
@@ -94,6 +230,23 @@ class Diplomacy {
   }
 
   // Record that an attack happened (worsens relations)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   recordAttack(attackerId, defenderId, currentTick) {
     const rel = this.getRelation(attackerId, defenderId);
     rel.lastAttackTick = currentTick;
@@ -102,16 +255,67 @@ class Diplomacy {
   }
 
   // Record a kill (bigger hit to relations)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   recordCasualty(attackerId, defenderId, currentTick) {
     this.shift(attackerId, defenderId, -1);
   }
 
   // Record building destruction (major diplomatic incident)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   recordBuildingDestroyed(attackerId, defenderId, currentTick) {
     this.shift(attackerId, defenderId, -8, 'building destroyed');
   }
 
   // Propose/activate a treaty (temporary ceasefire)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   proposeTreaty(idA, idB, durationTicks, currentTick) {
     const rel = this.getRelation(idA, idB);
     rel.treatyUntilTick = currentTick + durationTicks;
@@ -119,12 +323,46 @@ class Diplomacy {
   }
 
   // Check if a treaty is active
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   hasTreaty(idA, idB, currentTick) {
     const rel = this.getRelation(idA, idB);
     return rel.treatyUntilTick > currentTick;
   }
 
   // Should tribe A attack tribe B? (considers diplomacy)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   shouldAttack(attackerId, defenderId, currentTick) {
     const rel = this.getRelation(attackerId, defenderId);
 
@@ -143,6 +381,23 @@ class Diplomacy {
   }
 
   // Natural drift each tick — relations decay toward hostility
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tick(currentTick) {
     for (const key of Object.keys(this._relations)) {
       const rel = this._relations[key];
@@ -177,12 +432,46 @@ class Diplomacy {
   }
 
   // Get and clear pending events for the event log
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   drainEvents() {
     const events = this._events.splice(0);
     return events;
   }
 
   // Get a human-readable summary
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getSummary(idA, idB) {
     const rel = this.getRelation(idA, idB);
     return {
