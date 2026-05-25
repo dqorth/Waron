@@ -772,6 +772,7 @@ class Renderer {
    */
   _drawTileToBuffer(ctx, tx, ty, tile, sx, sy, sz, vs, corners) {
     const color = this._getTileColor(tile, '#c8502a', '#2a6ec8');
+    const elev  = tile.elevation || 0;
 
     // Translate pre-computed corners to tile position
     const c0x = sx + corners[0].dx, c0y = sy + corners[0].dy;
@@ -781,48 +782,67 @@ class Renderer {
     const c4x = sx + corners[4].dx, c4y = sy + corners[4].dy;
     const c5x = sx + corners[5].dx, c5y = sy + corners[5].dy;
 
-    // Ultra-low LOD
-    if (this.zoom < 0.18) {
+    // Ultra-low LOD — just fill the hex; altitude shading in the color
+    // already communicates height at this zoom level.
+    if (this.zoom < 0.16) {
       ctx.beginPath();
       ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y); ctx.lineTo(c2x, c2y);
       ctx.lineTo(c3x, c3y); ctx.lineTo(c4x, c4y); ctx.lineTo(c5x, c5y);
       ctx.closePath();
       ctx.fillStyle = color;
       ctx.fill();
+      // Thin shadow strip on lower-left edge so height reads at max zoom-out
+      if (elev > 0.22) {
+        const miniD = sz * vs * Math.min(0.35, elev * 0.55);
+        ctx.fillStyle = this._darken(color, 0.55);
+        ctx.beginPath();
+        ctx.moveTo(c2x, c2y); ctx.lineTo(c3x, c3y);
+        ctx.lineTo(c3x, c3y + miniD); ctx.lineTo(c2x, c2y + miniD);
+        ctx.closePath(); ctx.fill();
+      }
       return;
     }
 
-    // Low LOD: skip depth faces at zoom < 0.3
-    if (this.zoom >= 0.3) {
-      const depthY = sz * vs * (
-        tile.type === CONFIG.TILE.MOUNTAIN ? 0.75 :
-        tile.type === CONFIG.TILE.STONE ? 0.42 :
-        tile.type === CONFIG.TILE.TUNDRA ? 0.25 :
-        tile.type === CONFIG.TILE.WATER ? 0.0 : 0.18
-      );
+    // ── Q*bert-style elevation blocks ────────────────────────────────────
+    // Corner layout (flat-top hex, canvas Y positive = down, vs compressed):
+    //   c5 (upper-right)  c4 (upper-left)
+    //   c0 (right)        c3 (left)
+    //   c1 (lower-right)  c2 (lower-left)
+    //
+    // The three LOWER edges face the viewer; depth faces hang downward from them:
+    //   c0→c1  lower-right face  → lightest (lit side)
+    //   c1→c2  bottom face       → mid shadow
+    //   c2→c3  lower-left face   → darkest (shadow side)
+    //
+    // The three UPPER edges (c3→c4→c5→c0) get the rim highlight.
+    const depthY = tile.type === CONFIG.TILE.WATER
+      ? 0
+      : sz * vs * Math.min(1.85, elev * 2.4);
 
-      if (depthY > 0) {
-        ctx.fillStyle = this._darken(color, 0.45);
-        ctx.beginPath();
-        ctx.moveTo(c3x, c3y); ctx.lineTo(c4x, c4y);
-        ctx.lineTo(c4x, c4y + depthY); ctx.lineTo(c3x, c3y + depthY);
-        ctx.closePath(); ctx.fill();
+    if (depthY > 0 && this.zoom >= 0.16) {
+      // Lower-left face — deep shadow
+      ctx.fillStyle = this._darken(color, 0.62);
+      ctx.beginPath();
+      ctx.moveTo(c2x, c2y); ctx.lineTo(c3x, c3y);
+      ctx.lineTo(c3x, c3y + depthY); ctx.lineTo(c2x, c2y + depthY);
+      ctx.closePath(); ctx.fill();
 
-        ctx.fillStyle = this._darken(color, 0.3);
-        ctx.beginPath();
-        ctx.moveTo(c4x, c4y); ctx.lineTo(c5x, c5y);
-        ctx.lineTo(c5x, c5y + depthY); ctx.lineTo(c4x, c4y + depthY);
-        ctx.closePath(); ctx.fill();
+      // Bottom face — mid shadow
+      ctx.fillStyle = this._darken(color, 0.44);
+      ctx.beginPath();
+      ctx.moveTo(c1x, c1y); ctx.lineTo(c2x, c2y);
+      ctx.lineTo(c2x, c2y + depthY); ctx.lineTo(c1x, c1y + depthY);
+      ctx.closePath(); ctx.fill();
 
-        ctx.fillStyle = this._darken(color, 0.18);
-        ctx.beginPath();
-        ctx.moveTo(c5x, c5y); ctx.lineTo(c0x, c0y);
-        ctx.lineTo(c0x, c0y + depthY); ctx.lineTo(c5x, c5y + depthY);
-        ctx.closePath(); ctx.fill();
-      }
+      // Lower-right face — lightest (most lit)
+      ctx.fillStyle = this._darken(color, 0.22);
+      ctx.beginPath();
+      ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y);
+      ctx.lineTo(c1x, c1y + depthY); ctx.lineTo(c0x, c0y + depthY);
+      ctx.closePath(); ctx.fill();
     }
 
-    // Main hex face
+    // Main hex top face
     ctx.beginPath();
     ctx.moveTo(c0x, c0y); ctx.lineTo(c1x, c1y); ctx.lineTo(c2x, c2y);
     ctx.lineTo(c3x, c3y); ctx.lineTo(c4x, c4y); ctx.lineTo(c5x, c5y);
@@ -852,18 +872,18 @@ class Renderer {
       ctx.stroke(); // reuses same path
     }
 
+    // Top-edge rim highlight — upper edges catch the light
+    if (depthY > 0 && this.zoom >= 0.16) {
+      ctx.strokeStyle = 'rgba(255,255,255,0.22)';
+      ctx.lineWidth = Math.max(0.5, this.zoom * 0.8);
+      ctx.beginPath();
+      ctx.moveTo(c3x, c3y); ctx.lineTo(c4x, c4y);
+      ctx.lineTo(c5x, c5y); ctx.lineTo(c0x, c0y);
+      ctx.stroke();
+    }
+
     // Detail sprites at high zoom
     if (this.zoom > 0.45) {
-      if (tile.type === CONFIG.TILE.FOREST || tile.type === CONFIG.TILE.JUNGLE) {
-        const tree = this._worldRef && this._worldRef.treeMap
-          ? this._worldRef.treeMap[`${tx},${ty}`]
-          : null;
-        if (tree) {
-          this._drawTreeSprite(ctx, sx, sy - sz * vs * 0.5, this.zoom, tree.growth,
-            tile.type === CONFIG.TILE.JUNGLE);
-        }
-      }
-
       if (tile.type === CONFIG.TILE.MOUNTAIN) {
         ctx.fillStyle = '#e8eef4';
         ctx.beginPath();
@@ -894,24 +914,33 @@ class Renderer {
           ctx.fill();
         }
       }
+
+      // Trees drawn on top of all other biome decor.
+      // The treeMap only has entries for tiles that actually have trees, so this
+      // lookup is O(1) and safe for every tile type.
+      const tree = this._worldRef && this._worldRef.treeMap
+        ? this._worldRef.treeMap[`${tx},${ty}`]
+        : null;
+      if (tree) {
+        // Small deterministic jitter so trees don't sit dead-centre every tile.
+        const tjx = Math.sin(tx * 73.1 + ty * 31.7) * sz * 0.22;
+        const tjy = Math.cos(tx * 47.3 + ty * 61.1) * sz * vs * 0.15;
+        this._drawTreeSprite(ctx, sx + tjx, sy - sz * vs * 0.5 + tjy, this.zoom, tree.growth,
+          tree.biome !== undefined ? tree.biome : tile.type);
+      }
     }
 
-    // Resource icons at medium+ zoom
+    // Resource indicators at medium+ zoom.
+    // Only shown for tiles whose primary yield is >= 3 to avoid food cluttering
+    // every grass/savanna tile.  Drawn as scattered small shapes, not text.
     if (this.zoom > 0.55) {
       const node = tile.resourceNode;
-      if (node && node.amount >= 5) {
-        const frac = node.amount / node.max;
-        const icons = { food: '#', wood: 'W', metal: 'M', stone: 'S' };
-        const colors = { food: '#88dd44', wood: '#5a3a10', metal: '#aabbcc', stone: '#9988aa' };
-        const res = Object.keys(CONFIG.TILE_YIELD[tile.type] || {})[0];
-        if (res) {
-          ctx.globalAlpha = 0.55 + frac * 0.45;
-          ctx.fillStyle = colors[res] || '#fff';
-          ctx.font = `bold ${Math.round(7 * this.zoom)}px sans-serif`;
-          ctx.textAlign = 'center';
-          ctx.textBaseline = 'middle';
-          ctx.fillText(icons[res] || '?', sx, sy - this.TH * this.zoom * 0.35);
-          ctx.globalAlpha = 1;
+      const yieldEntry = CONFIG.TILE_YIELD[tile.type];
+      if (node && yieldEntry) {
+        const res = Object.keys(yieldEntry)[0];
+        const yieldVal = res ? (yieldEntry[res] || 0) : 0;
+        if (yieldVal >= 3 && node.amount >= node.max * 0.12) {
+          this._drawResourceIndicators(ctx, sx, sy, sz, vs, res, node.amount / node.max, tx, ty);
         }
       }
     }
@@ -1177,6 +1206,63 @@ class Renderer {
    * @triggers Called by `_drawTileToBuffer()` for each tile being rendered to determine its fill color.
    * @performance O(1)
    */
+  // Draws scattered small resource indicator shapes within a tile.
+  // Uses a deterministic scatter based on tile coords so positions are stable
+  // across frames without storing any state.
+  _drawResourceIndicators(ctx, sx, sy, sz, vs, res, fillFrac, tx, ty) {
+    // Number of indicators scales with how full the resource node is.
+    const count = 1 + Math.floor(fillFrac * 3);
+    const alpha = 0.52 + fillFrac * 0.38;
+
+    const colors = {
+      food:  '#68cc30',
+      metal: '#9ab4c8',
+      stone: '#a89880',
+      wood:  '#7a4a18',
+    };
+    ctx.fillStyle = colors[res] || '#aaa';
+    ctx.globalAlpha = alpha;
+
+    for (let i = 0; i < count; i++) {
+      // Fibonacci-angle scatter for even spread; LCG hash for radius variation.
+      const seed = (tx * 73 + ty * 31 + i * 17) | 0;
+      const lcg  = ((seed * 1664525 + 1013904223) >>> 0) / 0xFFFFFFFF;
+      const angle = i * 2.39996; // golden angle in radians
+      const r = sz * (0.10 + lcg * 0.20);
+      const ox = Math.sin(angle + tx * 0.7 + ty * 0.4) * r;
+      const oy = Math.cos(angle + tx * 0.5 + ty * 0.6) * r * vs;
+
+      if (res === 'food') {
+        // Berry / grain: small filled circle
+        ctx.beginPath();
+        ctx.arc(sx + ox, sy + oy, sz * 0.06, 0, Math.PI * 2);
+        ctx.fill();
+      } else if (res === 'stone') {
+        // Rock: small rounded square
+        const h = sz * 0.06;
+        ctx.beginPath();
+        ctx.rect(sx + ox - h, sy + oy - h * 0.7, h * 2, h * 1.4);
+        ctx.fill();
+      } else if (res === 'metal') {
+        // Ore vein: small diamond
+        const d = sz * 0.065;
+        ctx.beginPath();
+        ctx.moveTo(sx + ox,         sy + oy - d);
+        ctx.lineTo(sx + ox + d * 0.7, sy + oy);
+        ctx.lineTo(sx + ox,         sy + oy + d);
+        ctx.lineTo(sx + ox - d * 0.7, sy + oy);
+        ctx.closePath();
+        ctx.fill();
+      } else {
+        // Fallback: dot
+        ctx.beginPath();
+        ctx.arc(sx + ox, sy + oy, sz * 0.055, 0, Math.PI * 2);
+        ctx.fill();
+      }
+    }
+    ctx.globalAlpha = 1;
+  }
+
   _getTileColor(tile, tribeAColor, tribeBColor) {
     const baseColors = {
       [CONFIG.TILE.WATER]: '#1a3a5c',
@@ -1194,6 +1280,26 @@ class Renderer {
     };
 
     let base = baseColors[tile.type] || '#3a6e2a';
+
+    // Altitude shading — higher elevation lightens the tile, lower darkens it.
+    // Water tiles shade inversely: deeper (lower h) = darker blue.
+    const elev = tile.elevation || 0;
+    if (tile.type === CONFIG.TILE.WATER) {
+      // Depth: h near 0 is darkest, h near 0.10 is the base water colour.
+      const depth = Math.max(0, (0.10 - elev) / 0.10);
+      base = this._darken(base, depth * 0.45);
+    } else {
+      // Land: normalise elevation across the land range [0.10, 1.0].
+      const landElev = Math.max(0, (elev - 0.10) / 0.90);
+      // Shift centred at 0.4 so midlands are unaffected; peaks lighten, valleys darken.
+      const shade = (landElev - 0.40) * 0.36;
+      if (shade > 0) {
+        base = this._lighten(base, shade);
+      } else if (shade < 0) {
+        base = this._darken(base, -shade);
+      }
+    }
+
     if (tile.owner === 'a') base = this._blendColor(base, tribeAColor, 0.2);
     if (tile.owner === 'b') base = this._blendColor(base, tribeBColor, 0.2);
     return base;
@@ -1301,6 +1407,12 @@ class Renderer {
     return `rgb(${Math.round(r * (1 - factor))},${Math.round(g * (1 - factor))},${Math.round(b * (1 - factor))})`;
   }
 
+  // Lightens a color towards white by the given factor (0 = no change, 1 = white).
+  _lighten(color, factor) {
+    const [r, g, b] = this._parseColor(color);
+    return `rgb(${Math.min(255, Math.round(r + (255 - r) * factor))},${Math.min(255, Math.round(g + (255 - g) * factor))},${Math.min(255, Math.round(b + (255 - b) * factor))})`;
+  }
+
   // 5-stage tree sprite. Stage 1=seedling … Stage 5=full-grown canopy tree.
   /**
    * Draws a multi-stage tree sprite onto the canvas, varying detail based on growth stage and type.
@@ -1331,66 +1443,199 @@ class Renderer {
    * @triggers Called by `_drawTileToBuffer()` when rendering `FOREST` or `JUNGLE` tiles at high zoom.
    * @performance O(1) as it draws a fixed number of primitive shapes based on `stage`.
    */
-  _drawTreeSprite(ctx, x, y, zoom, stage, isJungle = false) {
+  // Draws a biome-appropriate tree sprite at (x, y).
+  // biome is a CONFIG.TILE.* integer; stage is the growth level (1-5).
+  _drawTreeSprite(ctx, x, y, zoom, stage, biome) {
     const s = zoom * 5;
-    const darkCol  = isJungle ? '#0a4a08' : '#1a3a12';
-    const midCol   = isJungle ? '#1a7018' : '#2a5a1a';
-    const lightCol = isJungle ? '#2a8a20' : '#3a7028';
-    const trunkCol = '#4a2e0a';
+    const T = CONFIG.TILE;
+    const bm = biome !== undefined ? biome : T.FOREST;
 
-    switch (stage) {
-      case 1:
-        ctx.fillStyle = midCol;
-        ctx.beginPath(); ctx.arc(x, y - s * 0.6, s * 0.55, 0, Math.PI * 2); ctx.fill();
-        break;
-      case 2:
-        ctx.fillStyle = trunkCol;
-        ctx.fillRect(x - s * 0.1, y - s * 0.2, s * 0.2, s * 0.5);
-        ctx.fillStyle = midCol;
+    if (bm === T.JUNGLE) {
+      // ── Jungle: wide round canopy, vivid greens ───────────────────────
+      const dark = '#0a4a08', mid = '#1a7018', light = '#2a8a20', trunk = '#4a2e0a';
+      switch (stage) {
+        case 1:
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 0.7, s * 0.7, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 2:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.12, y - s * 0.3, s * 0.24, s * 0.6);
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.4, s * 1.0, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 3:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.15, y, s * 0.3, s * 0.7);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.6, s * 1.3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x - s * 0.5, y - s * 2.1, s * 0.8, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x + s * 0.5, y - s * 2.1, s * 0.8, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 4:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.17, y, s * 0.34, s * 0.8);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.8, s * 1.6, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 2.6, s * 1.1, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath(); ctx.arc(x, y - s * 3.2, s * 0.7, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 5: default:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.2, y, s * 0.4, s * 0.9);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 2.0, s * 1.9, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x - s * 0.6, y - s * 3.1, s * 1.0, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x + s * 0.6, y - s * 3.1, s * 1.0, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath(); ctx.arc(x, y - s * 3.7, s * 0.9, 0, Math.PI * 2); ctx.fill();
+          break;
+      }
+
+    } else if (bm === T.WETLAND) {
+      // ── Wetland/mangrove: wide low ellipse canopy, exposed root hint ──
+      const dark = '#2a3a10', mid = '#3a5018', trunk = '#3a2a0a';
+      ctx.fillStyle = trunk;
+      ctx.fillRect(x - s * 0.1, y - s * 0.15, s * 0.2, s * (0.25 + stage * 0.08));
+      if (stage >= 3) {
+        // Root lines
+        ctx.strokeStyle = trunk; ctx.lineWidth = s * 0.09;
+        ctx.beginPath(); ctx.moveTo(x - s * 0.1, y + s * 0.3); ctx.lineTo(x - s * 0.52, y + s * 0.7); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + s * 0.1, y + s * 0.3); ctx.lineTo(x + s * 0.52, y + s * 0.7); ctx.stroke();
+      }
+      const w = s * (0.55 + stage * 0.22), h = s * (0.22 + stage * 0.06);
+      ctx.fillStyle = dark;
+      ctx.beginPath(); ctx.ellipse(x, y - s * (0.5 + stage * 0.18), w, h, 0, 0, Math.PI * 2); ctx.fill();
+      ctx.fillStyle = mid;
+      ctx.beginPath(); ctx.ellipse(x, y - s * (0.7 + stage * 0.22), w * 0.7, h * 0.65, 0, 0, Math.PI * 2); ctx.fill();
+
+    } else if (bm === T.SAVANNA) {
+      // ── Savanna/acacia: thin trunk, wide flat umbrella canopy ────────
+      const canopy = '#7a8a1a', light = '#9aaa2a', trunk = '#6a4a18';
+      const th = s * (0.55 + stage * 0.18);
+      ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.08, y - th * 0.05, s * 0.16, th);
+      // Flat ellipse canopy — wider each stage
+      const cw = s * (0.7 + stage * 0.28), ch = s * (0.18 + stage * 0.05);
+      ctx.fillStyle = canopy;
+      ctx.beginPath(); ctx.ellipse(x, y - th, cw, ch, 0, 0, Math.PI * 2); ctx.fill();
+      if (stage >= 3) {
+        ctx.fillStyle = light;
+        ctx.beginPath(); ctx.ellipse(x, y - th - ch * 0.6, cw * 0.65, ch * 0.55, 0, 0, Math.PI * 2); ctx.fill();
+      }
+
+    } else if (bm === T.GRASS) {
+      // ── Grassland deciduous: rounded full canopy ──────────────────────
+      const dark = '#2a5a18', mid = '#3a7028', light = '#4a8a38', trunk = '#5a3a14';
+      switch (stage) {
+        case 1:
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 0.5, s * 0.55, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 2:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.1, y - s * 0.15, s * 0.2, s * 0.45);
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.1, s * 0.8, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 3:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.12, y, s * 0.24, s * 0.55);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.3, s * 1.1, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.8, s * 0.7, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 4:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.14, y, s * 0.28, s * 0.65);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.5, s * 1.3, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x - s * 0.4, y - s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x + s * 0.4, y - s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath(); ctx.arc(x, y - s * 2.5, s * 0.65, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 5: default:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.16, y, s * 0.32, s * 0.75);
+          ctx.fillStyle = dark;
+          ctx.beginPath(); ctx.arc(x, y - s * 1.8, s * 1.5, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x - s * 0.5, y - s * 2.6, s * 0.85, 0, Math.PI * 2); ctx.fill();
+          ctx.beginPath(); ctx.arc(x + s * 0.5, y - s * 2.6, s * 0.85, 0, Math.PI * 2); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath(); ctx.arc(x, y - s * 3.1, s * 0.8, 0, Math.PI * 2); ctx.fill();
+          break;
+      }
+
+    } else if (bm === T.TUNDRA) {
+      // ── Tundra: stunted grey-green shrub (max growth 2) ───────────────
+      const dark = '#4a5a40', mid = '#5a6a50', trunk = '#3a2a18';
+      if (stage <= 1) {
+        ctx.fillStyle = mid;
+        ctx.beginPath(); ctx.arc(x, y - s * 0.38, s * 0.38, 0, Math.PI * 2); ctx.fill();
+      } else {
+        ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.08, y - s * 0.1, s * 0.16, s * 0.3);
+        ctx.fillStyle = dark;
         ctx.beginPath();
-        ctx.moveTo(x, y - s * 1.8); ctx.lineTo(x + s * 0.6, y - s * 0.2); ctx.lineTo(x - s * 0.6, y - s * 0.2);
+        ctx.moveTo(x, y - s * 1.4); ctx.lineTo(x + s * 0.5, y - s * 0.1); ctx.lineTo(x - s * 0.5, y - s * 0.1);
         ctx.closePath(); ctx.fill();
-        break;
-      case 3:
-        ctx.fillStyle = trunkCol;
-        ctx.fillRect(x - s * 0.14, y, s * 0.28, s * 0.6);
-        ctx.fillStyle = darkCol;
+        ctx.fillStyle = mid;
         ctx.beginPath();
-        ctx.moveTo(x, y - s * 2.4); ctx.lineTo(x + s * 0.9, y - s * 0.6); ctx.lineTo(x - s * 0.9, y - s * 0.6);
+        ctx.moveTo(x, y - s * 1.9); ctx.lineTo(x + s * 0.34, y - s * 0.8); ctx.lineTo(x - s * 0.34, y - s * 0.8);
         ctx.closePath(); ctx.fill();
-        ctx.fillStyle = midCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 3.0); ctx.lineTo(x + s * 0.65, y - s * 1.4); ctx.lineTo(x - s * 0.65, y - s * 1.4);
-        ctx.closePath(); ctx.fill();
-        break;
-      case 4:
-        ctx.fillStyle = trunkCol;
-        ctx.fillRect(x - s * 0.16, y, s * 0.32, s * 0.7);
-        ctx.fillStyle = darkCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 2.2); ctx.lineTo(x + s, y); ctx.lineTo(x - s, y);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = midCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 3.2); ctx.lineTo(x + s * 0.68, y - s * 0.6); ctx.lineTo(x - s * 0.68, y - s * 0.6);
-        ctx.closePath(); ctx.fill();
-        break;
-      case 5: default:
-        ctx.fillStyle = trunkCol;
-        ctx.fillRect(x - s * 0.18, y, s * 0.36, s * 0.8);
-        ctx.fillStyle = darkCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 1.6); ctx.lineTo(x + s * 1.2, y + s * 0.1); ctx.lineTo(x - s * 1.2, y + s * 0.1);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = midCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 2.8); ctx.lineTo(x + s * 0.95, y - s * 0.9); ctx.lineTo(x - s * 0.95, y - s * 0.9);
-        ctx.closePath(); ctx.fill();
-        ctx.fillStyle = lightCol;
-        ctx.beginPath();
-        ctx.moveTo(x, y - s * 3.8); ctx.lineTo(x + s * 0.62, y - s * 2.2); ctx.lineTo(x - s * 0.62, y - s * 2.2);
-        ctx.closePath(); ctx.fill();
-        break;
+      }
+
+    } else {
+      // ── Forest (default): layered conifer/pine, dark greens ───────────
+      const dark = '#1a3a12', mid = '#2a5a1a', light = '#3a7028', trunk = '#4a2e0a';
+      switch (stage) {
+        case 1:
+          ctx.fillStyle = mid;
+          ctx.beginPath(); ctx.arc(x, y - s * 0.6, s * 0.55, 0, Math.PI * 2); ctx.fill();
+          break;
+        case 2:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.1, y - s * 0.2, s * 0.2, s * 0.5);
+          ctx.fillStyle = mid;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 1.8); ctx.lineTo(x + s * 0.6, y - s * 0.2); ctx.lineTo(x - s * 0.6, y - s * 0.2);
+          ctx.closePath(); ctx.fill();
+          break;
+        case 3:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.14, y, s * 0.28, s * 0.6);
+          ctx.fillStyle = dark;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 2.4); ctx.lineTo(x + s * 0.9, y - s * 0.6); ctx.lineTo(x - s * 0.9, y - s * 0.6);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 3.0); ctx.lineTo(x + s * 0.65, y - s * 1.4); ctx.lineTo(x - s * 0.65, y - s * 1.4);
+          ctx.closePath(); ctx.fill();
+          break;
+        case 4:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.16, y, s * 0.32, s * 0.7);
+          ctx.fillStyle = dark;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 2.2); ctx.lineTo(x + s, y); ctx.lineTo(x - s, y);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 3.2); ctx.lineTo(x + s * 0.68, y - s * 0.6); ctx.lineTo(x - s * 0.68, y - s * 0.6);
+          ctx.closePath(); ctx.fill();
+          break;
+        case 5: default:
+          ctx.fillStyle = trunk; ctx.fillRect(x - s * 0.18, y, s * 0.36, s * 0.8);
+          ctx.fillStyle = dark;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 1.6); ctx.lineTo(x + s * 1.2, y + s * 0.1); ctx.lineTo(x - s * 1.2, y + s * 0.1);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = mid;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 2.8); ctx.lineTo(x + s * 0.95, y - s * 0.9); ctx.lineTo(x - s * 0.95, y - s * 0.9);
+          ctx.closePath(); ctx.fill();
+          ctx.fillStyle = light;
+          ctx.beginPath();
+          ctx.moveTo(x, y - s * 3.8); ctx.lineTo(x + s * 0.62, y - s * 2.2); ctx.lineTo(x - s * 0.62, y - s * 2.2);
+          ctx.closePath(); ctx.fill();
+          break;
+      }
     }
   }
 

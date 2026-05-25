@@ -101,12 +101,15 @@ class World {
      * @triggers When/how called
      * @performance O(n) complexity notes
      */
-    const seedOffset = (CONFIG.MAP_SEED % 999983) / 999983;
+    // Fresh timestamp seed — guarantees a unique map every run.
+    const rawSeed = Date.now();
+    const seedOffset = (rawSeed % 999983) / 999983;
 
-    const elevNoise = this._buildNoise(W, H, 7, seedOffset);
-    const moistNoise = this._buildNoise(W, H, 4, seedOffset + 0.37);
-    const tempNoise = this._buildNoise(W, H, 3, seedOffset + 0.73);
-    const ruinNoise = this._buildNoise(W, H, 2, seedOffset + 1.17);
+    // Use widely-spread seed offsets so each noise layer is fully independent.
+    const elevNoise = this._buildNoise(W, H, 7, seedOffset * 41.3);
+    const moistNoise = this._buildNoise(W, H, 5, seedOffset * 57.9 + 19.7);
+    const tempNoise  = this._buildNoise(W, H, 4, seedOffset * 31.1 + 47.3);
+    const ruinNoise  = this._buildNoise(W, H, 2, seedOffset * 73.6 + 13.1);
 
     const TILE = CONFIG.TILE;
 
@@ -118,31 +121,51 @@ class World {
         const tv = tempNoise[y][x];
 
         const edgeDist = Math.min(x, y, W - 1 - x, H - 1 - y);
-        const h = raw * Math.min(1, edgeDist / 10);
+        // Edge falloff forces water around the map border.
+        const h = raw * Math.min(1, edgeDist / 12);
 
+        // Latitude-based base temperature; noise adds regional variation.
         const latHeat = 1 - 2 * Math.abs(y / H - 0.5);
-        const temp = latHeat * 0.75 + tv * 0.25;
+        const temp = latHeat * 0.70 + tv * 0.30;
 
+        // ── Altitude-first biome placement ─────────────────────────────────
+        // Elevation is the primary driver; moisture and temperature refine
+        // the biome within each altitude band.
         let type;
         if (h < 0.10) {
+          // Ocean / deep water
           type = TILE.WATER;
-        } else if (h > 0.82) {
-          type = temp < 0.32 ? TILE.SNOW : TILE.MOUNTAIN;
-        } else if (h > 0.68) {
-          type = temp < 0.28 ? TILE.TUNDRA : TILE.STONE;
-        } else if (temp < 0.18) {
-          type = m > 0.55 ? TILE.SNOW : TILE.TUNDRA;
-        } else if (temp < 0.36) {
-          type = m > 0.62 ? TILE.FOREST : (m < 0.22 ? TILE.TUNDRA : TILE.GRASS);
-        } else if (temp > 0.72) {
-          if (m > 0.68) type = TILE.JUNGLE;
-          else if (m > 0.42) type = TILE.SAVANNA;
-          else type = TILE.DESERT;
-        } else {
-          if (m > 0.70 && h < 0.28) type = TILE.WETLAND;
-          else if (m > 0.54) type = TILE.FOREST;
-          else if (m < 0.18) type = TILE.DESERT;
+        } else if (h < 0.22) {
+          // Coastal lowlands
+          if (temp > 0.55 && m > 0.64) type = TILE.WETLAND;
+          else if (temp > 0.68 && m < 0.28) type = TILE.DESERT;
+          else if (temp > 0.65) type = TILE.SAVANNA;
           else type = TILE.GRASS;
+        } else if (h < 0.50) {
+          // Plains and valleys — full biome variety
+          if (temp < 0.20) {
+            type = m > 0.52 ? TILE.SNOW : TILE.TUNDRA;
+          } else if (temp > 0.68) {
+            if (m > 0.65) type = TILE.JUNGLE;
+            else if (m > 0.38) type = TILE.SAVANNA;
+            else type = TILE.DESERT;
+          } else {
+            if (m > 0.60) type = TILE.FOREST;
+            else if (m < 0.22) type = TILE.DESERT;
+            else type = TILE.GRASS;
+          }
+        } else if (h < 0.68) {
+          // Uplands and hills — colder and rockier
+          if (temp < 0.28) type = TILE.TUNDRA;
+          else if (temp > 0.62 && m > 0.58) type = TILE.JUNGLE;
+          else if (m > 0.52) type = TILE.FOREST;
+          else type = TILE.STONE;
+        } else if (h < 0.82) {
+          // Mountain zone
+          type = temp < 0.35 ? TILE.SNOW : TILE.MOUNTAIN;
+        } else {
+          // High peaks — always snow
+          type = TILE.SNOW;
         }
 
         if ((type === TILE.GRASS || type === TILE.SAVANNA) && ruinNoise[y][x] > 0.91) {
@@ -203,17 +226,28 @@ class World {
       }
     }
 
-    // Spawn tree entities on FOREST and JUNGLE tiles.
+    // Spawn tree entities with per-biome density and max-growth rules.
+    // Each biome entry: { chance: fraction of tiles that get a tree, maxGrowth: 1-5 }
     this.treeMap = {};
-    const TREE_BIOMES = new Set([TILE.FOREST, TILE.JUNGLE]);
+    const BIOME_TREE_RULES = {
+      [TILE.FOREST]:  { chance: 0.72, maxGrowth: 5 },  // dense conifer/pine
+      [TILE.JUNGLE]:  { chance: 0.88, maxGrowth: 5 },  // thick tropical canopy
+      [TILE.WETLAND]: { chance: 0.28, maxGrowth: 3 },  // sparse mangrove/swamp
+      [TILE.SAVANNA]: { chance: 0.10, maxGrowth: 4 },  // scattered flat-top acacia
+      [TILE.GRASS]:   { chance: 0.07, maxGrowth: 4 },  // isolated deciduous
+      [TILE.TUNDRA]:  { chance: 0.12, maxGrowth: 2 },  // stunted shrubs only
+    };
     for (let ty2 = 0; ty2 < H; ty2++) {
       for (let tx2 = 0; tx2 < W; tx2++) {
         const tile = this.tiles[ty2][tx2];
-        if (!TREE_BIOMES.has(tile.type)) continue;
-        if (Math.random() > CONFIG.TREE_SPAWN_CHANCE) continue;
-        const growth = 1 + Math.floor(Math.random() * 5);
+        const rule = BIOME_TREE_RULES[tile.type];
+        if (!rule) continue;
+        if (Math.random() > rule.chance) continue;
+        const growth = 1 + Math.floor(Math.random() * rule.maxGrowth);
         this.treeMap[`${tx2},${ty2}`] = {
           x: tx2, y: ty2,
+          biome: tile.type,
+          maxGrowth: rule.maxGrowth,
           growth,
           growthTicks: Math.floor(Math.random() * CONFIG.TREE_TICKS_PER_STAGE),
         };
@@ -597,7 +631,8 @@ class World {
   tickTrees() {
     for (const key of Object.keys(this.treeMap)) {
       const tree = this.treeMap[key];
-      if (tree.growth >= 5) continue;
+      const cap = tree.maxGrowth || 5;
+      if (tree.growth >= cap) continue;
       tree.growthTicks++;
       if (tree.growthTicks >= CONFIG.TREE_TICKS_PER_STAGE) {
         tree.growth++;
@@ -665,7 +700,7 @@ class World {
     if (this.treeMap[key]) return false;
     const tile = this.getTile(x, y);
     if (!tile || tile.type === CONFIG.TILE.WATER || tile.type === CONFIG.TILE.MOUNTAIN) return false;
-    this.treeMap[key] = { x, y, growth: 1, growthTicks: 0 };
+    this.treeMap[key] = { x, y, biome: tile.type, maxGrowth: 5, growth: 1, growthTicks: 0 };
     return true;
   }
 
