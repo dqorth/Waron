@@ -11,7 +11,7 @@ const CONFIG = {
   MAP_W: 192,
   MAP_H: 192,
 
-  TICK_MS: 500,
+  TICK_MS: 1000,
   DAYS_PER_TICK: 1,
 
   UNIT_MOVE_INTERVAL: 4,

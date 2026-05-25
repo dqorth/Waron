@@ -40,7 +40,7 @@ class Tribe {
     this.military = 0;
 
     // ── Specific resource stockpiles ──────────────────────────────────────
-    this.res = { wood: 80, food: 150, metal: 40, stone: 40 };
+    this.res = { wood: 120, food: 200, metal: 60, stone: 60 };
 
     this.techLevel = 1;
     this.knowledge = 0;
@@ -383,6 +383,11 @@ class Tribe {
     const farmMult = this._world.weatherMods ? this._world.weatherMods.farmMult : 1;
     this.res.food = Math.min(foodCap, this.res.food + farmOutput * farmMult);
 
+    // Capitol food trickle — ensures tribes survive before first farm
+    if (this.buildings.some(b => b.type === CONFIG.ENTITY.CAPITOL)) {
+      this.res.food = Math.min(foodCap, this.res.food + 2);
+    }
+
     // Food spoilage
     this.res.food = Math.max(0, this.res.food - this.res.food * CONFIG.FOOD_SPOIL_RATE);
 
@@ -407,17 +412,24 @@ class Tribe {
       }
     }
 
-    // Passive trickle
+    // Passive trickle — fractional accumulator so low pop still produces
     const passiveMult = 1 + this.techLevel * 0.04;
-    this.res.metal = Math.min(storageCap, this.res.metal + Math.floor(this.population * 0.004 * passiveMult));
-    this.res.stone = Math.min(storageCap, this.res.stone + Math.floor(this.population * 0.004 * passiveMult));
+    const rawPassive = this.population * 0.004 * passiveMult;
+    this._metalAccum = (this._metalAccum || 0) + rawPassive;
+    this._stoneAccum = (this._stoneAccum || 0) + rawPassive;
+    const metalGain = Math.floor(this._metalAccum);
+    const stoneGain = Math.floor(this._stoneAccum);
+    this._metalAccum -= metalGain;
+    this._stoneAccum -= stoneGain;
+    this.res.metal = Math.min(storageCap, this.res.metal + Math.max(metalGain, 1));
+    this.res.stone = Math.min(storageCap, this.res.stone + Math.max(stoneGain, 1));
     this._techTimer++;
-    const techRate = Math.max(4, 22 - this.techLevel);
+    const techRate = Math.max(4, 14 - this.techLevel);
     if (this._techTimer >= techRate) {
       this._techTimer = 0;
       const boost   = this.debuffs.research_boost || 0;
       const penalty = this.debuffs.research_slow  || 0;
-      this.knowledge += Math.max(0, 1 + Math.round(boost * 3) - Math.round(penalty * 2));
+      this.knowledge += Math.max(0, 2 + Math.round(boost * 3) - Math.round(penalty * 2));
     }
   }
 
@@ -460,7 +472,7 @@ class Tribe {
    */
   _doBuildLogic() {
     this._buildTimer++;
-    if (this._buildTimer < 25) return;
+    if (this._buildTimer < 15) return;
     this._buildTimer = 0;
 
     if (this._expandFarmLand()) return;

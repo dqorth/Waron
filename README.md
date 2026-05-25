@@ -22,19 +22,22 @@ Interventions are not free. Every shadow action you take increases your **Suspic
   - **`CONFIG.SUSPICION_CRIT` (80%)**: Alert levels rise.
   - **`CONFIG.SUSPICION_LOSE` (100%)**: The target tribe discovers your hand. The two tribes will immediately unite, end their war, and hunt you down (resulting in game over).
 
-### 3. Chronological Epochs (Ages)
-The simulation progresses through time. As years pass and you collect **Essence** (harvested from casualties and conflict), you unlock new Ages. Each Age scales up maximum populations and unlocks a broader array of shadow actions:
+### 3. Dual Age Progression Systems
+The concept of "Ages" in Waron operates under a split-progression design. The era of the tribes and the era of the player are tracked and advanced **independently**:
 
-| Age | Time Period | Max Population | Max Tech Level | Military Scale | Highlight Actions |
-|---|---|---|---|---|---|
-| **Stone Age** | Year 1 - 500 | 60 | 2 | 1.0 | Sabotage Food, Cause Disease, Gift Weapons |
-| **Bronze Age** | Year 501 - 1200 | 200 | 5 | 2.5 | Incite Riot, Forge False Treaty, Border Dispute |
-| **Iron Age** | Year 1201 - 2500 | 600 | 10 | 5.0 | Manipulate Weather, Kidnap Scholar, Forge Evidence |
-| **Classical Age** | Year 2501 - 5000 | 2,000 | 18 | 10.0 | Poison Wells, Corrupt General, Inspire Prophet |
-| **Medieval Age** | Year 5001 - 10000 | 8,000 | 30 | 20.0 | Plague Release, Economic Sabotage, Spy Network |
-| **Renaissance** | Year 10001 - 20000 | 30,000 | 50 | 40.0 | Munitions Accident, Mislead Expedition, Religious Schism |
-| **Industrial Age** | Year 20001 - 50000 | 200,000 | 80 | 100.0 | Industrial Sabotage, Mass Propaganda, Secret Arms Deal |
-| **Atomic Age** | Year 50001+ | 2,000,000 | 150 | 500.0 | Nuclear Scare, Cyber Disruption, Satellite Interference |
+1. **Tribe Age (Time-Based)**: Faction progression is tied strictly to the calendar year. As years pass, the world automatically advances to later ages, which raises their maximum population capacity, technology ceilings, and military multipliers.
+2. **Player Age (Threshold-Based)**: Your progression as the Shadow Keeper is tied to resource thresholds. You only advance to the next Age when you possess enough accumulated **Essence** and **Player Knowledge** (gained passively over time). Advancing your age unlocks more advanced and powerful shadow actions.
+
+| Age | Time Period (Tribe) | Max Population (Tribe) | Max Tech Level (Tribe) | Military Scale (Tribe) | Player Requirements (Essence / Knowledge) | Unlocked Player Actions |
+|---|---|---|---|---|---|---|
+| **Stone Age** | Year 1 - 500 | 60 | 2 | 1.0 | 0 Essence / 0 Knowledge | Sabotage Food, Cause Disease, Gift Weapons |
+| **Bronze Age** | Year 501 - 1200 | 200 | 5 | 2.5 | 300 Essence / 80 Knowledge | Incite Riot, Forge False Treaty, Border Dispute |
+| **Iron Age** | Year 1201 - 2500 | 600 | 10 | 5.0 | 1,200 Essence / 250 Knowledge | Manipulate Weather, Kidnap Scholar, Forge Evidence |
+| **Classical Age** | Year 2501 - 5000 | 2,000 | 18 | 10.0 | 3,500 Essence / 600 Knowledge | Poison Wells, Corrupt General, Inspire Prophet |
+| **Medieval Age** | Year 5001 - 10000 | 8,000 | 30 | 20.0 | 10,000 Essence / 1,500 Knowledge | Plague Release, Economic Sabotage, Spy Network |
+| **Renaissance** | Year 10001 - 20000 | 30,000 | 50 | 40.0 | 35,000 Essence / 4,000 Knowledge | Munitions Accident, Mislead Expedition, Religious Schism |
+| **Industrial Age** | Year 20001 - 50000 | 200,000 | 80 | 100.0 | 120,000 Essence / 12,000 Knowledge | Industrial Sabotage, Mass Propaganda, Secret Arms Deal |
+| **Atomic Age** | Year 50001+ | 2,000,000 | 150 | 500.0 | 500,000 Essence / 50,000 Knowledge | Nuclear Scare, Cyber Disruption, Satellite Interference |
 
 ---
 

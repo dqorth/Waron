@@ -581,7 +581,7 @@ function _getCalendar(ticks) {
   const dayInMonth    = (totalDays % DPM) + 1;
   const monthIdx      = Math.floor(totalDays / DPM) % MPY;
   const month         = monthIdx + 1;
-  const year          = Math.floor(totalDays / DPY) + 1;
+  const year          = TimeDilation.getYearFromDays(totalDays);
 
   let season;
   if      (month <= 3)  season = CONFIG.SEASON.SPRING;
