@@ -17,12 +17,12 @@ const TIME_DILATION_CONFIG = {
    * @type {Array<{yearStart: number, yearEnd: number|null, daysPerYear: number}>}
    */
   checkpoints: [
-    { yearStart: 1,     yearEnd: 500,   daysPerYear: 12 },  // Stone Age: 1 day = 10 years
-    { yearStart: 501,   yearEnd: 1200,  daysPerYear: 16 },  // Bronze Age: 1 day = 5 years
-    { yearStart: 1201,  yearEnd: 2500,  daysPerYear: 20 },  // Iron Age: 1 day = 2 years
-    { yearStart: 2501,  yearEnd: 5000,  daysPerYear: 40 },  // Classical Age: 1 day = 1 year
-    { yearStart: 5001,  yearEnd: 10000, daysPerYear: 80 },  // Medieval Age: 5 days = 1 year
-    { yearStart: 10001, yearEnd: 20000, daysPerYear: 160 }, // Renaissance: 20 days = 1 year
+    { yearStart: 1,     yearEnd: 500,   daysPerYear: 12 },  // Stone Age: 12 days = 1 year
+    { yearStart: 501,   yearEnd: 1200,  daysPerYear: 16 },  // Bronze Age: 16 days = 1 year
+    { yearStart: 1201,  yearEnd: 2500,  daysPerYear: 20 },  // Iron Age: 20 days = 1 year
+    { yearStart: 2501,  yearEnd: 5000,  daysPerYear: 40 },  // Classical Age: 40 days = 1 year
+    { yearStart: 5001,  yearEnd: 10000, daysPerYear: 80 },  // Medieval Age: 80 days = 1 year
+    { yearStart: 10001, yearEnd: 20000, daysPerYear: 160 }, // Renaissance: 160 days = 1 year
     { yearStart: 20001, yearEnd: 50000, daysPerYear: 210 }, // Industrial Age: 50 days = 1 year
     { yearStart: 50001, yearEnd: null,  daysPerYear: 351.0 } // Atomic Age+: standard 351 days = 1 year
   ]

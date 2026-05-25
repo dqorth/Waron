@@ -2081,6 +2081,41 @@ This document provides a verbose breakdown of the codebase, its categories, func
    */
 ```
 
+**Function: `getNearbyResource`**
+```javascript
+/**
+   * Finds the nearest walkable tile that contains a harvestable amount of a specified resource type.
+   * 
+   * @description This method searches a grid of coordinates around the starting (x, y) coordinates up to the specified range. For each tile, it checks if it is walkable, has a valid resource node, contains at least 1 unit of resources, and has a yield entry for the requested resource type in CONFIG.TILE_YIELD. It returns the coordinates of the nearest match by Manhattan distance.
+   * 
+   * @workflow
+   * 1. Initialize `nearest` to null and `nearestDist` to Infinity.
+   * 2. Iterate `dy` from `-range` to `range`:
+   *    a. Iterate `dx` from `-range` to `range`:
+   *       i. Calculate target coordinates `nx = x + dx` and `ny = y + dy`.
+   *       ii. Retrieve the tile object at `(nx, ny)`.
+   *       iii. If the tile is null, lacks a `resourceNode`, or `resourceNode.amount < 1`, skip it.
+   *       iv. Get the `yieldTable` for this tile type from `CONFIG.TILE_YIELD`.
+   *       v. If `yieldTable` exists and has `yieldTable[resourceType] > 0`:
+   *          1. Calculate Manhattan distance `d = abs(dx) + abs(dy)`.
+   *          2. If `d` is less than `nearestDist`:
+   *             a. Set `nearestDist = d`.
+   *             b. Set `nearest = { x: nx, y: ny }`.
+   * 3. Return `nearest`.
+   * 
+   * @param {number} x - The starting X-coordinate for the search.
+   * @param {number} y - The starting Y-coordinate for the search.
+   * @param {string} resourceType - The type of resource to seek (e.g. 'stone', 'metal').
+   * @param {number} [range=15] - The maximum distance (Manhattan) to search. Defaults to 15.
+   * @returns {object|null} An object `{ x, y }` representing the nearest resource tile, or null if none found.
+   * 
+   * @dependencies CONFIG.TILE_YIELD, this.getTile()
+   * @modifies None
+   * @triggers Called by worker units to search for mining targets when stockpiles are low.
+   * @performance O(R^2) where R is the search range. For range 35, it checks up to 5000 tiles.
+   */
+```
+
 **Function: `notifyEntityMoved`**
 ```javascript
 /**
@@ -2875,30 +2910,109 @@ This document provides a verbose breakdown of the codebase, its categories, func
    */
 ```
 
+**Function: `_drawResourceIndicators`**
+```javascript
+/**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
+```
+
+**Function: `seed`**
+```javascript
+/**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
+```
+
+**Function: `lcg`**
+```javascript
+/**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
+```
+
 **Function: `_getTileColor`**
 ```javascript
 /**
-   * Determines the final rendered color for a tile, blending its base type color with an owner's territory tint.
-   *
-   * @description This private method takes a tile object and, optionally, colors for Tribe A and Tribe B. It first retrieves the base color corresponding to the tile's `type` from a predefined map. If the tile has an `owner` ('a' or 'b'), it then blends this base color with the specified tribe color to create a tinted appearance, visually representing territory control.
-   *
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
    * @workflow
-   * 1. Define `baseColors` map for all `CONFIG.TILE` types.
-   * 2. Get the `base` color from `baseColors` using `tile.type`, defaulting to a green if not found.
-   * 3. If `tile.owner` is 'a', blend `base` with `tribeAColor` by 20% using `this._blendColor()`.
-   * 4. If `tile.owner` is 'b', blend `base` with `tribeBColor` by 20% using `this._blendColor()`.
-   * 5. Return the final `base` color.
-   *
-   * @param {object} tile - The tile object, containing `type` and `owner` properties.
-   * @param {string} tribeAColor - The hex or rgb string color for Tribe A.
-   * @param {string} tribeBColor - The hex or rgb string color for Tribe B.
-   * @returns {string} The final CSS color string (e.g., 'rgb(R,G,B)') for the tile.
-   *
-   * @dependencies CONFIG.TILE.*, this._blendColor()
-   * @modifies None.
-   * @triggers Called by `_drawTileToBuffer()` for each tile being rendered to determine its fill color.
-   * @performance O(1)
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
    */
+```
+
+**Function: `shade`**
+```javascript
+/**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
 ```
 
 **Function: `_blendColor`**
@@ -2981,36 +3095,45 @@ This document provides a verbose breakdown of the codebase, its categories, func
    */
 ```
 
+**Function: `_lighten`**
+```javascript
+/**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
+```
+
 **Function: `_drawTreeSprite`**
 ```javascript
 /**
-   * Draws a multi-stage tree sprite onto the canvas, varying detail based on growth stage and type.
-   *
-   * @description This private method renders a polygonal tree sprite at a given `x, y` coordinate. The appearance of the tree is determined by its `stage` of growth (1 to 5) and whether it's a `Jungle` type, influencing its colors and complexity. The size of the tree scales with the `zoom` level. This function effectively represents the visual progression of tree growth within the game world.
-   *
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
    * @workflow
-   * 1. Calculate base `s` (size) from `zoom * 5`.
-   * 2. Define `darkCol`, `midCol`, `lightCol`, `trunkCol` based on `isJungle`.
-   * 3. Use a `switch` statement on `stage` (defaulting to 5 if `stage` is unknown):
-   *    - **Case 1 (Seedling):** Draw a single, small circular canopy.
-   *    - **Case 2:** Draw a short rectangular trunk and a triangular canopy.
-   *    - **Case 3:** Draw a slightly taller trunk and two stacked triangular canopies.
-   *    - **Case 4:** Draw a taller trunk and two larger stacked triangular canopies.
-   *    - **Case 5 (Full-grown):** Draw the tallest trunk and three distinct stacked triangular canopies with varying shades.
-   * 4. For each case, set `ctx.fillStyle`, define a path with `ctx.beginPath()`, `ctx.moveTo()`, `ctx.lineTo()` (or `ctx.arc()`), `ctx.closePath()`, and call `ctx.fill()`.
-   *
-   * @param {CanvasRenderingContext2D} ctx - The 2D rendering context to draw on.
-   * @param {number} x - The screen X-coordinate for the tree's base.
-   * @param {number} y - The screen Y-coordinate for the tree's base (offset for vertical scaling).
-   * @param {number} zoom - The current zoom level, influencing sprite scale.
-   * @param {number} stage - The growth stage of the tree (1-5).
-   * @param {boolean} [isJungle=false] - `true` if the tree is a jungle tree, influencing its color palette.
-   * @returns {void}
-   *
-   * @dependencies None explicitly, relies on context methods.
-   * @modifies The provided `ctx` (draws shapes, fills, sets styles).
-   * @triggers Called by `_drawTileToBuffer()` when rendering `FOREST` or `JUNGLE` tiles at high zoom.
-   * @performance O(1) as it draws a fixed number of primitive shapes based on `stage`.
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
    */
 ```
 
@@ -5047,6 +5170,27 @@ This document provides a verbose breakdown of the codebase, its categories, func
        */
 ```
 
+**Function: `d`**
+```javascript
+/**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
+```
+
 **Function: `_updateTowers`**
 ```javascript
 /**
@@ -5115,27 +5259,6 @@ This document provides a verbose breakdown of the codebase, its categories, func
    * @triggers Called by internal unit movement logic (e.g., in early versions or specific scenarios).
    * @performance O(1) as `getNeighbors` returns a small constant number of neighbors (e.g., 4 or 8).
    */
-```
-
-**Function: `d`**
-```javascript
-/**
-       * One-line summary.
-       * 
-       * @description MANDATORY detailed explanation (2-5 sentences).
-       * 
-       * @workflow
-       * 1. Specific numbered steps
-       * 2. Include conditionals and loops
-       * 
-       * @param {Type} name - Description
-       * @returns {Type} Description
-       * 
-       * @dependencies stateManager.get(), etc.
-       * @modifies What state/DOM changes
-       * @triggers When/how called
-       * @performance O(n) complexity notes
-       */
 ```
 
 **Function: `_stepTowardVaried`**

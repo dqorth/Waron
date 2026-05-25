@@ -1412,6 +1412,23 @@ class Renderer {
   // Draws scattered small resource indicator shapes within a tile.
   // Uses a deterministic scatter based on tile coords so positions are stable
   // across frames without storing any state.
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawResourceIndicators(ctx, sx, sy, sz, vs, res, fillFrac, tx, ty) {
     // Number of indicators scales with how full the resource node is.
     const count = 1 + Math.floor(fillFrac * 3);
@@ -1428,7 +1445,41 @@ class Renderer {
 
     for (let i = 0; i < count; i++) {
       // Fibonacci-angle scatter for even spread; LCG hash for radius variation.
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const seed = (tx * 73 + ty * 31 + i * 17) | 0;
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const lcg  = ((seed * 1664525 + 1013904223) >>> 0) / 0xFFFFFFFF;
       const angle = i * 2.39996; // golden angle in radians
       const r = sz * (0.10 + lcg * 0.20);
@@ -1466,6 +1517,23 @@ class Renderer {
     ctx.globalAlpha = 1;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getTileColor(tile, tribeAColor, tribeBColor) {
     const baseColors = {
       [CONFIG.TILE.WATER]: '#1a3a5c',
@@ -1495,6 +1563,23 @@ class Renderer {
       // Land: normalise elevation across the land range [0.10, 1.0].
       const landElev = Math.max(0, (elev - 0.10) / 0.90);
       // Shift centred at 0.4 so midlands are unaffected; peaks lighten, valleys darken.
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const shade = (landElev - 0.40) * 0.36;
       if (shade > 0) {
         base = this._lighten(base, shade);
@@ -1611,6 +1696,23 @@ class Renderer {
   }
 
   // Lightens a color towards white by the given factor (0 = no change, 1 = white).
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _lighten(color, factor) {
     const [r, g, b] = this._parseColor(color);
     return `rgb(${Math.min(255, Math.round(r + (255 - r) * factor))},${Math.min(255, Math.round(g + (255 - g) * factor))},${Math.min(255, Math.round(b + (255 - b) * factor))})`;
@@ -1648,6 +1750,23 @@ class Renderer {
    */
   // Draws a biome-appropriate tree sprite at (x, y).
   // biome is a CONFIG.TILE.* integer; stage is the growth level (1-5).
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTreeSprite(ctx, x, y, zoom, stage, biome) {
     const s = zoom * 5;
     const T = CONFIG.TILE;
