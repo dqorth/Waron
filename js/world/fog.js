@@ -36,6 +36,23 @@ const FOG = {
 };
 
 class FogOfWar {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(w, h) {
     this.W = w;
     this.H = h;
@@ -52,17 +69,68 @@ class FogOfWar {
     this._generation = 0;
   }
 
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _idx(x, y) {
     return y * this.W + x;
   }
 
   // Get visibility for the player (combined view)
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getVisibility(x, y) {
     if (x < 0 || x >= this.W || y < 0 || y >= this.H) return FOG.UNEXPLORED;
     return this.gridPlayer[this._idx(x, y)];
   }
 
   // Get tribe-specific visibility
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getTribeVisibility(tribeId, x, y) {
     if (x < 0 || x >= this.W || y < 0 || y >= this.H) return FOG.UNEXPLORED;
     const grid = tribeId === 'a' ? this.gridA : this.gridB;
@@ -70,6 +138,23 @@ class FogOfWar {
   }
 
   // Full visibility update — call each tick or every few ticks
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   update(tribeA, tribeB) {
     const W = this.W;
     const H = this.H;
@@ -110,6 +195,23 @@ class FogOfWar {
   }
 
   // Reveal tiles in a circle around (cx, cy) with given radius
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _reveal(grid, cx, cy, radius) {
     const W = this.W;
     const H = this.H;
@@ -132,6 +234,23 @@ class FogOfWar {
   }
 
   // Check if dirty since last render
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   isDirty(lastGen) {
     return this._generation !== lastGen;
   }

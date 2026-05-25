@@ -4,24 +4,37 @@
 
 Pure client-side JavaScript. No build tools, no bundler, no server. Scripts load in dependency order via `<script>` tags in `index.html`. All state lives in the `Game` IIFE module which exposes a public API.
 
+Large classes are split by **composition**: a parent class (`Tribe`, `Renderer`, `World`)
+holds the shared state and a back-reference is handed to each subsystem class
+(`this.tribe` / `this.r` / `this.world`). Subsystems hold no state of their own — they
+read and write the parent's state through the back-reference. Files are grouped under
+`js/{config,world,tribe,systems,render,ui}/`.
+
 ### Load Order (critical)
 ```
-dev.js → config.js → ages.js → time_dilation.js → world.js → fog.js →
-diplomacy.js → tribe.js → player.js → actions.js → renderer.js → ui.js → game.js
+config/{dev,config,ages,time-dilation}
+world/{territory,trees,world,fog,wildlife}
+systems/{diplomacy,calendar,weather,fracture,player,actions}
+tribe/{economy,building,military,population,unit-ai,tribe}   ← subsystems before tribe.js
+render/{tiles,buildings,units,effects,combat,renderer}        ← subsystems before renderer.js
+ui/ui → game.js
 ```
 
-Later scripts may reference classes/constants from earlier ones at **load time**. References to `Game` (defined last) must use runtime guards: `typeof Game !== 'undefined' && Game.diplomacy`.
+Subsystem files must load **before** their parent class file (so `new TribeEconomy(this)`
+etc. resolve). References to `Game` (defined last) must use runtime guards:
+`typeof Game !== 'undefined' && Game.diplomacy`.
 
 ### Module Responsibilities
 
-| File | Role | Hot path? |
-|------|------|-----------|
-| `world.js` | Map generation, spatial hash, tile data, territory, trees | Yes (tickResources) |
-| `fog.js` | Visibility grid, per-tribe sight tracking | Moderate (every 5 ticks) |
-| `diplomacy.js` | Relations, treaties, attack gating | Light (every tick, O(1)) |
-| `tribe.js` | AI brain — economy, building, military, hunger, units | Yes (heaviest tick cost) |
-| `renderer.js` | Canvas 2D rendering, tile buffer, sprites, weather, fog overlay | Yes (every frame) |
-| `game.js` | Tick orchestration, fracture/founding, weather state machine | Moderate |
+| Area | Files | Role | Hot path? |
+|------|-------|------|-----------|
+| World | `world/world.js` + `territory.js`, `trees.js` | Map gen, spatial hash, tiles; territory ownership; tree growth | Yes (tickResources) |
+| Fog | `world/fog.js` | Visibility grid, per-tribe sight tracking | Moderate (every 5 ticks) |
+| Diplomacy | `systems/diplomacy.js` | Relations, treaties, attack gating | Light (every tick, O(1)) |
+| Tribe | `tribe/tribe.js` + `economy/building/military/population/unit-ai.js` | AI brain — split per concern | Yes (heaviest tick cost) |
+| Render | `render/renderer.js` + `tiles/buildings/units/effects/combat.js` | Canvas 2D: tile buffer, sprites, weather, combat, fog overlay | Yes (every frame) |
+| Systems | `systems/{calendar,weather,fracture}.js` | Calendar conversion, weather state machine, fracture/founding | Moderate |
+| Game | `game.js` | Tick orchestration; owns `WeatherSystem` + `FractureSystem` instances | Moderate |
 
 ## Performance Architecture
 
@@ -63,7 +76,9 @@ Carry capacity: `ceil((baseDays + ageIndex * perAgeDays) * TICKS_PER_DAY * HUNGE
 
 ### Fracture → Migration → Founding
 
-**Phase 1 — Fracture** (`_triggerFracture` in game.js):
+Lives in `systems/fracture.js` as `class FractureSystem` (game.js holds one instance as `fracture`).
+
+**Phase 1 — Fracture** (`FractureSystem._trigger`):
 - Calculates caravan resources (deducted from parent tribe)
 - Calculates journey food per unit from distance
 - Selects splinter units proportionally from each type
@@ -74,7 +89,7 @@ Carry capacity: `ceil((baseDays + ageIndex * perAgeDays) * TICKS_PER_DAY * HUNGE
 - Units march and eat from carry
 - `_checkFounding()` runs each tick
 
-**Phase 3 — Founding** (`_checkFounding` in game.js):
+**Phase 3 — Founding** (`FractureSystem._checkFounding`):
 - Triggers when any tribeB unit is within 3 tiles of target
 - Places capitol + homes from caravan resources
 - Transfers remaining caravan to tribeB.res
@@ -97,28 +112,28 @@ When `_doAttackLogic` launches an assault:
 ## Adding New Systems
 
 ### New Action
-1. Add entry to `ACTIONS` object in `actions.js`
-2. Add action ID to relevant age's `actions` array in `ages.js`
+1. Add entry to `ACTIONS` object in `systems/actions.js`
+2. Add action ID to relevant age's `actions` array in `config/ages.js`
 3. `execute(player, tribe)` for targeted, `execute(player, tribeA, tribeB)` for global
 4. Use `tribe.applyDebuff()`, `tribe.killUnits()`, `tribe.drainResources()` etc.
 
 ### New Building Type
 1. Add to `CONFIG.ENTITY`, `CONFIG.BUILDING_HP`, `CONFIG.BUILDING_COST`, `CONFIG.BUILDING_MAX_LEVEL`
-2. Add draw method `_drawMyBuilding()` in renderer.js
-3. Add to the switch in `_drawBuilding()`
-4. Add build priority in `_doBuildLogic()`
+2. Add draw method `_drawMyBuilding()` in `render/buildings.js`
+3. Add to the switch in `_drawBuilding()` (`render/buildings.js`)
+4. Add build priority in `_doBuildLogic()` (`tribe/building.js`)
 
 ### New Unit Type
 1. Add to `CONFIG.ENTITY`, `CONFIG.UNIT_HP`, `CONFIG.UNIT_STATS_BASE`
-2. Add draw method in renderer.js
-3. Add AI behavior in `_updateUnits()`
-4. Add spawn logic in `_doMilitaryLogic()`
+2. Add draw method in `render/units.js`
+3. Add AI behavior in `_updateUnits()` (`tribe/unit-ai.js`)
+4. Add spawn logic in `_doMilitaryLogic()` (`tribe/military.js`)
 
 ### New Tile Type
 1. Add to `CONFIG.TILE` and `CONFIG.TILE_YIELD`
-2. Add color in `_getTileColor()` baseColors
-3. Add biome yield in `_getFarmBiomeBaseYield()`
-4. Add generation logic in `World.generate()`
+2. Add color in `_getTileColor()` baseColors (`render/tiles.js`)
+3. Add biome yield in `_getFarmBiomeBaseYield()` (`tribe/economy.js`)
+4. Add generation logic in `World.generate()` (`world/world.js`)
 
 ## Config Reference
 

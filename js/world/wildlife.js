@@ -7,6 +7,23 @@
 // ══════════════════════════════════════════════════════════════════════════════
 
 class Wildlife {
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(world) {
     this._world = world;
     this.animals = [];       // [{x, y, type, hp, maxHp, _wanderTimer, _dead, _respawnTimer, _homeX, _homeY}]
@@ -15,11 +32,45 @@ class Wildlife {
   }
 
   // Populate the map with initial wildlife
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   populate() {
     const W = this._world.W;
     const H = this._world.H;
     const cfg = CONFIG.ANIMAL;
     const biomeMap = cfg.BIOME_ANIMALS || {};
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const chance = (cfg.SPAWN_CHANCE || 0.08) * ((typeof DEV !== 'undefined') ? (DEV.ANIMAL_SPAWN_MULT || 1) : 1);
     const maxPop = cfg.MAX_POPULATION || 200;
 
@@ -30,6 +81,23 @@ class Wildlife {
         if (!animalType) continue;
         if (Math.random() > chance) continue;
 
+        /**
+         * One-line summary.
+         *
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         *
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         *
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         *
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const hp = (cfg.HP && cfg.HP[animalType]) || 3;
         this.animals.push({
           id: this._nextId++,
@@ -46,6 +114,23 @@ class Wildlife {
   }
 
   // Called each tick
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tick(tribeA, tribeB) {
     const cfg = CONFIG.ANIMAL;
     const wanderInterval = cfg.WANDER_INTERVAL || 8;
@@ -109,6 +194,23 @@ class Wildlife {
   }
 
   // Get an animal at or adjacent to (x, y), or null
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getHuntable(x, y, range = 1) {
     for (const a of this.animals) {
       if (a._dead) continue;
@@ -118,9 +220,43 @@ class Wildlife {
   }
 
   // Hunt an animal — returns food gained, or 0
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   hunt(animal, damage = 3) {
     if (!animal || animal._dead) return 0;
     const cfg = CONFIG.ANIMAL;
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const foodMult = (typeof DEV !== 'undefined') ? (DEV.ANIMAL_FOOD_MULT || 1) : 1;
 
     animal.hp -= damage;
@@ -128,6 +264,23 @@ class Wildlife {
       animal._dead = true;
       animal._respawnTimer = cfg.RESPAWN_TICKS || 150;
       delete this._spawnMap[`${animal.x},${animal.y}`];
+      /**
+       * One-line summary.
+       *
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       *
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       *
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       *
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const yield_ = ((cfg.FOOD_YIELD && cfg.FOOD_YIELD[animal.type]) || 3) * foodMult;
       return Math.ceil(yield_);
     }
@@ -135,6 +288,23 @@ class Wildlife {
   }
 
   // Get all living animals for rendering
+  /**
+   * One-line summary.
+   *
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   *
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   *
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   *
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getLiving() {
     return this.animals.filter(a => !a._dead);
   }
