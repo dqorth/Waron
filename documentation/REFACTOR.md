@@ -1,10 +1,10 @@
 # WARON — Refactoring Plan
 
-## Architecture: ES Modules + Composition
+## Architecture: Global Classes + Composition
 
-Every file is an ES module (`import`/`export`). Large classes split via **composition** — each concern becomes its own class holding a reference to shared parent state. This structure converts to TypeScript by adding type annotations. No prototype hacking, no ambient declarations, no build tools required.
+Every file defines a global class. Large classes split via **composition** — each concern becomes its own class holding a reference to shared parent state. Dependencies managed by `<script>` tag load order in `index.html`. No `import`/`export`, no build tools, no server — opens from `file://`.
 
-**Requires:** Serve over HTTP (e.g. `python -m http.server 8080`). Direct `file://` opens don't support ES module imports.
+When TypeScript is needed: add `export`/`import`, install esbuild (single binary), run one command. The class structure stays identical — only the plumbing changes.
 
 ---
 
@@ -21,68 +21,93 @@ Every file is an ES module (`import`/`export`). Large classes split via **compos
 
 ---
 
+## Core Problem
+
+Three files do too many things:
+
+**`tribe.js` (43 methods, 6 concerns):**
+- Economy: `_gatherResources`, `_assignFarmWorkers`, farm helpers
+- Building: `_doBuildLogic`, `_buildNew`, `_expandFarmLand`, `_doUpgradeLogic`
+- Military: `_doMilitaryLogic`, `_doAttackLogic`, tower logic, army supply
+- Population: `_growPopulation`, `_updateHunger`, food carry, `_syncPopulationUnits`
+- Unit AI: `_updateUnits` (400+ lines — warrior, worker, scout, normal, each unique)
+- Helpers: stats, movement, combat math, debuffs
+
+**`renderer.js` (52 methods, 5 concerns):**
+- Core: camera, tile buffer, hex math, coordinate conversion
+- Tile drawing: `_drawTileToBuffer`, colors, depth faces, biome details
+- Building sprites: 8 methods (`_drawCapitol` through `_drawWall`)
+- Unit sprites: 5 methods + visual seed, purpose offset, gait
+- Effects: weather particles, fog overlay, attack lines, tower beams, tooltips
+
+**`game.js` (17 functions, 4 concerns):**
+- Game loop: init, start, reset, tick, render loop
+- Fracture: trigger, founding, settlement search
+- Weather: state machine, season weights, event messages
+- Calendar: time conversion
+
+---
+
 ## Proposed Structure
 
 ```
 Waron/
-├── index.html              ← single <script type="module" src="js/main.js">
+├── index.html              ← script tags in dependency order
 ├── README.md
 │
 ├── css/
 │   └── style.css
 │
-├── docs/
+├── documentation/
 │   ├── DESIGN.md
 │   ├── DEVELOPMENT.md
 │   ├── STATUS.md
 │   └── REFACTOR.md
 │
 └── js/
-    ├── main.js              ← boot: imports Game, calls Game.init()
-    │
     ├── config/
-    │   ├── dev.js            → export const DEV = { ... }
-    │   ├── config.js         → export const CONFIG = { ... }
-    │   └── ages.js           → export const AGES = [ ... ]
+    │   ├── dev.js            → const DEV = { ... }
+    │   ├── config.js         → const CONFIG = { ... }
+    │   └── ages.js           → const AGES = [ ... ]
     │
     ├── world/
-    │   ├── world.js          → export class World { ... }
-    │   ├── territory.js      → export class Territory { constructor(world) }
-    │   ├── trees.js          → export class TreeManager { constructor(world) }
-    │   ├── wildlife.js       → export class Wildlife { constructor(world) }
-    │   └── fog.js            → export class FogOfWar { ... }
+    │   ├── world.js          → class World { ... }
+    │   ├── territory.js      → class Territory { constructor(world) }
+    │   ├── trees.js          → class TreeManager { constructor(world) }
+    │   ├── wildlife.js       → class Wildlife { constructor(world) }
+    │   └── fog.js            → class FogOfWar { ... }
     │
     ├── tribe/
-    │   ├── tribe.js          → export class Tribe { ... }
-    │   ├── economy.js        → export class TribeEconomy { constructor(tribe) }
-    │   ├── building.js       → export class TribeBuilding { constructor(tribe) }
-    │   ├── military.js       → export class TribeMilitary { constructor(tribe) }
-    │   ├── population.js     → export class TribePopulation { constructor(tribe) }
-    │   └── unit-ai.js        → export class TribeUnitAI { constructor(tribe) }
+    │   ├── economy.js        → class TribeEconomy { constructor(tribe) }
+    │   ├── building.js       → class TribeBuilding { constructor(tribe) }
+    │   ├── military.js       → class TribeMilitary { constructor(tribe) }
+    │   ├── population.js     → class TribePopulation { constructor(tribe) }
+    │   ├── unit-ai.js        → class TribeUnitAI { constructor(tribe) }
+    │   └── tribe.js          → class Tribe { ... }  ← loaded AFTER subsystems
     │
     ├── systems/
-    │   ├── diplomacy.js      → export class Diplomacy { ... }
-    │   ├── fracture.js       → export class FractureSystem { constructor(game) }
-    │   ├── weather.js        → export class WeatherSystem { ... }
-    │   ├── calendar.js       → export function getCalendar(ticks) { ... }
-    │   ├── actions.js        → export const ACTIONS = { ... }
-    │   └── player.js         → export class Player { ... }
+    │   ├── diplomacy.js      → class Diplomacy { ... }
+    │   ├── fracture.js       → class FractureSystem { constructor(game) }
+    │   ├── weather.js        → class WeatherSystem { ... }
+    │   ├── calendar.js       → function getCalendar(ticks) { ... }
+    │   ├── actions.js        → const ACTIONS = { ... }
+    │   └── player.js         → class Player { ... }
     │
     ├── render/
-    │   ├── renderer.js       → export class Renderer { ... }
-    │   ├── tiles.js          → export class TileRenderer { constructor(renderer) }
-    │   ├── buildings.js      → export class BuildingRenderer { constructor(renderer) }
-    │   ├── units.js          → export class UnitRenderer { constructor(renderer) }
-    │   ├── effects.js        → export class EffectsRenderer { constructor(renderer) }
-    │   └── combat.js         → export class CombatRenderer { constructor(renderer) }
+    │   ├── tiles.js          → class TileRenderer { constructor(renderer) }
+    │   ├── buildings.js      → class BuildingRenderer { constructor(renderer) }
+    │   ├── units.js          → class UnitRenderer { constructor(renderer) }
+    │   ├── effects.js        → class EffectsRenderer { constructor(renderer) }
+    │   ├── combat.js         → class CombatRenderer { constructor(renderer) }
+    │   └── renderer.js       → class Renderer { ... }  ← loaded AFTER subsystems
     │
     ├── ui/
-    │   └── ui.js             → export class UI { ... }
+    │   └── ui.js             → class UI { ... }
     │
-    └── game.js               → export class Game { ... }
+    └── game.js               → const Game = (() => { ... })()
 ```
 
-**30 files.** Each 100–400 lines of code + JSDoc. Single entry point (`main.js`).
+**30 files.** Each 100–400 lines of code + JSDoc. All globals, all script tags.
 
 ---
 
@@ -90,52 +115,53 @@ Waron/
 
 ### Core Idea
 
-Each subsystem is a class that receives a reference to its parent's state. It reads and writes shared state through that reference. No inheritance, no prototype mutation, no globals.
+Each subsystem is a global class that receives its parent's reference in the constructor. Reads and writes shared state through that reference. No inheritance, no prototypes, no modules.
 
 ### Tribe Example
 
 ```javascript
-// tribe/tribe.js
-import { TribeEconomy } from './economy.js';
-import { TribeBuilding } from './building.js';
-import { TribeMilitary } from './military.js';
-import { TribePopulation } from './population.js';
-import { TribeUnitAI } from './unit-ai.js';
-import { CONFIG } from '../config/config.js';
+// tribe/economy.js — loaded before tribe.js
+class TribeEconomy {
+  constructor(tribe) {
+    this.tribe = tribe;
+    this._techTimer = 0;
+    this._metalAccum = 0;
+    this._stoneAccum = 0;
+  }
 
-export class Tribe {
+  gather() {
+    const tribe = this.tribe;
+    const farms = tribe.buildings.filter(b => b.type === CONFIG.ENTITY.FARM);
+    // ...all economy logic, accessing tribe.res, tribe.buildings, tribe._world
+  }
+
+  _assignFarmWorkers(farms) { ... }
+}
+```
+
+```javascript
+// tribe/tribe.js — loaded AFTER economy.js, building.js, etc.
+class Tribe {
   constructor(id, name, startX, startY, color) {
     this.id = id;
     this.name = name;
-    this.color = color;
-    this.startX = startX;
-    this.startY = startY;
-
-    this.population = 20 + Math.floor(Math.random() * 10);
-    this.military = 0;
     this.res = { wood: 120, food: 200, metal: 60, stone: 60 };
-    this.techLevel = 1;
-    this.knowledge = 0;
-    this.morale = 0.7;
     this.buildings = [];
     this.units = [];
-    this.debuffs = {};
-    this.casualties = 0;
-    this.power = 0;
-    // ...all shared state lives here
+    // ...all shared state
 
-    // Subsystems — each gets `this` as their tribe reference
-    this.economy    = new TribeEconomy(this);
-    this.building   = new TribeBuilding(this);
-    this.military   = new TribeMilitary(this);
-    this.population = new TribePopulation(this);
-    this.unitAI     = new TribeUnitAI(this);
+    // Subsystems
+    this.econ = new TribeEconomy(this);
+    this.bld  = new TribeBuilding(this);
+    this.mil  = new TribeMilitary(this);
+    this.pop  = new TribePopulation(this);
+    this.ai   = new TribeUnitAI(this);
   }
 
   init(world, enemyTribe) {
     this._world = world;
     this._enemy = enemyTribe;
-    // ...placement, starting units
+    // ...
   }
 
   tick(year) {
@@ -148,13 +174,13 @@ export class Tribe {
     this.bld.upgrade();
     this.mil.spawn();
     this.mil.attack();
-    this.unitAI.update();
+    this.ai.update();
     this.mil.updateTowers();
     this.pop.sync();
     this._computePower();
   }
 
-  // Public API — thin wrappers stay on Tribe
+  // Public API stays on Tribe
   applyDebuff(key, strength) { ... }
   killLeader() { ... }
   killUnits(count) { ... }
@@ -163,40 +189,29 @@ export class Tribe {
 }
 ```
 
-```javascript
-// tribe/economy.js
-import { CONFIG } from '../config/config.js';
-
-export class TribeEconomy {
-  constructor(tribe) {
-    this.tribe = tribe;
-    this._techTimer = 0;
-    this._metalAccum = 0;
-    this._stoneAccum = 0;
-  }
-
-  gather() {
-    const tribe = this.tribe;
-    const farms = tribe.buildings.filter(b => b.type === CONFIG.ENTITY.FARM);
-    // ...all economy logic, using tribe.res, tribe.buildings, tribe._world
-  }
-
-  _assignFarmWorkers(farms) { ... }
-  // ...farm helpers
-}
-```
-
 ### Renderer Example
 
 ```javascript
-// render/renderer.js
-import { TileRenderer } from './tiles.js';
-import { BuildingRenderer } from './buildings.js';
-import { UnitRenderer } from './units.js';
-import { EffectsRenderer } from './effects.js';
-import { CombatRenderer } from './combat.js';
+// render/tiles.js — loaded before renderer.js
+class TileRenderer {
+  constructor(renderer) {
+    this.r = renderer;  // access r.ctx, r.zoom, r.tileToScreen(), etc.
+    this._tileCanvas = null;
+    this._tileBufDirty = true;
+    // ...buffer state
+  }
 
-export class Renderer {
+  renderBuffer(world, weather) { ... }
+  blit(ctx) { ... }
+  _drawTileToBuffer(ctx, tx, ty, tile, sx, sy, sz, vs, corners) { ... }
+  _getTileColor(tile) { ... }
+  _drawTreeSprite(ctx, x, y, zoom, stage, isJungle) { ... }
+}
+```
+
+```javascript
+// render/renderer.js — loaded AFTER all render subsystems
+class Renderer {
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -206,11 +221,11 @@ export class Renderer {
     // ...core state
 
     // Subsystem renderers
-    this.tiles    = new TileRenderer(this);
-    this.bldg     = new BuildingRenderer(this);
-    this.units    = new UnitRenderer(this);
-    this.effects  = new EffectsRenderer(this);
-    this.combat   = new CombatRenderer(this);
+    this.tiles   = new TileRenderer(this);
+    this.bldg    = new BuildingRenderer(this);
+    this.units   = new UnitRenderer(this);
+    this.effects = new EffectsRenderer(this);
+    this.combat  = new CombatRenderer(this);
 
     this._setupEvents();
     this._resize();
@@ -222,21 +237,18 @@ export class Renderer {
 
     this.effects.drawWeatherBackground(ctx, weather);
     this.effects.updateWeatherParticles(weather);
-
     this.tiles.renderBuffer(world, weather);
     this.tiles.blit(ctx);
-
     this.effects.drawFogOverlay(ctx, world);
     this.bldg.drawAll(ctx, tribeA, tribeB);
     this.units.updateAndDraw(ctx, tribeA, tribeB);
     this.combat.drawAttackLines(ctx, tribeA, tribeB);
     this.combat.drawTowerBeams(ctx, tribeA, tribeB);
     this.effects.drawWeatherParticles(ctx, weather);
-
     this._updateHover(tribeA, tribeB);
   }
 
-  // Shared utilities stay on Renderer — subsystems call this.renderer.method()
+  // Shared utilities — subsystems call this.r.tileToScreen(), etc.
   tileToScreen(tx, ty) { ... }
   worldToScreen(sx, sy) { ... }
   isOnScreen(x, y, margin) { ... }
@@ -246,160 +258,110 @@ export class Renderer {
 }
 ```
 
-```javascript
-// render/buildings.js
-import { CONFIG } from '../config/config.js';
-
-export class BuildingRenderer {
-  constructor(renderer) {
-    this.r = renderer;  // access r.ctx, r.zoom, r.tileToScreen(), etc.
-  }
-
-  drawAll(ctx, tribeA, tribeB) {
-    const all = [...tribeA.buildings, ...tribeB.buildings];
-    all.sort((a, b) => (a.y + a.x * 0.2) - (b.y + b.x * 0.2));
-    for (const b of all) this._drawBuilding(ctx, b);
-  }
-
-  _drawBuilding(ctx, entity) {
-    const sPos = this.r.worldToScreen(...this.r.tileToScreen(entity.x, entity.y));
-    // ...sprite drawing using this.r.zoom, this.r.TW, etc.
-  }
-
-  _drawCapitol(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) { ... }
-  _drawFort(...) { ... }
-  // ...all 8 building sprite methods
-}
-```
-
 ### World Example
 
 ```javascript
-// world/world.js
-import { Territory } from './territory.js';
-import { TreeManager } from './trees.js';
+// world/territory.js — loaded before world.js
+class Territory {
+  constructor(world) {
+    this.world = world;
+    this._count = { a: 0, b: 0 };
+    this._dirty = true;
+  }
 
-export class World {
+  update(tribeA, tribeB) { ... }
+  count(tribeId) { ... }
+}
+```
+
+```javascript
+// world/world.js — loaded after territory.js, trees.js
+class World {
   constructor() {
     this.W = CONFIG.MAP_W;
     this.H = CONFIG.MAP_H;
     this.tiles = [];
-    // ...spatial hash, entity list
+    // ...spatial hash
 
     this.territory = new Territory(this);
     this.trees = new TreeManager(this);
 
     this.generate();
   }
-
-  tickResources() {
-    // ...regen list logic
-    this.trees.tick();
-  }
 }
-```
-
-### Game Example
-
-```javascript
-// game.js
-import { World } from './world/world.js';
-import { Tribe } from './tribe/tribe.js';
-import { Player } from './systems/player.js';
-import { Renderer } from './render/renderer.js';
-import { UI } from './ui/ui.js';
-import { FogOfWar } from './world/fog.js';
-import { Diplomacy } from './systems/diplomacy.js';
-import { Wildlife } from './world/wildlife.js';
-import { WeatherSystem } from './systems/weather.js';
-import { FractureSystem } from './systems/fracture.js';
-import { getCalendar } from './systems/calendar.js';
-
-export class Game {
-  constructor() {
-    this.world = null;
-    this.tribeA = null;
-    this.tribeB = null;
-    this.player = null;
-    this.renderer = null;
-    this.fog = null;
-    this.diplomacy = null;
-    this.wildlife = null;
-    this.weather = null;
-    this.fracture = null;
-  }
-
-  init() {
-    this.renderer = new Renderer(document.getElementById('game-canvas'));
-    this.ui = new UI(this);
-    this._requestLoop();
-  }
-
-  start() {
-    this.world     = new World();
-    this.player    = new Player();
-    this.fog       = new FogOfWar(CONFIG.MAP_W, CONFIG.MAP_H);
-    this.diplomacy = new Diplomacy();
-    this.wildlife  = new Wildlife(this.world);
-    this.weather   = new WeatherSystem();
-    this.fracture  = new FractureSystem(this);
-    // ...tribe setup
-  }
-
-  _tick() {
-    this._cal = getCalendar(this.totalTicks);
-    this.weather.tick(this._cal.season);
-    this.fracture.check(this.totalTicks);
-    this.tribeA.tick(this._cal.year);
-    this.tribeB.tick(this._cal.year);
-    // ...
-  }
-}
-```
-
-```javascript
-// main.js — entry point
-import { Game } from './game.js';
-
-const game = new Game();
-window.addEventListener('DOMContentLoaded', () => game.init());
-
-// Expose for console debugging
-window.Game = game;
-```
-
-```html
-<!-- index.html — single script tag -->
-<script type="module" src="js/main.js"></script>
 ```
 
 ---
 
-## TypeScript Migration Path
+## index.html Load Order
 
-Once the ES module refactor is done, converting to TypeScript is mechanical:
+```html
+<!-- Config (no dependencies) -->
+<script src="js/config/dev.js"></script>
+<script src="js/config/config.js"></script>
+<script src="js/config/ages.js"></script>
 
-1. Rename `.js` to `.ts`
-2. Add type annotations to function signatures and class properties
-3. Define interfaces for shared data shapes (Tile, Unit, Building, Resources)
-4. Run `tsc` with `--strict`
-5. Fix type errors (mostly adding `!` or `?` to nullable properties)
+<!-- World subsystems (depend on CONFIG) -->
+<script src="js/world/territory.js"></script>
+<script src="js/world/trees.js"></script>
+<script src="js/world/world.js"></script>
+<script src="js/world/wildlife.js"></script>
+<script src="js/world/fog.js"></script>
+
+<!-- Tribe subsystems (depend on CONFIG, reference Game at runtime) -->
+<script src="js/tribe/economy.js"></script>
+<script src="js/tribe/building.js"></script>
+<script src="js/tribe/military.js"></script>
+<script src="js/tribe/population.js"></script>
+<script src="js/tribe/unit-ai.js"></script>
+<script src="js/tribe/tribe.js"></script>
+
+<!-- Systems (depend on CONFIG, AGES) -->
+<script src="js/systems/diplomacy.js"></script>
+<script src="js/systems/calendar.js"></script>
+<script src="js/systems/weather.js"></script>
+<script src="js/systems/fracture.js"></script>
+<script src="js/systems/player.js"></script>
+<script src="js/systems/actions.js"></script>
+
+<!-- Render subsystems (depend on CONFIG) -->
+<script src="js/render/tiles.js"></script>
+<script src="js/render/buildings.js"></script>
+<script src="js/render/units.js"></script>
+<script src="js/render/effects.js"></script>
+<script src="js/render/combat.js"></script>
+<script src="js/render/renderer.js"></script>
+
+<!-- UI & Game (depend on everything above) -->
+<script src="js/ui/ui.js"></script>
+<script src="js/game.js"></script>
+```
+
+---
+
+## TypeScript Migration (future)
+
+When ready, three steps:
+
+1. **Add `export`/`import`** to every file. Each `class Foo` becomes `export class Foo`. Each file that references `Foo` gets `import { Foo } from './foo.js'`. The class structure, composition, and file boundaries stay identical.
+
+2. **Rename `.js` to `.ts`**, add type annotations.
+
+3. **Install esbuild** (single binary, no npm ecosystem required):
+```bash
+esbuild js/game.ts --bundle --outfile=js/bundle.js
+```
+HTML becomes `<script src="js/bundle.js"></script>`. Still opens from `file://`.
+
+### What the conversion looks like
 
 ```typescript
-// tribe/economy.ts — what the conversion looks like
-import { CONFIG } from '../config/config';
+// tribe/economy.ts
 import type { Tribe } from './tribe';
-
-interface FarmWorkerAssignment {
-  farm: Building;
-  workers: Unit[];
-}
 
 export class TribeEconomy {
   private tribe: Tribe;
   private _techTimer: number = 0;
-  private _metalAccum: number = 0;
-  private _stoneAccum: number = 0;
 
   constructor(tribe: Tribe) {
     this.tribe = tribe;
@@ -409,73 +371,41 @@ export class TribeEconomy {
     const farms = this.tribe.buildings.filter(
       (b: Building) => b.type === CONFIG.ENTITY.FARM
     );
-    this._assignFarmWorkers(farms);
-    // ...
+    // ...identical logic
   }
 }
 ```
 
-The structure doesn't change. The file boundaries don't change. The class relationships don't change. Only types are added.
-
----
-
-## Shared Data Interfaces (future .ts)
-
-These would be defined in a `types.ts` or `interfaces.ts` and imported everywhere:
+### Shared interfaces (future types.ts)
 
 ```typescript
-// types.ts
 export interface Resources {
-  wood: number;
-  food: number;
-  metal: number;
-  stone: number;
+  wood: number; food: number; metal: number; stone: number;
 }
 
 export interface UnitStats {
-  strength: number;
-  loyalty: number;
-  agility: number;
-  tenacity: number;
-  endurance: number;
-  defense: number;
+  strength: number; loyalty: number; agility: number;
+  tenacity: number; endurance: number; defense: number;
 }
 
 export interface Unit {
-  id: number;
-  x: number;
-  y: number;
-  type: string;
-  tribe: string;
-  hp: number;
-  maxHp: number;
-  state: string;
+  id: number; x: number; y: number;
+  type: string; tribe: string;
+  hp: number; maxHp: number; state: string;
   stats: UnitStats;
-  hunger: number;
-  carriedFood: number;
-  carriedFoodMax: number;
-  // ...
+  hunger: number; carriedFood: number; carriedFoodMax: number;
 }
 
 export interface Building {
-  id: number;
-  x: number;
-  y: number;
-  type: string;
-  tribe: string;
-  hp: number;
-  maxHp: number;
-  level: number;
-  // ...
+  id: number; x: number; y: number;
+  type: string; tribe: string;
+  hp: number; maxHp: number; level: number;
 }
 
 export interface Tile {
-  type: number;
-  elevation: number;
-  owner: string | null;
-  fertility: number;
-  temperature: number;
-  road: boolean;
+  type: number; elevation: number;
+  owner: string | null; fertility: number;
+  temperature: number; road: boolean;
   resourceNode: { max: number; amount: number } | null;
 }
 ```
@@ -484,53 +414,49 @@ export interface Tile {
 
 ## Migration Path
 
-### Phase 1: Entry Point + Config (45 min)
+### Phase 1: Extract from game.js (1 hr)
 
-Convert to ES modules starting from the leaves (no dependencies):
+1. `systems/calendar.js` ← `function getCalendar(ticks)` (global function)
+2. `systems/weather.js` ← `class WeatherSystem` (state machine, season weights, messages)
+3. `systems/fracture.js` ← `class FractureSystem` (fracture, migration, founding)
+4. `game.js` shrinks to ~200 lines (Game IIFE: tick loop, init, start, API)
 
-1. Create `js/main.js` as the boot entry point
-2. Convert `config/dev.js`, `config/config.js`, `config/ages.js` to `export const`
-3. Update `index.html`: replace all `<script>` tags with single `<script type="module" src="js/main.js">`
-4. Add `import` statements to each file as you convert it
-5. Verify game still boots
+### Phase 2: Extract from renderer.js (2 hr)
 
-### Phase 2: Extract Systems from game.js (1 hr)
-
-1. `systems/calendar.js` ← `export function getCalendar(ticks)`
-2. `systems/weather.js` ← `export class WeatherSystem` (state machine, season weights, messages)
-3. `systems/fracture.js` ← `export class FractureSystem` (fracture, migration, founding, settlement search)
-4. `game.js` becomes `export class Game` — tick loop, init, start, reset
-
-### Phase 3: Extract Renderer Subsystems (2 hr)
-
-1. `render/tiles.js` ← `export class TileRenderer` (tile buffer, hex drawing, colors, trees, resource icons)
-2. `render/buildings.js` ← `export class BuildingRenderer` (8 building sprite methods)
-3. `render/units.js` ← `export class UnitRenderer` (5 unit sprites, visual seed, gait, purpose offset)
-4. `render/effects.js` ← `export class EffectsRenderer` (weather particles, fog overlay, battle line)
-5. `render/combat.js` ← `export class CombatRenderer` (attack lines, tower beams)
+1. `render/tiles.js` ← `class TileRenderer` (tile buffer, hex drawing, colors, trees, resource icons)
+2. `render/buildings.js` ← `class BuildingRenderer` (8 building sprite methods)
+3. `render/units.js` ← `class UnitRenderer` (5 unit sprites, visual seed, gait, purpose offset)
+4. `render/effects.js` ← `class EffectsRenderer` (weather particles, fog overlay, battle line)
+5. `render/combat.js` ← `class CombatRenderer` (attack lines, tower beams)
 6. `renderer.js` keeps: camera, buffer management, coordinate math, `render()`, hover, tooltip
 
-### Phase 4: Extract Tribe Subsystems (2 hr)
+### Phase 3: Extract from tribe.js (2 hr)
 
-1. `tribe/economy.js` ← `export class TribeEconomy` (resource gathering, farms, tech, passive trickle)
-2. `tribe/building.js` ← `export class TribeBuilding` (build logic, upgrades, placement, farm expansion)
-3. `tribe/military.js` ← `export class TribeMilitary` (spawn, army formation, supply, attack, towers)
-4. `tribe/population.js` ← `export class TribePopulation` (growth, hunger, food carry, sync, spawn)
-5. `tribe/unit-ai.js` ← `export class TribeUnitAI` (unit behavior, movement, combat, defection, retreat)
+1. `tribe/economy.js` ← `class TribeEconomy` (resource gathering, farms, tech, passive trickle)
+2. `tribe/building.js` ← `class TribeBuilding` (build logic, upgrades, placement, farm expansion)
+3. `tribe/military.js` ← `class TribeMilitary` (spawn, army formation, supply, attack, towers)
+4. `tribe/population.js` ← `class TribePopulation` (growth, hunger, food carry, sync, spawn)
+5. `tribe/unit-ai.js` ← `class TribeUnitAI` (unit behavior, movement, combat, defection, retreat)
 6. `tribe.js` keeps: constructor, `init`, `tick` orchestrator, public API, stat helpers
 
-### Phase 5: Reorganize World (1 hr)
+### Phase 4: Reorganize world.js (1 hr)
 
-1. `world/territory.js` ← `export class Territory` (ownership calculation, counting, cache)
-2. `world/trees.js` ← `export class TreeManager` (spawn, growth, harvest, planting, nearby search)
+1. `world/territory.js` ← `class Territory` (ownership calculation, counting, cache)
+2. `world/trees.js` ← `class TreeManager` (spawn, growth, harvest, planting, nearby search)
 3. `world.js` keeps: constructor, `generate()`, spatial hash, tiles, `tickResources`, neighbors
 
-### Phase 6: Verify + Update Docs (30 min)
+### Phase 5: Create directory structure + update HTML (30 min)
 
-1. Full syntax check on all modules
-2. Playtest fracture → migration → founding → war cycle
-3. Update `DEVELOPMENT.md` with new structure
-4. Update `STATUS.md`
+1. Create `js/config/`, `js/world/`, `js/tribe/`, `js/systems/`, `js/render/`, `js/ui/`
+2. Move files into directories
+3. Update `index.html` script tags
+4. Verify game boots from `file://`
+
+### Phase 6: Verify + update docs (30 min)
+
+1. Full playtest: fracture → migration → founding → war
+2. Update `documentation/DEVELOPMENT.md` with new structure
+3. Update `documentation/STATUS.md`
 
 ---
 
@@ -538,13 +464,13 @@ Convert to ES modules starting from the leaves (no dependencies):
 
 | Phase | Time | Impact | Risk |
 |-------|------|--------|------|
-| 1. Entry point + config | 45 min | Foundation | Low |
-| 2. Extract game.js | 1 hr | Medium | Low |
-| 3. Extract renderer.js | 2 hr | High | Medium |
-| 4. Extract tribe.js | 2 hr | High | Medium |
-| 5. Reorganize world.js | 1 hr | Medium | Low |
+| 1. Extract game.js | 1 hr | Medium | Low |
+| 2. Extract renderer.js | 2 hr | High | Medium |
+| 3. Extract tribe.js | 2 hr | High | Medium |
+| 4. Reorganize world.js | 1 hr | Medium | Low |
+| 5. Directory + HTML | 30 min | Required | Low |
 | 6. Verify + docs | 30 min | Required | Low |
-| **Total** | **~7.5 hr** | | |
+| **Total** | **~7 hr** | | |
 
 ---
 
@@ -552,18 +478,18 @@ Convert to ES modules starting from the leaves (no dependencies):
 
 | Capability | Before | After |
 |-----------|--------|-------|
-| TypeScript migration | Rewrite required | Rename + add types |
-| Unit testing | Impossible (globals, side effects) | Import class, mock dependencies |
-| Tree-shaking / bundling | N/A | Works with any bundler |
-| IDE intelligence | Limited (globals) | Full (explicit imports) |
-| New developer onboarding | Read 3,000-line file | Read 200-line file for the system you care about |
-| Hot module replacement | N/A | Supported with Vite/webpack |
-| Multiplayer extraction | Monolith tangle | Import simulation classes without renderer |
+| TypeScript migration | Rewrite required | Add export/import + esbuild |
+| Opens from file:// | Yes | Yes |
+| IDE intelligence | Limited (3000-line files) | Good (focused files) |
+| New developer onboarding | Read monolith | Read the subsystem you need |
+| Testing a subsystem | Extract from monolith | Instantiate class with mock |
+| Multiplayer extraction | Tangle | Import simulation classes without renderer |
 
 ## What NOT to Change
 
-- **Keep JSDoc.** Every method keeps its documentation. JSDoc travels with the method into the new file.
-- **No class inheritance.** Composition only. Flat class hierarchy.
-- **No state management library.** Direct property access through composition references.
-- **No framework.** Pure DOM manipulation for UI. Canvas 2D for rendering.
+- **Keep JSDoc.** Every method keeps its documentation through the split.
+- **No `import`/`export`.** Global classes, script tag order. Modules come with TypeScript.
+- **No class inheritance.** Composition only. Flat hierarchy.
+- **No framework.** Pure DOM for UI. Canvas 2D for rendering.
+- **No build tools.** Until TypeScript, nothing to compile.
 - **Single CSS file.** 11KB doesn't warrant splitting.

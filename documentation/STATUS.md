@@ -90,8 +90,8 @@
 | 36 | `dev.js` — comprehensive developer config with all system knobs | dev.js |
 | 37 | `config.js` — army, animal, fog, diplomacy, render threshold configs | config.js |
 | 38 | README.md — player-facing guide | README.md |
-| 39 | DEVELOPMENT.md — technical reference | docs/DEVELOPMENT.md |
-| 40 | DESIGN.md — game design document | docs/DESIGN.md |
+| 39 | DEVELOPMENT.md — technical reference | documentation/DEVELOPMENT.md |
+| 40 | DESIGN.md — game design document | documentation/DESIGN.md |
 
 ---
 
@@ -146,7 +146,7 @@
 
 | # | Priority | Item | Files |
 |---|----------|------|-------|
-| 11 | **Medium** | Refactor per `docs/REFACTOR.md` — split tribe.js (6 concerns), renderer.js (5 concerns), game.js (4 concerns) into focused files using prototype extension pattern | All major files |
+| 11 | **Medium** | Refactor per `documentation/REFACTOR.md` — split tribe.js (6 concerns), renderer.js (5 concerns), game.js (4 concerns) into focused files using prototype extension pattern | All major files |
 
 ---
 
@@ -170,7 +170,7 @@
 | `js/game.js` | 30 KB | 11.9 KB | Fracture, migration, founding, system hooks |
 | `css/style.css` | 11.6 KB | 11.2 KB | Time box + event log fixes |
 | `README.md` | 5.2 KB | *new* | Player-facing documentation |
-| `docs/DEVELOPMENT.md` | 6.1 KB | *new* | Technical reference |
-| `docs/DESIGN.md` | 5.5 KB | *new* | Game design document |
-| `docs/STATUS.md` | 8.5 KB | *new* | Development status tracker |
-| `docs/REFACTOR.md` | 11.9 KB | *new* | Refactoring plan |
+| `documentation/DEVELOPMENT.md` | 6.1 KB | *new* | Technical reference |
+| `documentation/DESIGN.md` | 5.5 KB | *new* | Game design document |
+| `documentation/STATUS.md` | 8.5 KB | *new* | Development status tracker |
+| `documentation/REFACTOR.md` | 11.9 KB | *new* | Refactoring plan |

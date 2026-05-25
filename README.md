@@ -44,6 +44,9 @@ Every unit has personal hunger and a **carried food supply**. Units eat from the
 ### Military
 Warriors form **armies** that estimate supply requirements before marching. Supply calculation considers distance to target and campaign duration. Armies draw food from tribe reserves. If supplies deplete mid-campaign, units eat from personal carry and eventually retreat.
 
+### Wildlife
+Huntable animals spawn across the map by biome — deer on grasslands, boar in forests, fish in wetlands. Units can hunt them for carried food, extending operational range during exploration and military campaigns. Animals wander, flee from nearby units, and respawn over time.
+
 ### Fog of War
 Unexplored territory is shrouded in darkness. Units and buildings reveal surrounding tiles — scouts see farther (6 tiles), towers see far (7 tiles), civilians see little (2 tiles). Previously explored areas dim when no longer in sight range. The player sees the combined vision of both tribes.
 
@@ -60,25 +63,30 @@ Eight progression ages from Stone to Atomic, each unlocking new influence action
 
 ```
 Waron/
-├── index.html          — Entry point, HUD layout, modals
+├── index.html              — Entry point, HUD layout, modals
+├── README.md
 ├── css/
-│   └── style.css       — All visual styling
+│   └── style.css           — All visual styling
 ├── js/
-│   ├── dev.js          — Developer config (tweak without touching core)
-│   ├── config.js       — Game constants and balance values
-│   ├── ages.js         — Age definitions and progression
-│   ├── world.js        — Map generation, spatial hash, territory
-│   ├── fog.js          — Fog of war visibility system
-│   ├── diplomacy.js    — Inter-tribe relations and treaties
-│   ├── tribe.js        — Tribe AI, economy, military, hunger
-│   ├── player.js       — Shadow Keeper state and progression
-│   ├── actions.js      — Player influence actions
-│   ├── renderer.js     — Canvas rendering, tile buffer, sprites
-│   ├── ui.js           — HUD updates, modals, event log
-│   └── game.js         — Main loop, tick, fracture, founding
-└── docs/
-    ├── DEVELOPMENT.md  — Technical reference for developers
-    └── DESIGN.md       — Game design document
+│   ├── dev.js              — Developer config (tweak without touching core)
+│   ├── config.js           — Game constants and balance values
+│   ├── ages.js             — Age definitions and progression
+│   ├── time_dilation.js    — Time scaling system
+│   ├── world.js            — Map generation, spatial hash, territory
+│   ├── fog.js              — Fog of war visibility system
+│   ├── diplomacy.js        — Inter-tribe relations and treaties
+│   ├── wildlife.js         — Huntable animal spawning and behavior
+│   ├── tribe.js            — Tribe AI, economy, military, hunger
+│   ├── player.js           — Shadow Keeper state and progression
+│   ├── actions.js          — Player influence actions
+│   ├── renderer.js         — Canvas rendering, tile buffer, sprites
+│   ├── ui.js               — HUD updates, modals, event log
+│   └── game.js             — Main loop, tick, fracture, founding
+└── documentation/
+    ├── DEVELOPMENT.md      — Technical reference for developers
+    ├── DESIGN.md           — Game design document
+    ├── STATUS.md           — Development progress tracker
+    └── REFACTOR.md         — Architecture and refactoring plan
 ```
 
 ## Quick Start for Developers
@@ -88,6 +96,8 @@ Waron/
 3. Set `DEV.STARTING_TRIBES = 2` to skip fracture and test combat
 4. Set `DEV.INVINCIBLE_TRIBES = true` to disable lose conditions
 5. Adjust multipliers to speed up/slow down any system
+6. See `documentation/DEVELOPMENT.md` for architecture details
+7. See `documentation/REFACTOR.md` for the ES module migration plan
 
 ## License
 
