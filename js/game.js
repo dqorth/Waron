@@ -142,9 +142,15 @@ const Game = (() => {
   // FRACTURE EVENT
   // ══════════════════════════════════════════════════════════════════════════
 
+  // ── Fracture state: migration tracking ──────────────────────────────────
+  let _settleTarget = null;    // {x, y} where splinter tribe will found
+  let _caravanRes = null;      // resources the caravan carries
+  let _founded = false;        // true after splinter tribe founds settlement
+
   function _triggerFracture() {
     if (fractured) return;
     fractured = true;
+    _founded = false;
 
     const fCfg = (typeof DEV !== 'undefined') ? DEV.FRACTURE : {};
     const ratio = fCfg.splitRatio ?? 0.42;
@@ -162,79 +168,95 @@ const Game = (() => {
       logMessages: ['Unity is an illusion. Conflict is inevitable.'],
     };
 
-    // ── Determine split line: vertical through tribe centroid ──────────
-    const allBuildings = tribeA.buildings;
-    if (!allBuildings.length) return; // can't fracture with no buildings
+    if (!tribeA.buildings.length) return;
 
-    const centroidX = allBuildings.reduce((s, b) => s + b.x, 0) / allBuildings.length;
-
-    // Buildings east of centroid go to tribeB
-    const keepBuildings = [];
-    const giveBuildings = [];
-    for (const b of allBuildings) {
-      if (b.x > centroidX) giveBuildings.push(b);
-      else keepBuildings.push(b);
-    }
-
-    // Ensure each side has at least one building
-    if (!giveBuildings.length && keepBuildings.length > 1) {
-      giveBuildings.push(keepBuildings.pop());
-    }
-    if (!keepBuildings.length && giveBuildings.length > 1) {
-      keepBuildings.push(giveBuildings.pop());
-    }
-
-    // ── Create tribeB capitol from the easternmost building ────────────
-    // Find best candidate for a capitol (or use any building)
-    let newCapitol = giveBuildings.find(b => b.type === CONFIG.ENTITY.CAPITOL);
-    if (!newCapitol) {
-      // Convert the largest HP building into a capitol
-      giveBuildings.sort((a, b) => b.maxHp - a.maxHp);
-      newCapitol = giveBuildings[0];
-      if (newCapitol) {
-        newCapitol.type = CONFIG.ENTITY.CAPITOL;
-        newCapitol.maxHp = CONFIG.BUILDING_HP[CONFIG.ENTITY.CAPITOL];
-        newCapitol.hp = newCapitol.maxHp;
-      }
-    }
-
-    // If tribeA lost its capitol, promote one
-    if (!keepBuildings.some(b => b.type === CONFIG.ENTITY.CAPITOL) && keepBuildings.length) {
-      keepBuildings.sort((a, b) => b.maxHp - a.maxHp);
-      keepBuildings[0].type = CONFIG.ENTITY.CAPITOL;
-      keepBuildings[0].maxHp = CONFIG.BUILDING_HP[CONFIG.ENTITY.CAPITOL];
-      keepBuildings[0].hp = keepBuildings[0].maxHp;
-    }
-
-    // Transfer building ownership
-    for (const b of giveBuildings) {
-      b.tribe = tribeB.id;
-    }
-
-    // ── Split units ──────────────────────────────────────────────────────
-    const keepUnits = [];
-    const giveUnits = [];
-    for (const u of tribeA.units) {
-      if (u.x > centroidX) {
-        u.tribe = tribeB.id;
-        giveUnits.push(u);
-      } else {
-        keepUnits.push(u);
-      }
-    }
-
-    // ── Split resources ─────────────────────────────────────────────────
-    const splitRes = {};
-    for (const [res, amt] of Object.entries(tribeA.res)) {
-      splitRes[res] = Math.floor(amt * ratio);
-      tribeA.res[res] = Math.ceil(amt * (1 - ratio));
-    }
-
-    // ── Split population ────────────────────────────────────────────────
+    // ── Calculate what the caravan needs to carry ───────────────────────
     const splitPop = Math.floor(tribeA.population * ratio);
-    tribeA.population -= splitPop;
+    const homesNeeded = Math.max(2, Math.ceil(splitPop / 3));
+    const homeCost = CONFIG.BUILDING_COST[CONFIG.ENTITY.HOME] || { wood: 20, stone: 5 };
 
-    // ── Finalize tribeB ─────────────────────────────────────────────────
+    // Resources needed to found: homes + starting reserves
+    const caravanNeed = {
+      wood:  homesNeeded * (homeCost.wood  || 0) + 60,
+      food:  Math.max(200, splitPop * 8),  // enough food for early survival
+      metal: homesNeeded * (homeCost.metal || 0) + 30,
+      stone: homesNeeded * (homeCost.stone || 0) + 40,
+    };
+
+    // Deduct from tribeA — take what we can, minimum 60% of need
+    _caravanRes = {};
+    for (const [res, need] of Object.entries(caravanNeed)) {
+      const available = tribeA.res[res] || 0;
+      const take = Math.min(available, need);
+      _caravanRes[res] = Math.max(take, Math.floor(need * 0.6));
+      tribeA.res[res] = Math.max(0, available - _caravanRes[res]);
+    }
+
+    // ── Find settlement location ────────────────────────────────────────
+    const cap = tribeA.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL) || tribeA.buildings[0];
+
+    // Calculate max journey distance based on food carry
+    // Journey rations per unit: we'll give enough for the trip
+    const moveInterval = CONFIG.UNIT_MOVE_INTERVAL;
+    const eatInterval = CONFIG.FOOD_CARRY_EAT_INTERVAL || 5;
+    // Target distance: 25-45 tiles, capped by map
+    const targetDist = 25 + Math.floor(Math.random() * 20);
+    const journeyTicks = targetDist * moveInterval;
+    const journeyFood = Math.ceil(journeyTicks / eatInterval) + 3; // +3 buffer
+
+    _settleTarget = _findSettlementLocation(cap.x, cap.y, targetDist);
+
+    // Actual distance after location search
+    const actualDist = Math.sqrt((_settleTarget.x - cap.x) ** 2 + (_settleTarget.y - cap.y) ** 2);
+    const actualJourneyFood = Math.ceil((actualDist * moveInterval) / eatInterval) + 3;
+
+    // ── Select splinter units ───────────────────────────────────────────
+    const giveUnits = [];
+    const keepUnits = [];
+
+    const unitsByType = {};
+    for (const u of tribeA.units) {
+      (unitsByType[u.type] = unitsByType[u.type] || []).push(u);
+    }
+
+    for (const [type, units] of Object.entries(unitsByType)) {
+      const takeCount = Math.max(1, Math.floor(units.length * ratio));
+      for (let i = units.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [units[i], units[j]] = [units[j], units[i]];
+      }
+      for (let i = 0; i < units.length; i++) {
+        if (i < takeCount) {
+          units[i].tribe = tribeB.id;
+          giveUnits.push(units[i]);
+        } else {
+          keepUnits.push(units[i]);
+        }
+      }
+    }
+
+    // ── Pack journey rations — enough food to reach the settlement ──────
+    for (const u of giveUnits) {
+      u.carriedFood = actualJourneyFood;
+      u.carriedFoodMax = actualJourneyFood; // temporary oversize for journey
+      u._carryEatTimer = 0;
+      u.hunger = 0;
+      u._hungerFullTicks = 0;
+      u._hungerTarget = null;
+      u.state = 'marching';
+      u.targetX = _settleTarget.x + Math.floor(Math.random() * 5) - 2;
+      u.targetY = _settleTarget.y + Math.floor(Math.random() * 5) - 2;
+    }
+
+    // ── Update tribeA ──────────────────────────────────────────────────
+    tribeA.population -= splitPop;
+    tribeA.units = keepUnits;
+    tribeA.military = keepUnits.filter(u =>
+      u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER
+    ).length;
+    tribeA.morale = Math.max(0.4, tribeA.morale - 0.15);
+
+    // ── Initialize tribeB as a migrating tribe (no buildings yet) ──────
     const cfgB = ((typeof DEV !== 'undefined') && DEV.TRIBES && DEV.TRIBES[1])
       ? DEV.TRIBES[1]
       : { id: 'b', name: 'Koru', color: '#2a6ec8' };
@@ -242,41 +264,20 @@ const Game = (() => {
     tribeB.name = cfgB.name;
     tribeB.color = cfgB.color;
     tribeB.population = splitPop;
-    tribeB.res = splitRes;
-    tribeB.buildings = giveBuildings;
+    tribeB.res = { wood: 0, food: 0, metal: 0, stone: 0 }; // resources are in the caravan
+    tribeB.buildings = [];
     tribeB.units = giveUnits;
     tribeB.military = giveUnits.filter(u =>
       u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER
     ).length;
-    tribeB.techLevel = Math.max(1, tribeA.techLevel - 1);
+    tribeB.techLevel = Math.max(1, tribeA.techLevel);
     tribeB.morale = 0.8;
     tribeB.leader = { name: tribeB._randName(), strength: 0.4 + Math.random() * 0.5 };
     tribeB._world = world;
     tribeB._enemy = tribeA;
     tribeA._enemy = tribeB;
-
-    // Update tribeA's arrays
-    tribeA.buildings = keepBuildings;
-    tribeA.units = keepUnits;
-    tribeA.military = keepUnits.filter(u =>
-      u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER
-    ).length;
-    tribeA.morale = Math.max(0.4, tribeA.morale - 0.15);
-
-    // Ensure both have homes
-    for (const tribe of [tribeA, tribeB]) {
-      if (!tribe.buildings.some(b => b.type === CONFIG.ENTITY.HOME)) {
-        const cap = tribe.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL);
-        if (cap) {
-          const hp = world.findNearestWalkable(cap.x + 1, cap.y);
-          tribe._placeBuilding(hp.x, hp.y, CONFIG.ENTITY.HOME);
-        }
-      }
-    }
-
-    // Territory update
-    world.updateTerritory(tribeA, tribeB);
-    renderer.markTilesDirty();
+    tribeB.startX = _settleTarget.x;
+    tribeB.startY = _settleTarget.y;
 
     // ── Dramatic announcement ──────────────────────────────────────────
     notify(cause.title, 'danger');
@@ -285,14 +286,128 @@ const Game = (() => {
     for (const msg of cause.logMessages) {
       eventLog(msg, 'warn');
     }
-    eventLog(`${tribeB.name} emerges with ${splitPop} people and ${giveBuildings.length} structures.`, 'danger');
-    eventLog('The war begins. Keep them balanced. Be never discovered.', 'age');
+    const daysJourney = Math.ceil(actualDist * moveInterval / CONFIG.TICKS_PER_DAY);
+    eventLog(`${splitPop} people gather supplies and march into the wilderness. A ${daysJourney}-day journey awaits.`, 'danger');
 
     if (typeof DEV !== 'undefined' && DEV.DEBUG_LOG) {
-      console.log(`[FRACTURE] Cause: ${causeKey}, Split at x=${centroidX.toFixed(0)}`);
-      console.log(`[FRACTURE] ${tribeA.name}: ${tribeA.population} pop, ${keepBuildings.length} buildings`);
-      console.log(`[FRACTURE] ${tribeB.name}: ${tribeB.population} pop, ${giveBuildings.length} buildings`);
+      console.log(`[FRACTURE] Cause: ${causeKey}`);
+      console.log(`[FRACTURE] Target: (${_settleTarget.x}, ${_settleTarget.y}), dist=${actualDist.toFixed(0)}`);
+      console.log(`[FRACTURE] Journey food per unit: ${actualJourneyFood}`);
+      console.log(`[FRACTURE] Caravan resources:`, _caravanRes);
+      console.log(`[FRACTURE] ${tribeA.name}: ${tribeA.population} pop (stays)`);
+      console.log(`[FRACTURE] ${tribeB.name}: ${tribeB.population} pop (migrating)`);
     }
+  }
+
+  // ── Check if the migrating tribe has reached their destination ─────────
+  function _checkFounding() {
+    if (_founded || !_settleTarget || !fractured) return;
+
+    // Check if any tribeB unit is within 3 tiles of the target
+    const arrived = tribeB.units.some(u =>
+      Math.abs(u.x - _settleTarget.x) + Math.abs(u.y - _settleTarget.y) <= 3
+    );
+    if (!arrived) return;
+
+    _founded = true;
+
+    // ── Found the settlement ──────────────────────────────────────────
+    // Place capitol
+    tribeB._placeBuilding(_settleTarget.x, _settleTarget.y, CONFIG.ENTITY.CAPITOL);
+
+    // Place starting homes from caravan resources
+    const homeCost = CONFIG.BUILDING_COST[CONFIG.ENTITY.HOME] || { wood: 20, stone: 5 };
+    const homesNeeded = Math.max(2, Math.ceil(tribeB.population / 3));
+    let homesPlaced = 0;
+    for (let r = 1; r <= 7 && homesPlaced < homesNeeded; r++) {
+      for (let dy = -r; dy <= r && homesPlaced < homesNeeded; dy++) {
+        for (let dx = -r; dx <= r && homesPlaced < homesNeeded; dx++) {
+          const nx = _settleTarget.x + dx;
+          const ny = _settleTarget.y + dy;
+          if (!world.isWalkable(nx, ny)) continue;
+          const occ = world.getEntitiesAt(nx, ny);
+          if (occ.some(e => !!CONFIG.BUILDING_HP[e.type])) continue;
+          tribeB._placeBuilding(nx, ny, CONFIG.ENTITY.HOME);
+          // Deduct from caravan
+          for (const [res, amt] of Object.entries(homeCost)) {
+            _caravanRes[res] = Math.max(0, (_caravanRes[res] || 0) - amt);
+          }
+          homesPlaced++;
+        }
+      }
+    }
+
+    // Transfer remaining caravan resources to tribeB
+    for (const [res, amt] of Object.entries(_caravanRes)) {
+      tribeB.res[res] = (tribeB.res[res] || 0) + amt;
+    }
+    _caravanRes = null;
+
+    // Reset unit carry caps to normal and stop marching
+    const normalCap = tribeB._getFoodCarryCapacity();
+    for (const u of tribeB.units) {
+      u.carriedFoodMax = normalCap;
+      u.carriedFood = Math.min(u.carriedFood, normalCap);
+      if (u.state === 'marching') u.state = 'idle';
+    }
+
+    // Territory update
+    world.updateTerritory(tribeA, tribeB);
+    renderer.markTilesDirty();
+
+    // ── Founding announcement ──────────────────────────────────────────
+    notify(`${tribeB.name.toUpperCase()} IS FOUNDED`, 'good');
+    eventLog(`— ${tribeB.name.toUpperCase()} IS FOUNDED —`, 'age');
+    eventLog(`The wanderers plant their banner. A new settlement rises from the earth.`, 'good');
+    eventLog(`${homesPlaced} homes built. The war begins. Keep them balanced. Be never discovered.`, 'age');
+  }
+
+  // Find settlement location within reachable distance
+  function _findSettlementLocation(originX, originY, targetDist) {
+    const W = CONFIG.MAP_W;
+    const H = CONFIG.MAP_H;
+    const margin = 15;
+    const minDist = Math.max(20, targetDist * 0.6);
+    const maxDist = Math.min(targetDist * 1.4, Math.max(W, H) * 0.4);
+
+    let best = null;
+    let bestScore = -Infinity;
+
+    for (let attempt = 0; attempt < 50; attempt++) {
+      const angle = (Math.random() * Math.PI) - Math.PI / 2;
+      const dist = minDist + Math.random() * (maxDist - minDist);
+      let tx = Math.floor(originX + Math.cos(angle) * dist);
+      let ty = Math.floor(originY + Math.sin(angle) * dist);
+
+      // Bias away from origin
+      if (originX < W / 2) tx = Math.max(tx, originX + Math.floor(minDist * 0.7));
+      else tx = Math.min(tx, originX - Math.floor(minDist * 0.7));
+
+      tx = Math.max(margin, Math.min(W - margin, tx));
+      ty = Math.max(margin, Math.min(H - margin, ty));
+
+      const p = world.findNearestWalkable(tx, ty);
+      const d = Math.sqrt((p.x - originX) ** 2 + (p.y - originY) ** 2);
+
+      // Score: prefer target distance, penalize too close or too far
+      const distScore = -Math.abs(d - targetDist);
+      // Bonus for fertile land
+      const tile = world.getTile(p.x, p.y);
+      const fertilityBonus = tile ? tile.fertility * 5 : 0;
+      const score = distScore + fertilityBonus;
+
+      if (d >= minDist && score > bestScore) {
+        best = p;
+        bestScore = score;
+      }
+    }
+
+    if (!best) {
+      const fallbackX = originX < W / 2 ? W - 35 : 35;
+      best = world.findNearestWalkable(fallbackX, Math.floor(H / 2));
+    }
+
+    return best;
   }
 
   // ══════════════════════════════════════════════════════════════════════════
@@ -308,6 +423,11 @@ const Game = (() => {
     // Check for fracture event
     if (fractureMode && !fractured && totalTicks >= fractureTick) {
       _triggerFracture();
+    }
+
+    // Check if migrating tribe has arrived and should found their settlement
+    if (fractured && !_founded) {
+      _checkFounding();
     }
 
     world.tickResources();
@@ -362,8 +482,8 @@ const Game = (() => {
   }
 
   function _checkEndConditions() {
-    // Don't check balance/elimination before fracture
-    if (fractureMode && !fractured) return;
+    // Don't check balance/elimination before founding
+    if (fractureMode && (!fractured || !_founded)) return;
 
     const totalPower = tribeA.power + tribeB.power || 1;
     const fracA = tribeA.power / totalPower;
@@ -467,6 +587,7 @@ const Game = (() => {
     get day()  { return _cal ? _cal.day  : 1; },
     get calendar() { return _cal; },
     get fractured() { return fractured; },
+    get founded() { return _founded; },
     init,
     start,
     reset,

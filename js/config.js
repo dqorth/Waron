@@ -200,4 +200,12 @@ const CONFIG = {
   HUNGER_FOOD_RESTORE: 15,   // hunger removed per food unit consumed
   HUNGER_DEATH_TICKS: 50,    // ticks at max hunger before starvation death (~10 days)
   HUNGER_EAT_THRESHOLD: 25,  // unit seeks food when hunger exceeds this
+
+  // ── Personal Food Carry ─────────────────────────────────────────────────
+  // Units carry personal food so they can travel/explore without returning to base.
+  // Carry capacity = base_days + (age_index * per_age_days), converted to food units.
+  FOOD_CARRY_BASE_DAYS: 3,       // base days of food a unit can carry
+  FOOD_CARRY_PER_AGE_DAYS: 1,    // additional days per age advancement
+  FOOD_CARRY_REFILL_RANGE: 2,    // manhattan distance to food building to refill
+  FOOD_CARRY_EAT_INTERVAL: 5,    // ticks between eating from personal supply (= 1 day)
 };

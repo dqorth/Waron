@@ -1914,12 +1914,15 @@ class Tribe {
     const stats = this._rollUnitStats(type);
     const baseHp = CONFIG.UNIT_HP[type] || 10;
     const maxHp = this._getUnitMaxHp(baseHp, stats);
+    const carryMax = this._getFoodCarryCapacity();
     const u = {
       x: p.x, y: p.y, type, hp: maxHp, maxHp,
       state: 'idle', targetX: p.x, targetY: p.y,
       tribe: this.id, _moveTimer: 0,
       stats,
       hunger: 0, _hungerFullTicks: 0, _hungerTarget: null,
+      carriedFood: carryMax, carriedFoodMax: carryMax,
+      _carryEatTimer: 0,
     };
     this.units.push(u);
     this._world.addEntity(u);
@@ -2250,16 +2253,39 @@ class Tribe {
    * @triggers Called by `tick()`.
    * @performance O(U * B) where U is the number of units and B is the number of food buildings (for finding nearest).
    */
+  // ── Food carry capacity: days of personal food, scales with age ─────────
+  _getFoodCarryCapacity() {
+    const baseDays = CONFIG.FOOD_CARRY_BASE_DAYS || 3;
+    const perAge   = CONFIG.FOOD_CARRY_PER_AGE_DAYS || 1;
+    const ageIdx   = AGES.indexOf(this.age);
+    const days     = baseDays + Math.max(0, ageIdx) * perAge;
+    // Convert days to food units: days * ticks/day * hungerRate / restore
+    return Math.ceil(days * CONFIG.TICKS_PER_DAY * CONFIG.HUNGER_RATE / CONFIG.HUNGER_FOOD_RESTORE);
+  }
+
+  // ── Hunger system with personal food carry ────────────────────────────
   _updateHunger() {
     const foodBuildings = this.buildings.filter(b =>
       b.type === CONFIG.ENTITY.STOREHOUSE || b.type === CONFIG.ENTITY.CAPITOL
     );
+    const refillRange = CONFIG.FOOD_CARRY_REFILL_RANGE || 2;
+    const eatInterval = CONFIG.FOOD_CARRY_EAT_INTERVAL || 5;
 
     for (let i = this.units.length - 1; i >= 0; i--) {
       const u = this.units[i];
 
+      // Ensure carry fields exist (for units spawned before this system)
+      if (u.carriedFood === undefined) {
+        const cap = this._getFoodCarryCapacity();
+        u.carriedFood = cap;
+        u.carriedFoodMax = cap;
+        u._carryEatTimer = 0;
+      }
+
+      // Increase hunger
       u.hunger = Math.min(CONFIG.HUNGER_MAX, (u.hunger || 0) + CONFIG.HUNGER_RATE);
 
+      // Starvation check
       if (u.hunger >= CONFIG.HUNGER_MAX) {
         u._hungerFullTicks = (u._hungerFullTicks || 0) + 1;
         if (u._hungerFullTicks >= CONFIG.HUNGER_DEATH_TICKS) {
@@ -2274,25 +2300,56 @@ class Tribe {
         u._hungerFullTicks = 0;
       }
 
-      if (u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && this.res.food >= 1 && foodBuildings.length) {
+      // ── Priority 1: Eat from personal carry ──────────────────────────
+      u._carryEatTimer = (u._carryEatTimer || 0) + 1;
+      if (u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && u.carriedFood > 0 && u._carryEatTimer >= eatInterval) {
+        u._carryEatTimer = 0;
+        u.carriedFood = Math.max(0, u.carriedFood - 1);
+        u.hunger = Math.max(0, u.hunger - CONFIG.HUNGER_FOOD_RESTORE);
+        u._hungerFullTicks = 0;
+        u._hungerTarget = null;
+        // Don't seek food building — carry sustains the unit
+        continue;
+      }
+
+      // ── Priority 2: Refill carry + eat at food buildings ─────────────
+      if (foodBuildings.length) {
         let nearestFB = null, nearFBDist = Infinity;
         for (const fb of foodBuildings) {
           const d = Math.abs(fb.x - u.x) + Math.abs(fb.y - u.y);
           if (d < nearFBDist) { nearFBDist = d; nearestFB = fb; }
         }
+
         if (nearestFB && nearFBDist <= 1) {
-          const foodNeeded = Math.ceil(u.hunger / CONFIG.HUNGER_FOOD_RESTORE);
-          const foodEaten  = Math.min(foodNeeded, Math.floor(this.res.food), 6);
-          if (foodEaten > 0) {
-            u.hunger           = Math.max(0, u.hunger - foodEaten * CONFIG.HUNGER_FOOD_RESTORE);
-            this.res.food      = Math.max(0, this.res.food - foodEaten);
-            u._hungerFullTicks = 0;
-            u._hungerTarget    = null;
+          // At food building: eat from tribe supply
+          if (u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && this.res.food >= 1) {
+            const foodNeeded = Math.ceil(u.hunger / CONFIG.HUNGER_FOOD_RESTORE);
+            const foodEaten  = Math.min(foodNeeded, Math.floor(this.res.food), 6);
+            if (foodEaten > 0) {
+              u.hunger           = Math.max(0, u.hunger - foodEaten * CONFIG.HUNGER_FOOD_RESTORE);
+              this.res.food      = Math.max(0, this.res.food - foodEaten);
+              u._hungerFullTicks = 0;
+            }
           }
-        } else if (nearestFB) {
+
+          // Refill carry from tribe supply (top up even if not hungry)
+          if (u.carriedFood < u.carriedFoodMax && this.res.food >= 1) {
+            const refillNeeded = u.carriedFoodMax - u.carriedFood;
+            const refillGot = Math.min(refillNeeded, Math.floor(this.res.food));
+            u.carriedFood += refillGot;
+            this.res.food = Math.max(0, this.res.food - refillGot);
+          }
+          u._hungerTarget = null;
+
+        } else if (u.carriedFood <= 0 && u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && nearestFB) {
+          // Carry empty and hungry — march to food building
           u._hungerTarget = { x: nearestFB.x, y: nearestFB.y };
+        } else if (u.carriedFood > 0 || u.hunger < CONFIG.HUNGER_EAT_THRESHOLD) {
+          // Has carry or not hungry yet — no need to seek
+          u._hungerTarget = null;
         }
-      } else {
+      } else if (u.carriedFood <= 0) {
+        // No food buildings at all and carry empty — nothing to do
         u._hungerTarget = null;
       }
     }
