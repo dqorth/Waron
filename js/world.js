@@ -103,6 +103,23 @@ class World {
      */
     // Fresh timestamp seed — guarantees a unique map every run.
     const rawSeed = Date.now();
+    /**
+     * One-line summary.
+     *
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     *
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     *
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     *
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const seedOffset = (rawSeed % 999983) / 999983;
 
     // Use widely-spread seed offsets so each noise layer is fully independent.
@@ -1271,6 +1288,60 @@ class World {
       }
     }
     return { x, y };
+  }
+
+  /**
+   * Finds the nearest walkable tile that contains a harvestable amount of a specified resource type.
+   * 
+   * @description This method searches a grid of coordinates around the starting (x, y) coordinates up to the specified range. For each tile, it checks if it is walkable, has a valid resource node, contains at least 1 unit of resources, and has a yield entry for the requested resource type in CONFIG.TILE_YIELD. It returns the coordinates of the nearest match by Manhattan distance.
+   * 
+   * @workflow
+   * 1. Initialize `nearest` to null and `nearestDist` to Infinity.
+   * 2. Iterate `dy` from `-range` to `range`:
+   *    a. Iterate `dx` from `-range` to `range`:
+   *       i. Calculate target coordinates `nx = x + dx` and `ny = y + dy`.
+   *       ii. Retrieve the tile object at `(nx, ny)`.
+   *       iii. If the tile is null, lacks a `resourceNode`, or `resourceNode.amount < 1`, skip it.
+   *       iv. Get the `yieldTable` for this tile type from `CONFIG.TILE_YIELD`.
+   *       v. If `yieldTable` exists and has `yieldTable[resourceType] > 0`:
+   *          1. Calculate Manhattan distance `d = abs(dx) + abs(dy)`.
+   *          2. If `d` is less than `nearestDist`:
+   *             a. Set `nearestDist = d`.
+   *             b. Set `nearest = { x: nx, y: ny }`.
+   * 3. Return `nearest`.
+   * 
+   * @param {number} x - The starting X-coordinate for the search.
+   * @param {number} y - The starting Y-coordinate for the search.
+   * @param {string} resourceType - The type of resource to seek (e.g. 'stone', 'metal').
+   * @param {number} [range=15] - The maximum distance (Manhattan) to search. Defaults to 15.
+   * @returns {object|null} An object `{ x, y }` representing the nearest resource tile, or null if none found.
+   * 
+   * @dependencies CONFIG.TILE_YIELD, this.getTile()
+   * @modifies None
+   * @triggers Called by worker units to search for mining targets when stockpiles are low.
+   * @performance O(R^2) where R is the search range. For range 35, it checks up to 5000 tiles.
+   */
+  getNearbyResource(x, y, resourceType, range = 15) {
+    let nearest = null;
+    let nearestDist = Infinity;
+    for (let dy = -range; dy <= range; dy++) {
+      for (let dx = -range; dx <= range; dx++) {
+        const nx = x + dx;
+        const ny = y + dy;
+        const tile = this.getTile(nx, ny);
+        if (!tile || !tile.resourceNode || tile.resourceNode.amount < 1) continue;
+
+        const yieldTable = CONFIG.TILE_YIELD[tile.type];
+        if (yieldTable && yieldTable[resourceType] > 0) {
+          const d = Math.abs(dx) + Math.abs(dy);
+          if (d < nearestDist) {
+            nearestDist = d;
+            nearest = { x: nx, y: ny };
+          }
+        }
+      }
+    }
+    return nearest;
   }
 
   // Notify spatial grid that an entity moved (called by Tribe after unit steps)

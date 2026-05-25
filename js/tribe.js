@@ -1397,6 +1397,7 @@ class Tribe {
 
         const nearTree = this._world.getNearbyTree(u.x, u.y, 7);
         if (nearTree && this.res.wood < storageCap * 0.8) {
+          u.resourceTarget = null;
           if (u.x === nearTree.x && u.y === nearTree.y) {
             const wood = this._world.harvestTree(nearTree.x, nearTree.y);
             this.res.wood = Math.min(storageCap, this.res.wood + wood);
@@ -1419,6 +1420,7 @@ class Tribe {
           .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
 
         if (damaged.length) {
+          u.resourceTarget = null;
           const target = damaged[0];
           const dist = Math.sqrt((target.x - u.x) ** 2 + (target.y - u.y) ** 2);
           if (dist < 1.5) {
@@ -1431,11 +1433,81 @@ class Tribe {
           }
           u.state = 'working';
         } else {
+          // Seek/mine Stone and Metal when stockpiles are low
+          if (u.resourceTarget) {
+            const tile = this._world.getTile(u.resourceTarget.x, u.resourceTarget.y);
+            if (tile && tile.resourceNode && tile.resourceNode.amount >= 1) {
+              const dist = Math.sqrt((tile.x - u.x) ** 2 + (tile.y - u.y) ** 2);
+              if (dist < 1.5) {
+                u.state = 'working';
+              } else if (canAct) {
+                this._stepTowardVaried(u, tile.x, tile.y);
+                u.state = 'working';
+              }
+              continue;
+            } else {
+              u.resourceTarget = null;
+            }
+          }
+
+          let neededRes = null;
+          if (this.res.metal < storageCap * 0.8 && this.res.stone < storageCap * 0.8) {
+            neededRes = this.res.metal <= this.res.stone ? 'metal' : 'stone';
+          } else if (this.res.metal < storageCap * 0.8) {
+            neededRes = 'metal';
+          } else if (this.res.stone < storageCap * 0.8) {
+            neededRes = 'stone';
+          }
+
+          if (neededRes) {
+            const range = CONFIG.WORKER_SEARCH_RANGE || 35;
+            const nearRes = this._world.getNearbyResource(u.x, u.y, neededRes, range);
+            if (nearRes) {
+              u.resourceTarget = { x: nearRes.x, y: nearRes.y, type: neededRes };
+              if (canAct) {
+                this._stepTowardVaried(u, nearRes.x, nearRes.y);
+                u.state = 'working';
+              }
+              continue;
+            }
+          }
+
           if (canAct && Math.random() < 0.15) {
-            const cap = this.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL);
-            if (cap) {
-              u.targetX = cap.x + Math.floor(Math.random() * 5) - 2;
-              u.targetY = cap.y + Math.floor(Math.random() * 5) - 2;
+            const outposts = this.buildings.filter(b =>
+              b.type === CONFIG.ENTITY.CAPITOL ||
+              b.type === CONFIG.ENTITY.STOREHOUSE ||
+              b.type === CONFIG.ENTITY.FORT
+            );
+            let nearestOutpost = null;
+            let minDist = Infinity;
+            for (const o of outposts) {
+              /**
+               * One-line summary.
+               *
+               * @description MANDATORY detailed explanation (2-5 sentences).
+               *
+               * @workflow
+               * 1. Specific numbered steps
+               * 2. Include conditionals and loops
+               *
+               * @param {Type} name - Description
+               * @returns {Type} Description
+               *
+               * @dependencies stateManager.get(), etc.
+               * @modifies What state/DOM changes
+               * @triggers When/how called
+               * @performance O(n) complexity notes
+               */
+              const d = (o.x - u.x) ** 2 + (o.y - u.y) ** 2;
+              if (d < minDist) {
+                minDist = d;
+                nearestOutpost = o;
+              }
+            }
+            const anchor = nearestOutpost || this.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL);
+            if (anchor) {
+              u.targetX = anchor.x + Math.floor(Math.random() * 5) - 2;
+              u.targetY = anchor.y + Math.floor(Math.random() * 5) - 2;
             }
           }
           if (canAct && u.targetX !== undefined) this._stepTowardVaried(u, u.targetX, u.targetY);
