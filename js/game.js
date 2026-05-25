@@ -1,6 +1,9 @@
 // Main game controller — accessed globally as `Game`
 const Game = (() => {
   let world, tribeA, tribeB, player, renderer, ui;
+  let fog = null;
+  let diplomacy = null;
+  let wildlife = null;
   let speed = 1;
   let running = false;
   let tickAccum = 0;
@@ -26,6 +29,12 @@ const Game = (() => {
   function start() {
     world = new World();
     player = new Player();
+    fog = new FogOfWar(CONFIG.MAP_W, CONFIG.MAP_H);
+    diplomacy = new Diplomacy();
+    wildlife = new Wildlife(world);
+    if (typeof DEV === 'undefined' || DEV.ANIMALS_ENABLED !== false) {
+      wildlife.populate();
+    }
 
     // Apply DEV overrides
     if (typeof DEV !== 'undefined') {
@@ -276,6 +285,11 @@ const Game = (() => {
     tribeB._world = world;
     tribeB._enemy = tribeA;
     tribeA._enemy = tribeB;
+
+    // Initialize diplomatic relations — start wary (just fractured)
+    if (diplomacy) {
+      diplomacy.initRelation('a', 'b', -40);
+    }
     tribeB.startX = _settleTarget.x;
     tribeB.startY = _settleTarget.y;
 
@@ -449,12 +463,35 @@ const Game = (() => {
 
     player.tick(tribeA, tribeB, _cal.year);
 
-    // Periodic territory update
+    // Periodic territory + fog update
     territoryUpdateTimer++;
     if (territoryUpdateTimer >= 10) {
       territoryUpdateTimer = 0;
       world.updateTerritory(tribeA, tribeB);
       renderer.markTilesDirty();
+    }
+
+    // Fog of war — update visibility every 5 ticks (each game day)
+    if (fog && totalTicks % 5 === 0) {
+      fog.update(tribeA, tribeB);
+    }
+
+    // Wildlife tick
+    if (wildlife && totalTicks % 3 === 0) {
+      wildlife.tick(tribeA, tribeB);
+    }
+
+    // Diplomacy tick
+    if (diplomacy) {
+      diplomacy.tick(totalTicks);
+      // Log any diplomatic events
+      for (const evt of diplomacy.drainEvents()) {
+        if (evt.reason === 'treaty expired') {
+          eventLog(`The treaty between the tribes has expired. Tensions rise.`, 'warn');
+        } else if (evt.from !== evt.to) {
+          eventLog(`Relations shift: ${evt.from} → ${evt.to} (${evt.reason}).`, 'warn');
+        }
+      }
     }
 
     _advanceTribeTech(tribeA);
@@ -582,6 +619,9 @@ const Game = (() => {
     get player() { return player; },
     get tribeA() { return tribeA; },
     get tribeB() { return tribeB; },
+    get fog() { return fog; },
+    get diplomacy() { return diplomacy; },
+    get wildlife() { return wildlife; },
     get ui() { return ui; },
     get year() { return _cal ? _cal.year : 1; },
     get day()  { return _cal ? _cal.day  : 1; },

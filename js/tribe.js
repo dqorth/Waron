@@ -1085,6 +1085,11 @@ class Tribe {
     if (this._attackTimer < aggRate) return;
     this._attackTimer = 0;
 
+    // Diplomacy check — don't attack if relations prevent it
+    if (typeof Game !== 'undefined' && Game.diplomacy) {
+      if (!Game.diplomacy.shouldAttack(this.id, this._enemy.id, Game.day || 0)) return;
+    }
+
     const moralePenalty = this.debuffs.morale_loss || 0;
     if (Math.random() < moralePenalty * 0.5) return;
 
@@ -1104,16 +1109,48 @@ class Tribe {
     }
     if (!target) target = this._enemy.buildings[Math.floor(Math.random() * this._enemy.buildings.length)];
 
-    const maxGroup = Math.min(idleWarriors.length, 3 + Math.floor(this.techLevel * 1.5) + Math.floor(idleWarriors.length * 0.5));
-    const group = idleWarriors.slice(0, maxGroup);
+    // ── Army formation with supply logistics ────────────────────────────
+    const minArmy = (typeof DEV !== 'undefined' && DEV.ARMY_MIN_SIZE) || CONFIG.ARMY_MIN_SIZE || 3;
+    const maxArmy = (typeof DEV !== 'undefined' && DEV.ARMY_MAX_SIZE) || CONFIG.ARMY_MAX_SIZE || 50;
+    const supplyMult = (typeof DEV !== 'undefined') ? (DEV.ARMY_SUPPLY_MULT || 1) : 1;
 
+    // Estimate campaign distance
+    const cap = this.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL) || this.buildings[0];
+    const campaignDist = cap ? Math.sqrt((target.x - cap.x) ** 2 + (target.y - cap.y) ** 2) : 30;
+
+    // Food needed per soldier: distance × supply rate × buffer
+    const supplyPerUnit = Math.ceil(
+      campaignDist * (CONFIG.ARMY_SUPPLY_PER_TILE || 0.25) * (CONFIG.ARMY_SUPPLY_BUFFER || 1.3) * supplyMult
+    );
+
+    // How many soldiers can we feed?
+    const availableFood = Math.floor(this.res.food * 0.6); // never commit more than 60% of food
+    const maxFeedable = supplyPerUnit > 0 ? Math.floor(availableFood / supplyPerUnit) : idleWarriors.length;
+
+    let desiredSize = Math.min(
+      idleWarriors.length,
+      maxArmy,
+      3 + Math.floor(this.techLevel * 1.5) + Math.floor(idleWarriors.length * 0.5)
+    );
+    desiredSize = Math.min(desiredSize, maxFeedable);
+
+    if (desiredSize < minArmy) return; // can't feed even a minimal force
+
+    const group = idleWarriors.slice(0, desiredSize);
+
+    // Leader and scouts join (they carry their own food)
     const idleLeader = this.units.find(u => u.type === CONFIG.ENTITY.LEADER && u.state === 'idle');
     if (idleLeader) group.push(idleLeader);
-
     const idleScouts = this.units.filter(u => u.type === CONFIG.ENTITY.SCOUT && u.state === 'idle').slice(0, 2);
     group.push(...idleScouts);
 
+    // Provision the army — draw food from tribe reserves into each unit's carry
+    const totalFoodCost = group.length * supplyPerUnit;
+    this.res.food = Math.max(0, this.res.food - totalFoodCost);
+
     group.forEach(u => {
+      u.carriedFood = Math.max(u.carriedFood || 0, supplyPerUnit);
+      u.carriedFoodMax = Math.max(u.carriedFoodMax || 0, supplyPerUnit);
       u.state = 'marching';
       u.targetX = target.x + Math.floor(Math.random() * 3) - 1;
       u.targetY = target.y + Math.floor(Math.random() * 3) - 1;

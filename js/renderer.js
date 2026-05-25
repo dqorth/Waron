@@ -1055,7 +1055,7 @@ class Renderer {
 
     // Territory tint (merged into single path — no second beginPath)
     if (tile.owner) {
-      ctx.fillStyle = tile.owner === 'a' ? 'rgba(200,80,42,0.12)' : 'rgba(42,110,200,0.12)';
+      ctx.fillStyle = tile.owner === 'a' ? 'rgba(200,80,42,0.05)' : 'rgba(42,110,200,0.05)';
       ctx.fill(); // reuses same path
     }
 
@@ -1536,21 +1536,21 @@ class Renderer {
    */
   _getTileColor(tile, tribeAColor, tribeBColor) {
     const baseColors = {
-      [CONFIG.TILE.WATER]: '#1a3a5c',
-      [CONFIG.TILE.GRASS]: '#3a6e2a',
-      [CONFIG.TILE.FOREST]: '#1e4a1a',
-      [CONFIG.TILE.MOUNTAIN]: '#5a5050',
-      [CONFIG.TILE.STONE]: '#7a7060',
-      [CONFIG.TILE.DESERT]: '#9a8050',
-      [CONFIG.TILE.SNOW]: '#d0d8e8',
-      [CONFIG.TILE.RUINS]: '#5a4040',
-      [CONFIG.TILE.WETLAND]: '#3a6b4a',
-      [CONFIG.TILE.JUNGLE]: '#1a4a18',
-      [CONFIG.TILE.SAVANNA]: '#c8a840',
-      [CONFIG.TILE.TUNDRA]: '#7a8898',
+      [CONFIG.TILE.WATER]:    '#1e3d5a',
+      [CONFIG.TILE.GRASS]:    '#4a7a3a',
+      [CONFIG.TILE.FOREST]:   '#2d5428',
+      [CONFIG.TILE.MOUNTAIN]: '#6a6460',
+      [CONFIG.TILE.STONE]:    '#7a7568',
+      [CONFIG.TILE.DESERT]:   '#a09060',
+      [CONFIG.TILE.SNOW]:     '#c8d0dc',
+      [CONFIG.TILE.RUINS]:    '#6a5550',
+      [CONFIG.TILE.WETLAND]:  '#4a7858',
+      [CONFIG.TILE.JUNGLE]:   '#2a5a26',
+      [CONFIG.TILE.SAVANNA]:  '#b8a050',
+      [CONFIG.TILE.TUNDRA]:   '#808a94',
     };
 
-    let base = baseColors[tile.type] || '#3a6e2a';
+    let base = baseColors[tile.type] || '#4a7a3a';
 
     // Altitude shading — higher elevation lightens the tile, lower darkens it.
     // Water tiles shade inversely: deeper (lower h) = darker blue.
@@ -1588,8 +1588,8 @@ class Renderer {
       }
     }
 
-    if (tile.owner === 'a') base = this._blendColor(base, tribeAColor, 0.2);
-    if (tile.owner === 'b') base = this._blendColor(base, tribeBColor, 0.2);
+    if (tile.owner === 'a') base = this._blendColor(base, tribeAColor, 0.08);
+    if (tile.owner === 'b') base = this._blendColor(base, tribeBColor, 0.08);
     return base;
   }
 
@@ -2883,6 +2883,35 @@ class Renderer {
    * @triggers Called by the `render()` loop to display the battlefront.
    * @performance O(1)
    */
+  // ── Fog of war overlay ──────────────────────────────────────────────────
+  _drawFogOverlay(ctx, world, fog) {
+    if (!fog) return;
+
+    const vb = this._getVisibleTileBounds(world);
+    this._updateHexCorners();
+    const corners = this._hexCorners;
+    const sz = CONFIG.HEX_SIZE * this.zoom;
+
+    for (let y = vb.yMin; y <= vb.yMax; y++) {
+      for (let x = vb.xMin; x <= vb.xMax; x++) {
+        const vis = fog.getVisibility(x, y);
+        if (vis === FOG.VISIBLE) continue; // fully visible, no overlay
+
+        const p = this._tileToScreen(x, y);
+        const s = this._worldToScreen(p.sx, p.sy);
+        if (!this._isOnScreen(s.x, s.y, sz * 4)) continue;
+
+        const alpha = vis === FOG.UNEXPLORED ? 0.85 : 0.4; // explored = dimmed, unexplored = dark
+        ctx.fillStyle = `rgba(8,6,14,${alpha})`;
+        ctx.beginPath();
+        ctx.moveTo(s.x + corners[0].dx, s.y + corners[0].dy);
+        for (let i = 1; i < 6; i++) ctx.lineTo(s.x + corners[i].dx, s.y + corners[i].dy);
+        ctx.closePath();
+        ctx.fill();
+      }
+    }
+  }
+
   _drawBattleLine() {
     const ctx = this.ctx;
     const midX = CONFIG.MAP_W / 2;
@@ -3333,6 +3362,11 @@ class Renderer {
      */
     const offsetY = (this._tileBufCamY - this.camY) * this.zoom;
     ctx.drawImage(this._tileCanvas, -pad + offsetX, -pad + offsetY);
+
+    // 2b. Fog of war overlay
+    if (typeof Game !== 'undefined' && Game.fog) {
+      this._drawFogOverlay(ctx, world, Game.fog);
+    }
 
     // 3. Battle line
     this._drawBattleLine();
