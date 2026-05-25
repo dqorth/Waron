@@ -86,6 +86,7 @@ const Game = (() => {
     if (territoryUpdateTimer >= 10) {
       territoryUpdateTimer = 0;
       world.updateTerritory(tribeA, tribeB);
+      renderer.markTilesDirty();
     }
 
     // Tech progression from knowledge

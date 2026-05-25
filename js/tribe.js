@@ -41,7 +41,15 @@ class Tribe {
   get food()        { return this.res.food; }
   set food(v)       { this.res.food = v; }
   get resources()   { return this.res.wood + this.res.metal + this.res.stone; }
-  set resources(v)  { /* no-op for legacy callers */ }
+  // ── Fixed: resources setter now distributes evenly across wood/metal/stone ──
+  set resources(v)  {
+    const current = this.res.wood + this.res.metal + this.res.stone;
+    if (current <= 0) return;
+    const ratio = Math.max(0, v) / current;
+    this.res.wood  = Math.max(0, this.res.wood  * ratio);
+    this.res.metal = Math.max(0, this.res.metal * ratio);
+    this.res.stone = Math.max(0, this.res.stone * ratio);
+  }
 
   // ── Init ──
   init(world, enemyTribe) {
@@ -102,11 +110,9 @@ class Tribe {
     const maxPop = Math.max(4, Math.min(ageCap, homeCap));
     if (this.population >= maxPop) return;
 
-    // Food storage cap: base + per farm (level-scaled)
     const farmStorageCap = farms.reduce((sum, f) => sum + CONFIG.FOOD_STORAGE_PER_FARM * (f.level || 1), 0);
     const foodCap = CONFIG.FOOD_STORAGE_BASE + farmStorageCap;
 
-    // Growth rate scales with how full the food storage is (0→no growth, full→full speed)
     const foodFill   = Math.min(1, this.res.food / Math.max(1, foodCap));
     const diseaseDebuff = this.debuffs.disease || 0;
     const foodDebuff    = this.debuffs.food    || 0;
@@ -114,7 +120,6 @@ class Tribe {
       this.population * 0.10 * Math.max(0.15, foodFill) * (1 - diseaseDebuff) * (1 - foodDebuff * 0.5)
     ));
     this.population = Math.min(maxPop, this.population + growAmt);
-    // (food consumption handled per-tick in _gatherResources)
   }
 
   // ── Resources ──
@@ -125,8 +130,6 @@ class Tribe {
 
     this._assignFarmWorkers(farms);
 
-    // Food ONLY from farms — each farm produces based on its level and tech
-    // Farm storage cap determines the ceiling
     const farmStorageCap = farms.reduce((sum, f) => sum + CONFIG.FOOD_STORAGE_PER_FARM * (f.level || 1) * (f.size || 1), 0);
     const foodCap        = CONFIG.FOOD_STORAGE_BASE + farmStorageCap;
     const weatherType = (this._world.weather && this._world.weather.type) || CONFIG.WEATHER.SUNSHINE;
@@ -151,16 +154,14 @@ class Tribe {
         farmFood += perTile;
       }
       return sum + farmFood;
-    }, 0);  // food ONLY from farmland tiles — the farm building contributes nothing directly
+    }, 0);
     const farmMult = this._world.weatherMods ? this._world.weatherMods.farmMult : 1;
     this.res.food = Math.min(foodCap, this.res.food + farmOutput * farmMult);
 
-    // Food spoilage — stored food rots each tick
+    // Food spoilage
     this.res.food = Math.max(0, this.res.food - this.res.food * CONFIG.FOOD_SPOIL_RATE);
-    // (Per-unit food consumption is handled by the hunger system in _updateHunger)
 
-    // Workers harvest specific resources from the landscape tiles they stand on
-    // Resource storage caps (storehouses expand caps)
+    // Resource storage caps
     const storehouses = this.buildings.filter(b => b.type === CONFIG.ENTITY.STOREHOUSE);
     const storageCap  = CONFIG.STORAGE_BASE_CAP
       + storehouses.reduce((s, b) => s + CONFIG.STORAGE_PER_STOREHOUSE * (b.level || 1), 0);
@@ -171,18 +172,17 @@ class Tribe {
       const gained = this._world.harvestTile(w.x, w.y, 1 + this.techLevel * 0.1);
       if (gained) {
         for (const [res, amt] of Object.entries(gained)) {
-          if (res === 'food') continue; // food only from farms
+          if (res === 'food') continue;
           if (res in this.res) this.res[res] = Math.min(storageCap, this.res[res] + amt);
         }
       }
-      // Workers also build roads on their tile when idle
       if (w.state === 'idle' && this.res.stone >= 2) {
         this._world.setRoad(w.x, w.y);
         this.res.stone = Math.max(0, this.res.stone - 0.5);
       }
     }
 
-    // Passive trickle for metal and stone (wood comes only from trees now)
+    // Passive trickle
     const passiveMult = 1 + this.techLevel * 0.04;
     this.res.metal = Math.min(storageCap, this.res.metal + Math.floor(this.population * 0.004 * passiveMult));
     this.res.stone = Math.min(storageCap, this.res.stone + Math.floor(this.population * 0.004 * passiveMult));
@@ -212,37 +212,23 @@ class Tribe {
     const forts        = count(CONFIG.ENTITY.FORT);
     const towers       = count(CONFIG.ENTITY.TOWER);
 
-    if (!hasCapitol) return; // Capitol destroyed — no building
+    if (!hasCapitol) return;
 
-    // Priority 1: food — always need a farm
     if (foodHalls < 1) return this._buildNew(CONFIG.ENTITY.FARM, false);
-    // Priority 2: housing — always need homes to grow
     if (homes < 2) return this._buildNew(CONFIG.ENTITY.HOME, false);
-    // Priority 3: storehouse early — wood/stone/metal cap
     const storehouses = count(CONFIG.ENTITY.STOREHOUSE);
     if (storehouses < 1) return this._buildNew(CONFIG.ENTITY.STOREHOUSE, false);
-    // Priority 4: military production — barracks as early as possible
     if (barracksNum < 1) return this._buildNew(CONFIG.ENTITY.BARRACKS, false);
-    // Priority 5: more food
     if (foodHalls < 2) return this._buildNew(CONFIG.ENTITY.FARM, false);
-    // Priority 6: more homes — keep growing
     if (homes < 4) return this._buildNew(CONFIG.ENTITY.HOME, false);
-    // Priority 7: second barracks — more military production
     if (barracksNum < 2) return this._buildNew(CONFIG.ENTITY.BARRACKS, false);
-    // Priority 8: fort (defense)
     if (forts < 2 && this.population > 50) return this._buildNew(CONFIG.ENTITY.FORT, true);
-    // Priority 9: towers (border defense)
     if (towers < 5) return this._buildNew(CONFIG.ENTITY.TOWER, true);
-    // Priority 10: third barracks
     if (barracksNum < 3 && this.population > 80) return this._buildNew(CONFIG.ENTITY.BARRACKS, false);
-    // Priority 11: second storehouse
     if (storehouses < 2) return this._buildNew(CONFIG.ENTITY.STOREHOUSE, false);
-    // Priority 12: more homes for population cap
     if (homes < 6 && this.population > 80) return this._buildNew(CONFIG.ENTITY.HOME, false);
-    // Priority 13: walls along border
     const walls = count(CONFIG.ENTITY.WALL);
     if (walls < 8 && this.population > 80) return this._buildNew(CONFIG.ENTITY.WALL, true);
-    // Priority 14: more farms / storehouses at scale
     if (foodHalls < 3 && this.population > 100) return this._buildNew(CONFIG.ENTITY.FARM, false);
     if (storehouses < 3 && this.population > 120) return this._buildNew(CONFIG.ENTITY.STOREHOUSE, false);
     if (towers < 8 && this.population > 150) return this._buildNew(CONFIG.ENTITY.TOWER, true);
@@ -351,14 +337,12 @@ class Tribe {
     if (this._upgradeTimer < 40) return;
     this._upgradeTimer = 0;
 
-    // Find a building worth upgrading (lowest level that is upgradeable)
     const upgradeable = this.buildings.filter(b => {
       const maxLv = CONFIG.BUILDING_MAX_LEVEL[b.type] || 1;
       return (b.level || 1) < maxLv;
     });
     if (!upgradeable.length) return;
 
-    // Prefer upgrading high-priority buildings
     const priority = [CONFIG.ENTITY.CAPITOL, CONFIG.ENTITY.STOREHOUSE, CONFIG.ENTITY.TOWER,
               CONFIG.ENTITY.FORT, CONFIG.ENTITY.BARRACKS, CONFIG.ENTITY.FARM,
               CONFIG.ENTITY.WALL, CONFIG.ENTITY.HOME];
@@ -370,7 +354,6 @@ class Tribe {
 
     this._payCost(cost);
     candidate.level = (candidate.level || 1) + 1;
-    // Upgrade also boosts max HP
     const baseHp = CONFIG.BUILDING_HP[candidate.type] || 200;
     candidate.maxHp = Math.round(baseHp * (1 + (candidate.level - 1) * 0.25));
     candidate.hp = Math.min(candidate.maxHp, candidate.hp + baseHp * 0.25);
@@ -385,14 +368,12 @@ class Tribe {
     for (const [res, amt] of Object.entries(base)) {
       cost[res] = Math.ceil(amt * mult);
     }
-    // Upgrades always have some minimum cost even for free buildings (capitol)
     cost.wood  = Math.max(cost.wood  || 0, 30 * lv);
     cost.stone = Math.max(cost.stone || 0, 20 * lv);
     return cost;
   }
 
   upgradeBuilding(building) {
-    // External API (can be called by player actions in future)
     if (!building || building.tribe !== this.id) return;
     const maxLv = CONFIG.BUILDING_MAX_LEVEL[building.type] || 1;
     if ((building.level || 1) >= maxLv) return;
@@ -426,7 +407,6 @@ class Tribe {
     const maxScouts   = Math.min(25, 5 + Math.floor(this.population / 35));
     const maxLeaders  = Math.max(1, Math.floor(this.population / 30));
 
-    // Spawn from Barracks (costs food + metal for weapons)
     if (barracks.length && warriors < maxWarriors && this.res.metal >= 3) {
       const b = barracks[Math.floor(Math.random() * barracks.length)];
       this._spawnUnit(b.x, b.y, CONFIG.ENTITY.WARRIOR);
@@ -435,7 +415,6 @@ class Tribe {
       return;
     }
 
-    // Spawn Leader from Barracks (rare)
     if (barracks.length && leaders < maxLeaders && Math.random() < 0.18 && this.res.metal >= 10) {
       const b = barracks[0];
       this._spawnUnit(b.x, b.y, CONFIG.ENTITY.LEADER);
@@ -444,14 +423,12 @@ class Tribe {
       return;
     }
 
-    // Spawn Worker from Capitol (costs wood for tools)
     if (capitol && workers < maxWorkers && Math.random() < 0.50 && this.res.wood >= 5) {
       this._spawnUnit(capitol.x, capitol.y, CONFIG.ENTITY.WORKER);
       this.res.wood = Math.max(0, this.res.wood - 5);
       return;
     }
 
-    // Spawn Scout from Capitol
     if (capitol && scouts < maxScouts && Math.random() < 0.40 && this.res.food >= 5) {
       this._spawnUnit(capitol.x, capitol.y, CONFIG.ENTITY.SCOUT);
       this.res.food = Math.max(0, this.res.food - 5);
@@ -473,7 +450,6 @@ class Tribe {
 
     if (!this._enemy.buildings.length) return;
 
-    // Prefer high-value targets: capitol > barracks > farm > fort > any
     const priorityOrder = [
       CONFIG.ENTITY.CAPITOL, CONFIG.ENTITY.BARRACKS, CONFIG.ENTITY.FARM,
       CONFIG.ENTITY.FORT, CONFIG.ENTITY.STOREHOUSE,
@@ -485,15 +461,12 @@ class Tribe {
     }
     if (!target) target = this._enemy.buildings[Math.floor(Math.random() * this._enemy.buildings.length)];
 
-    // Send a bigger group the more warriors we have
     const maxGroup = Math.min(idleWarriors.length, 3 + Math.floor(this.techLevel * 1.5) + Math.floor(idleWarriors.length * 0.5));
     const group = idleWarriors.slice(0, maxGroup);
 
-    // Leader joins if idle
     const idleLeader = this.units.find(u => u.type === CONFIG.ENTITY.LEADER && u.state === 'idle');
     if (idleLeader) group.push(idleLeader);
 
-    // Scouts follow to skirmish
     const idleScouts = this.units.filter(u => u.type === CONFIG.ENTITY.SCOUT && u.state === 'idle').slice(0, 2);
     group.push(...idleScouts);
 
@@ -503,7 +476,6 @@ class Tribe {
       u.targetY = target.y + Math.floor(Math.random() * 3) - 1;
     });
 
-    // Log the assault
     if (Math.random() < 0.35) {
       const msgs = [
         `${this.name} launches an assault! ${group.length} fighters march on ${this._enemy.name}'s ${target.type.replace('_',' ')}.`,
@@ -521,8 +493,6 @@ class Tribe {
       const stats = u.stats || this._rollUnitStats(u.type);
       u.stats = stats;
 
-      // Per-type move interval
-      // Per-type base interval × weather penalty ÷ road bonus
       const baseMI = u.type === CONFIG.ENTITY.SCOUT
         ? CONFIG.SCOUT_MOVE_INTERVAL
         : CONFIG.UNIT_MOVE_INTERVAL;
@@ -536,7 +506,6 @@ class Tribe {
       const canAct = u._moveTimer >= moveInterval;
       if (canAct) u._moveTimer = 0;
 
-      // Natural stop/start cadence: units occasionally hesitate before moving again.
       if (u._pauseTicks && u._pauseTicks > 0) {
         u._pauseTicks--;
         continue;
@@ -549,16 +518,16 @@ class Tribe {
         }
       }
 
-      // ── Hunger override: redirect non-fighting units toward food ──
+      // ── Hunger override ──
       if (u._hungerTarget && u.state !== 'fighting') {
         if (canAct) this._stepTowardVaried(u, u._hungerTarget.x, u._hungerTarget.y);
         if (Math.abs(u.x - u._hungerTarget.x) + Math.abs(u.y - u._hungerTarget.y) <= 1) {
-          u._hungerTarget = null; // eating handled by _updateHunger next tick
+          u._hungerTarget = null;
         }
         continue;
       }
 
-      // ── WARRIOR / LEADER: march + fight ──
+      // ── WARRIOR / LEADER ──
       if (u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER) {
         if (u.state === 'marching' && canAct) {
           const dx = u.targetX - u.x;
@@ -573,7 +542,6 @@ class Tribe {
         if (u.state === 'fighting') {
           if (!canAct) continue;
 
-          // Low loyalty can trigger defection when battle starts.
           if (this._tryDefect(u)) {
             this._despawnUnitAtIndex(i);
             this._enemy.units.push(u);
@@ -586,14 +554,12 @@ class Tribe {
             continue;
           }
 
-          // Tenacity controls whether wounded units keep fighting.
           if (this._shouldRetreat(u)) {
             u.state = 'idle';
             u.attackTarget = null;
             continue;
           }
 
-          // Leader boost: increases atkPower of nearby warriors (applied in damage calc below)
           const leaderNearby = this._nearbyLeader(u);
           const leaderBonus = leaderNearby ? 1.25 : 1.0;
 
@@ -637,8 +603,7 @@ class Tribe {
             const bldDmg = atkPower * 0.12;
             bld.hp -= Math.max(0.1, bldDmg);
             u.attackTarget = { x: bld.x, y: bld.y, id: bld.id, kind: 'building' };
-            // Buildings under attack flag themselves (for renderer indicator)
-            bld._underAttack = 4; // countdown frames
+            bld._underAttack = 4;
             if (bld.hp <= 0) {
               this._enemy.buildings.splice(this._enemy.buildings.indexOf(bld), 1);
               const destroyMsgs = [
@@ -663,19 +628,17 @@ class Tribe {
         }
       }
 
-      // ── WORKER: harvest trees → repair buildings → idle ──
+      // ── WORKER ──
       if (u.type === CONFIG.ENTITY.WORKER) {
         const storehouses = this.buildings.filter(b => b.type === CONFIG.ENTITY.STOREHOUSE);
         const storageCap = CONFIG.STORAGE_BASE_CAP
           + storehouses.reduce((s, b) => s + CONFIG.STORAGE_PER_STOREHOUSE * (b.level || 1), 0);
 
-        // Priority 1: harvest trees for wood
         const nearTree = this._world.getNearbyTree(u.x, u.y, 7);
         if (nearTree && this.res.wood < storageCap * 0.8) {
           if (u.x === nearTree.x && u.y === nearTree.y) {
             const wood = this._world.harvestTree(nearTree.x, nearTree.y);
             this.res.wood = Math.min(storageCap, this.res.wood + wood);
-            // Replant a sapling with 30% chance
             if (Math.random() < 0.30) this._world.plantTree(nearTree.x, nearTree.y);
           } else if (canAct) {
             this._stepTowardVaried(u, nearTree.x, nearTree.y);
@@ -684,14 +647,12 @@ class Tribe {
           continue;
         }
 
-        // Priority 2: plant a tree if wood is critically low and a clear tile is nearby
         if (this.res.wood < 20 && canAct && Math.random() < 0.10) {
           const px = u.x + Math.floor(Math.random() * 5) - 2;
           const py = u.y + Math.floor(Math.random() * 5) - 2;
           this._world.plantTree(px, py);
         }
 
-        // Priority 3: repair nearest damaged building
         const damaged = this.buildings
           .filter(b => b.hp < b.maxHp)
           .sort((a, b) => (a.hp / a.maxHp) - (b.hp / b.maxHp));
@@ -709,7 +670,6 @@ class Tribe {
           }
           u.state = 'working';
         } else {
-          // Priority 4: wander near Capitol
           if (canAct && Math.random() < 0.15) {
             const cap = this.buildings.find(b => b.type === CONFIG.ENTITY.CAPITOL);
             if (cap) {
@@ -722,11 +682,10 @@ class Tribe {
         }
       }
 
-      // ── SCOUT: fast patrol toward border then back ──
+      // ── SCOUT ──
       if (u.type === CONFIG.ENTITY.SCOUT) {
         if (!canAct) continue;
 
-        // Scouts can skirmish nearby enemies using their own attack strength.
         const closeEnemy = this._enemy.units.find(eu =>
           Math.abs(eu.x - u.x) <= 1 && Math.abs(eu.y - u.y) <= 1
         );
@@ -744,22 +703,20 @@ class Tribe {
           continue;
         }
 
-        // Scouts move toward the midpoint of the map as their patrol zone
         const midX = CONFIG.MAP_W / 2;
         const distToMid = Math.abs(u.x - midX);
         const ox = this.id === 'a' ? 1 : -1;
 
         if (u.state === 'idle' || !u.patrolDir) {
-          u.patrolDir = distToMid < 6 ? -ox : ox; // go toward middle, retreat when close
+          u.patrolDir = distToMid < 6 ? -ox : ox;
           u.state = 'patrolling';
         }
 
         if (u.state === 'patrolling') {
           const tx = u.x + u.patrolDir;
           const ty = u.y + Math.floor(Math.random() * 3) - 1;
-          if (this._world.isWalkable(tx, ty)) { u.x = tx; u.y = ty; }
+          if (this._world.isWalkable(tx, ty)) { u.x = tx; u.y = ty; this._world.notifyEntityMoved(u); }
 
-          // Detect nearby enemies and log once
           const nearEnemy = this._enemy.units.some(eu =>
             Math.abs(eu.x - u.x) <= 5 && Math.abs(eu.y - u.y) <= 5
           );
@@ -767,13 +724,12 @@ class Tribe {
             Game.eventLog(`A ${this.name} scout spots enemy movement near the border.`, 'warn');
           }
 
-          // Flip direction at boundaries
           if (distToMid < 3) u.patrolDir = -ox;
           if (distToMid > 14) u.patrolDir = ox;
         }
       }
 
-      // ── NORMAL: civilian presence wandering around settlements ──
+      // ── NORMAL ──
       if (u.type === CONFIG.ENTITY.NORMAL) {
         if (!canAct) continue;
         if (u.state === 'idle' && Math.random() < 0.28) {
@@ -794,9 +750,7 @@ class Tribe {
     this.military = this.units.filter(u => u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER).length;
   }
 
-  // ── Tower Auto-Attack (Defence Building) ──────────────────────────────────
-  // Towers never move or march — they fire at the closest enemy unit in range.
-  // Range and damage both scale with the tower's upgrade level.
+  // ── Tower Auto-Attack ──────────────────────────────────────────────────
   _updateTowers() {
     this._towerTimer++;
     if (this._towerTimer < 6) return;
@@ -816,7 +770,6 @@ class Tribe {
         continue;
       }
 
-      // Target the closest enemy
       inRange.sort((a, b) => {
         const dA = Math.abs(a.x - tower.x) + Math.abs(a.y - tower.y);
         const dB = Math.abs(b.x - tower.x) + Math.abs(b.y - tower.y);
@@ -826,7 +779,7 @@ class Tribe {
 
       target.hp -= this._applyDefenseReduction(target, dmg);
       tower.attackTarget = { x: target.x, y: target.y, id: target.id };
-      target._underFire = 4; // flash countdown for renderer
+      target._underFire = 4;
 
       if (target.hp <= 0) {
         this._enemy._despawnUnitByObject(target);
@@ -837,22 +790,22 @@ class Tribe {
     }
   }
 
-  // ── Helpers ──
+  // ── Movement helpers — now use spatial hash for wall checks ────────────
   _stepToward(u, tx, ty) {
     if (u.x === tx && u.y === ty) return;
     const neighbors = this._world.getNeighbors(u.x, u.y);
     let best = null, bestDist = Infinity;
     for (const n of neighbors) {
       if (!this._world.isWalkable(n.x, n.y)) continue;
-      // Walls belonging to the enemy block movement
-      const wallBlocked = this._world.entities.some(
-        e => e.type === CONFIG.ENTITY.WALL && e.tribe !== this.id && e.x === n.x && e.y === n.y
-      );
-      if (wallBlocked) continue;
+      if (this._world.hasEnemyWall(n.x, n.y, this.id)) continue;
       const d = (tx - n.x) ** 2 + (ty - n.y) ** 2;
       if (d < bestDist) { bestDist = d; best = n; }
     }
-    if (best) { u.x = best.x; u.y = best.y; }
+    if (best) {
+      u.x = best.x;
+      u.y = best.y;
+      this._world.notifyEntityMoved(u);
+    }
   }
 
   _stepTowardVaried(u, tx, ty) {
@@ -861,10 +814,7 @@ class Tribe {
     const options = [];
     for (const n of neighbors) {
       if (!this._world.isWalkable(n.x, n.y)) continue;
-      const wallBlocked = this._world.entities.some(
-        e => e.type === CONFIG.ENTITY.WALL && e.tribe !== this.id && e.x === n.x && e.y === n.y
-      );
-      if (wallBlocked) continue;
+      if (this._world.hasEnemyWall(n.x, n.y, this.id)) continue;
       const d = (tx - n.x) ** 2 + (ty - n.y) ** 2;
       options.push({ n, d });
     }
@@ -873,7 +823,6 @@ class Tribe {
     options.sort((a, b) => a.d - b.d);
     let pick = options[0];
 
-    // Small chance to choose a near-optimal alternate tile for less robotic paths.
     if (options.length > 1 && Math.random() < 0.22) {
       const alt = options.filter(o => o.d <= options[0].d + 2.0);
       pick = alt[Math.floor(Math.random() * alt.length)];
@@ -881,6 +830,7 @@ class Tribe {
 
     u.x = pick.n.x;
     u.y = pick.n.y;
+    this._world.notifyEntityMoved(u);
   }
 
   _nearbyLeader(u) {
@@ -950,7 +900,6 @@ class Tribe {
   }
 
   _agilityFactor(stats) {
-    // Higher agility means lower interval (faster actions).
     const f = 1.0 - (stats.agility - 5) * 0.06;
     return Math.max(0.55, Math.min(1.45, f));
   }
@@ -1012,11 +961,8 @@ class Tribe {
     };
   }
 
-  // ── Hunger System ───────────────────────────────────────────────────────────
-  // Called every tick (once per time period). Increases each unit’s hunger and
-  // directs them to a food building (storehouse or capitol) when hungry.
+  // ── Hunger System (single definition — duplicate removed) ──────────────
   _updateHunger() {
-    // Food buildings: storehouse or capitol
     const foodBuildings = this.buildings.filter(b =>
       b.type === CONFIG.ENTITY.STOREHOUSE || b.type === CONFIG.ENTITY.CAPITOL
     );
@@ -1024,10 +970,8 @@ class Tribe {
     for (let i = this.units.length - 1; i >= 0; i--) {
       const u = this.units[i];
 
-      // Increase hunger each time period.
       u.hunger = Math.min(CONFIG.HUNGER_MAX, (u.hunger || 0) + CONFIG.HUNGER_RATE);
 
-      // Track consecutive ticks at max hunger (starvation).
       if (u.hunger >= CONFIG.HUNGER_MAX) {
         u._hungerFullTicks = (u._hungerFullTicks || 0) + 1;
         if (u._hungerFullTicks >= CONFIG.HUNGER_DEATH_TICKS) {
@@ -1042,7 +986,6 @@ class Tribe {
         u._hungerFullTicks = 0;
       }
 
-      // Seek food when hungry and tribe has food available.
       if (u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && this.res.food >= 1 && foodBuildings.length) {
         let nearestFB = null, nearFBDist = Infinity;
         for (const fb of foodBuildings) {
@@ -1050,63 +993,6 @@ class Tribe {
           if (d < nearFBDist) { nearFBDist = d; nearestFB = fb; }
         }
         if (nearestFB && nearFBDist <= 1) {
-          // At a food building — eat.
-          const foodNeeded = Math.ceil(u.hunger / CONFIG.HUNGER_FOOD_RESTORE);
-          const foodEaten  = Math.min(foodNeeded, Math.floor(this.res.food), 6);
-          if (foodEaten > 0) {
-            u.hunger           = Math.max(0, u.hunger - foodEaten * CONFIG.HUNGER_FOOD_RESTORE);
-            this.res.food      = Math.max(0, this.res.food - foodEaten);
-            u._hungerFullTicks = 0;
-            u._hungerTarget    = null;
-          }
-        } else if (nearestFB) {
-          u._hungerTarget = { x: nearestFB.x, y: nearestFB.y };
-        }
-      } else {
-        u._hungerTarget = null;
-      }
-    }
-  }
-
-  // ── Hunger System ────────────────────────────────────────────────────────────
-  // Called every tick (once per time period). Increases each unit's hunger and
-  // directs them to a food building (storehouse or capitol) when hungry.
-  _updateHunger() {
-    // Food buildings: storehouse or capitol
-    const foodBuildings = this.buildings.filter(b =>
-      b.type === CONFIG.ENTITY.STOREHOUSE || b.type === CONFIG.ENTITY.CAPITOL
-    );
-
-    for (let i = this.units.length - 1; i >= 0; i--) {
-      const u = this.units[i];
-
-      // Increase hunger each time period.
-      u.hunger = Math.min(CONFIG.HUNGER_MAX, (u.hunger || 0) + CONFIG.HUNGER_RATE);
-
-      // Track consecutive ticks at max hunger (starvation).
-      if (u.hunger >= CONFIG.HUNGER_MAX) {
-        u._hungerFullTicks = (u._hungerFullTicks || 0) + 1;
-        if (u._hungerFullTicks >= CONFIG.HUNGER_DEATH_TICKS) {
-          this._despawnUnitAtIndex(i);
-          this.population = Math.max(0, this.population - 1);
-          this.morale = Math.max(0.05, this.morale - 0.01);
-          if (Math.random() < 0.3)
-            Game.eventLog(`${this.name}: a ${u.type} dies of hunger.`, 'danger');
-          continue;
-        }
-      } else {
-        u._hungerFullTicks = 0;
-      }
-
-      // Seek food when hungry and tribe has food available.
-      if (u.hunger >= CONFIG.HUNGER_EAT_THRESHOLD && this.res.food >= 1 && foodBuildings.length) {
-        let nearestFB = null, nearFBDist = Infinity;
-        for (const fb of foodBuildings) {
-          const d = Math.abs(fb.x - u.x) + Math.abs(fb.y - u.y);
-          if (d < nearFBDist) { nearFBDist = d; nearestFB = fb; }
-        }
-        if (nearestFB && nearFBDist <= 1) {
-          // At a food building — eat.
           const foodNeeded = Math.ceil(u.hunger / CONFIG.HUNGER_FOOD_RESTORE);
           const foodEaten  = Math.min(foodNeeded, Math.floor(this.res.food), 6);
           if (foodEaten > 0) {
@@ -1266,14 +1152,12 @@ class Tribe {
     const old = this.leader.name;
     this.leader = { name: this._randName(), strength: 0.3 + Math.random() * 0.4 };
     this.morale = Math.max(0.1, this.morale - 0.2);
-    // Kill leader units
     const leaderUnits = this.units.filter(u => u.type === CONFIG.ENTITY.LEADER);
     leaderUnits.forEach(u => { u.hp = 0; });
     Game.eventLog(`${this.name} leader ${old} is eliminated. Command fractures.`, 'warn');
   }
 
   killUnits(count) {
-    // Prefer killing Warriors
     const warriors = this.units.filter(u => u.type === CONFIG.ENTITY.WARRIOR);
     const toKill = Math.min(count, warriors.length);
     for (let i = 0; i < toKill; i++) {
@@ -1307,6 +1191,17 @@ class Tribe {
       for (let i = 0; i < 3; i++) this._spawnUnit(b.x, b.y, CONFIG.ENTITY.WARRIOR);
     }
     Game.eventLog(`${this.name} receives mysterious weapons. Their army grows.`, 'warn');
+  }
+
+  // ── Fixed: direct resource manipulation instead of broken setter ──
+  drainResources(amount) {
+    const total = this.res.wood + this.res.metal + this.res.stone;
+    if (total <= 0) return;
+    const drain = Math.min(amount, total);
+    const ratio = (total - drain) / total;
+    this.res.wood  *= ratio;
+    this.res.metal *= ratio;
+    this.res.stone *= ratio;
   }
 
   isEliminated() {

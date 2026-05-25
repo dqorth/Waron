@@ -41,7 +41,6 @@ const ACTIONS = {
     icon: '👤',
     execute(player, tribe) {
       tribe.agentCount = (tribe.agentCount || 0) + 1;
-      // Agents reduce suspicion decay delay
       Game.eventLog(`An agent is embedded in ${tribe.name}. Intelligence flows.`, 'good');
     }
   },
@@ -100,7 +99,7 @@ const ACTIONS = {
     icon: '📜',
     execute(player, tribe) {
       tribe.damageMorale(0.15);
-      tribe.applyDebuff('morale_loss', 0.3, 25);
+      tribe.applyDebuff('morale_loss', 0.3);
       tribe.units.forEach(u => u.state = 'idle');
       Game.eventLog(`${tribe.name} falls for a forged peace. Their guard drops.`, 'warn');
     }
@@ -117,7 +116,7 @@ const ACTIONS = {
     icon: '🗺',
     execute(player, tribe) {
       tribe.morale = Math.min(1, tribe.morale + 0.2);
-      tribe._attackTimer = 0; // Trigger immediate attack
+      tribe._attackTimer = 0;
       Game.eventLog(`Border stones are moved. ${tribe.name} marches to war.`, 'danger');
     }
   },
@@ -134,9 +133,9 @@ const ACTIONS = {
     execute(player, tribe) {
       const killed = Math.floor(tribe.units.length * 0.3);
       tribe.killUnits(killed);
-      tribe.res.wood  = Math.max(0, (tribe.res.wood  || 0) - 40);
-      tribe.res.metal = Math.max(0, (tribe.res.metal || 0) - 30);
-      tribe.res.stone = Math.max(0, (tribe.res.stone || 0) - 20);
+      tribe.res.wood  = Math.max(0, tribe.res.wood  - 40);
+      tribe.res.metal = Math.max(0, tribe.res.metal - 30);
+      tribe.res.stone = Math.max(0, tribe.res.stone - 20);
       Game.eventLog(`A riot tears through ${tribe.name}. ${killed} warriors fall to infighting.`, 'danger');
     }
   },
@@ -152,7 +151,7 @@ const ACTIONS = {
     icon: '⛈',
     execute(player, tribe) {
       tribe.sabotageFood(500 + player.ageIndex * 200);
-      tribe.applyDebuff('food', 0.6, 40);
+      tribe.applyDebuff('food', 0.6);
       Game.eventLog(`A terrible drought strikes ${tribe.name}'s lands.`, 'danger');
     }
   },
@@ -167,7 +166,7 @@ const ACTIONS = {
     requiresTarget: true,
     icon: '🧠',
     execute(player, tribe) {
-      tribe.applyDebuff('research_slow', 0.5, 30);
+      tribe.applyDebuff('research_slow', 0.5);
       player.knowledge += 20 + player.ageIndex * 10;
       Game.eventLog(`A scholar is taken from ${tribe.name}. Their progress slows.`, 'warn');
     }
@@ -253,6 +252,7 @@ const ACTIONS = {
     }
   },
 
+  // ── Fixed: uses drainResources() instead of broken setter ──
   economic_sabotage: {
     id: 'economic_sabotage',
     name: 'Economic Sabotage',
@@ -263,8 +263,8 @@ const ACTIONS = {
     requiresTarget: true,
     icon: '💸',
     execute(player, tribe) {
-      tribe.resources = Math.max(0, tribe.resources - 300);
-      tribe.food = Math.max(0, tribe.food - 300);
+      tribe.drainResources(300);
+      tribe.res.food = Math.max(0, tribe.res.food - 300);
       Game.eventLog(`${tribe.name}'s trade routes collapse. Resources dwindle.`, 'danger');
     }
   },
@@ -296,7 +296,8 @@ const ACTIONS = {
     icon: '💥',
     execute(player, tribe) {
       tribe.killUnits(Math.floor(tribe.units.length * 0.4));
-      const bld = tribe.buildings.find(b => b.type === CONFIG.ENTITY.FORTRESS || b.type === CONFIG.ENTITY.CITY);
+      // Fixed: look for fort or capitol (FORTRESS/CITY don't exist in this game)
+      const bld = tribe.buildings.find(b => b.type === CONFIG.ENTITY.FORT || b.type === CONFIG.ENTITY.CAPITOL);
       if (bld) bld.hp = Math.max(1, bld.hp - bld.maxHp * 0.5);
       Game.eventLog(`An explosion tears through ${tribe.name}'s arsenal!`, 'danger');
     }
@@ -318,6 +319,7 @@ const ACTIONS = {
     }
   },
 
+  // ── Fixed: uses drainResources() ──
   religious_schism: {
     id: 'religious_schism',
     name: 'Religious Schism',
@@ -331,11 +333,12 @@ const ACTIONS = {
       const factions = Math.floor(tribe.units.length * 0.3);
       tribe.killUnits(factions);
       tribe.damageMorale(0.2);
-      tribe.resources = Math.max(0, tribe.resources - 100);
+      tribe.drainResources(100);
       Game.eventLog(`${tribe.name} fractures along religious lines. Civil war brews.`, 'danger');
     }
   },
 
+  // ── Fixed: uses drainResources() ──
   factory_sabotage: {
     id: 'factory_sabotage',
     name: 'Industrial Sabotage',
@@ -347,7 +350,7 @@ const ACTIONS = {
     icon: '🏭',
     execute(player, tribe) {
       tribe.techLevel = Math.max(1, tribe.techLevel - 2);
-      tribe.resources = Math.max(0, tribe.resources - 400);
+      tribe.drainResources(400);
       Game.eventLog(`${tribe.name}'s industry burns. Technology is set back.`, 'danger');
     }
   },
@@ -415,11 +418,12 @@ const ACTIONS = {
     execute(player, tribe) {
       tribe._attackTimer += 30;
       tribe._buildTimer += 30;
-      tribe.applyDebuff('research_slow', 0.4, 25);
+      tribe.applyDebuff('research_slow', 0.4);
       Game.eventLog(`${tribe.name}'s systems are disrupted by unknown assailants.`, 'danger');
     }
   },
 
+  // ── Fixed: uses drainResources() ──
   satellite_interference: {
     id: 'satellite_interference',
     name: 'Satellite Blackout',
@@ -431,7 +435,7 @@ const ACTIONS = {
     icon: '🛰',
     execute(player, tribe) {
       tribe.killUnits(Math.floor(tribe.units.length * 0.5));
-      tribe.resources = Math.max(0, tribe.resources - 600);
+      tribe.drainResources(600);
       Game.eventLog(`${tribe.name}'s satellite network goes dark. Their forces scatter.`, 'danger');
     }
   },

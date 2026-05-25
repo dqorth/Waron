@@ -8,6 +8,19 @@ class World {
     this.weather = { type: CONFIG.WEATHER.SUNSHINE, intensity: 1.0 };
     this.weatherMods = { foodSpoilMult: 1, moveMult: 1, farmMult: 1 };
     this.treeMap = {};  // key: "x,y" → { x, y, growth:1-5, growthTicks:0 }
+
+    // ── Spatial hash for O(1) entity lookups ──────────────────────────────
+    this._spatialCellSize = 8;
+    this._spatialGrid = {};    // "cx,cy" → Set of entity ids
+    this._entityById = {};     // id → entity
+
+    // ── Territory cache ──────────────────────────────────────────────────
+    this._territoryCount = { a: 0, b: 0 };
+    this._territoryDirty = true;
+
+    // ── Resource tick optimization: track non-full tiles ─────────────────
+    this._regenTiles = [];     // [{x,y}] — tiles needing regen
+
     this.generate();
   }
 
@@ -116,8 +129,61 @@ class World {
         };
       }
     }
+
+    // Build initial regen list (tiles not at max)
+    this._rebuildRegenList();
   }
 
+  // ── Spatial hash helpers ────────────────────────────────────────────────
+  _spatialKey(x, y) {
+    const cs = this._spatialCellSize;
+    return ((x / cs) | 0) + ',' + ((y / cs) | 0);
+  }
+
+  _spatialInsert(entity) {
+    const key = this._spatialKey(entity.x, entity.y);
+    if (!this._spatialGrid[key]) this._spatialGrid[key] = new Set();
+    this._spatialGrid[key].add(entity.id);
+    this._entityById[entity.id] = entity;
+    entity._spatialKey = key;
+  }
+
+  _spatialRemove(entity) {
+    const key = entity._spatialKey;
+    if (key && this._spatialGrid[key]) {
+      this._spatialGrid[key].delete(entity.id);
+      if (this._spatialGrid[key].size === 0) delete this._spatialGrid[key];
+    }
+    delete this._entityById[entity.id];
+    entity._spatialKey = undefined;
+  }
+
+  _spatialMove(entity) {
+    const newKey = this._spatialKey(entity.x, entity.y);
+    if (newKey === entity._spatialKey) return;
+    this._spatialRemove(entity);
+    this._spatialInsert(entity);
+  }
+
+  // ── Resource regen optimization ─────────────────────────────────────────
+  _rebuildRegenList() {
+    this._regenTiles = [];
+    for (let y = 0; y < this.H; y++) {
+      for (let x = 0; x < this.W; x++) {
+        const node = this.tiles[y][x].resourceNode;
+        if (node && node.amount < node.max) {
+          this._regenTiles.push({ x, y });
+        }
+      }
+    }
+  }
+
+  _markTileNeedsRegen(x, y) {
+    // Only add if not already tracked (simple — we accept minor dupes, cleaned on tick)
+    this._regenTiles.push({ x, y });
+  }
+
+  // ── Noise generation (unchanged) ───────────────────────────────────────
   _buildNoise(W, H, octaves, seedShift) {
     const data = [];
     for (let y = 0; y < H; y++) {
@@ -165,19 +231,22 @@ class World {
     return this.tiles[y][x];
   }
 
+  // ── Optimized: only iterate tiles that actually need regen ─────────────
   tickResources() {
     const regen = CONFIG.TILE_RESOURCE_REGEN;
-    for (let y = 0; y < this.H; y++) {
-      for (let x = 0; x < this.W; x++) {
-        const node = this.tiles[y][x].resourceNode;
-        if (!node || node.amount >= node.max) continue;
-        node.amount = Math.min(node.max, node.amount + regen);
-      }
+    const surviving = [];
+    for (let i = 0; i < this._regenTiles.length; i++) {
+      const p = this._regenTiles[i];
+      const node = this.tiles[p.y][p.x].resourceNode;
+      if (!node) continue;
+      if (node.amount >= node.max) continue;
+      node.amount = Math.min(node.max, node.amount + regen);
+      if (node.amount < node.max) surviving.push(p);
     }
+    this._regenTiles = surviving;
     this.tickTrees();
   }
 
-  // Advance each tree’s growth timer; promote to next stage every TREE_TICKS_PER_STAGE ticks.
   tickTrees() {
     for (const key of Object.keys(this.treeMap)) {
       const tree = this.treeMap[key];
@@ -190,7 +259,6 @@ class World {
     }
   }
 
-  // Return wood gained (= growth stage) and remove the tree.
   harvestTree(x, y) {
     const key = `${x},${y}`;
     const tree = this.treeMap[key];
@@ -200,7 +268,6 @@ class World {
     return wood;
   }
 
-  // Plant a sapling (stage 1) at (x, y) if the tile is valid and not already occupied.
   plantTree(x, y) {
     const key = `${x},${y}`;
     if (this.treeMap[key]) return false;
@@ -214,7 +281,6 @@ class World {
     return this.treeMap[`${x},${y}`] || null;
   }
 
-  // Find the nearest tree within manhattan range, or null.
   getNearbyTree(x, y, range = 8) {
     let nearest = null;
     let nearestDist = Infinity;
@@ -242,6 +308,8 @@ class World {
       gained[res] = take;
       node.amount -= take;
     }
+    // Track this tile for regen
+    if (node.amount < node.max) this._markTileNeedsRegen(tx, ty);
     return gained;
   }
 
@@ -270,29 +338,62 @@ class World {
   addEntity(entity) {
     entity.id = this._nextEntityId++;
     this.entities.push(entity);
+    this._spatialInsert(entity);
     return entity;
   }
 
   removeEntity(id) {
+    const entity = this._entityById[id];
+    if (entity) this._spatialRemove(entity);
     this.entities = this.entities.filter(e => e.id !== id);
   }
 
+  // ── O(1) spatial lookup instead of O(N) linear scan ────────────────────
   getEntitiesAt(x, y) {
-    return this.entities.filter(e => e.x === x && e.y === y);
+    const key = this._spatialKey(x, y);
+    const ids = this._spatialGrid[key];
+    if (!ids || ids.size === 0) return [];
+    const result = [];
+    for (const id of ids) {
+      const e = this._entityById[id];
+      if (e && e.x === x && e.y === y) result.push(e);
+    }
+    return result;
+  }
+
+  // Check if a wall belonging to a specific tribe blocks a tile
+  hasEnemyWall(x, y, myTribeId) {
+    const key = this._spatialKey(x, y);
+    const ids = this._spatialGrid[key];
+    if (!ids) return false;
+    for (const id of ids) {
+      const e = this._entityById[id];
+      if (e && e.type === CONFIG.ENTITY.WALL && e.tribe !== myTribeId && e.x === x && e.y === y) return true;
+    }
+    return false;
   }
 
   getEntitiesByTribe(tribeId) {
     return this.entities.filter(e => e.tribe === tribeId);
   }
 
+  // ── Cached territory count ─────────────────────────────────────────────
   countTerritory(tribeId) {
-    let count = 0;
+    if (this._territoryDirty) {
+      this._recomputeTerritoryCount();
+      this._territoryDirty = false;
+    }
+    return this._territoryCount[tribeId] || 0;
+  }
+
+  _recomputeTerritoryCount() {
+    this._territoryCount = { a: 0, b: 0 };
     for (let y = 0; y < this.H; y++) {
       for (let x = 0; x < this.W; x++) {
-        if (this.tiles[y][x].owner === tribeId) count++;
+        const owner = this.tiles[y][x].owner;
+        if (owner) this._territoryCount[owner]++;
       }
     }
-    return count;
   }
 
   updateTerritory(tribeA, tribeB) {
@@ -306,14 +407,16 @@ class World {
     }
 
     const mark = (tx, ty, tribe, radius) => {
-      for (let dy = -radius; dy <= radius; dy++) {
-        for (let dx = -radius; dx <= radius; dx++) {
-          const nx = tx + dx;
-          const ny = ty + dy;
-          if (nx < 0 || nx >= W || ny < 0 || ny >= H) continue;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist > radius) continue;
-
+      const r2 = radius * radius;
+      const yMin = Math.max(0, ty - radius);
+      const yMax = Math.min(H - 1, ty + radius);
+      const xMin = Math.max(0, tx - radius);
+      const xMax = Math.min(W - 1, tx + radius);
+      for (let ny = yMin; ny <= yMax; ny++) {
+        for (let nx = xMin; nx <= xMax; nx++) {
+          const dx = nx - tx;
+          const dy = ny - ty;
+          if (dx * dx + dy * dy > r2) continue;
           const t = this.tiles[ny][nx];
           if (t.type === CONFIG.TILE.WATER) continue;
           if (!t.owner) t.owner = tribe;
@@ -329,6 +432,9 @@ class World {
 
     tribeA.buildings.forEach(b => mark(b.x, b.y, 'a', getRadius(b.type)));
     tribeB.buildings.forEach(b => mark(b.x, b.y, 'b', getRadius(b.type)));
+
+    this._territoryDirty = true;
+    this._territoryGen = (this._territoryGen || 0) + 1;
   }
 
   findNearestWalkable(x, y) {
@@ -342,5 +448,10 @@ class World {
       }
     }
     return { x, y };
+  }
+
+  // Notify spatial grid that an entity moved (called by Tribe after unit steps)
+  notifyEntityMoved(entity) {
+    this._spatialMove(entity);
   }
 }
