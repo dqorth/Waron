@@ -195,8 +195,8 @@ const CONFIG = {
 
   // ── Hunger ───────────────────────────────────────────────────────────────
   HUNGER_MAX: 60,
-  HUNGER_RATE: 7.5,          // hunger gained per tick (1 time period)
-  HUNGER_FOOD_RESTORE: 10,   // hunger removed per food unit consumed
-  HUNGER_DEATH_TICKS: 35,    // ticks at max hunger before starvation death (7 days)
-  HUNGER_EAT_THRESHOLD: 30,  // unit seeks food when hunger exceeds this
+  HUNGER_RATE: 2.0,          // hunger gained per tick (1 time period)
+  HUNGER_FOOD_RESTORE: 15,   // hunger removed per food unit consumed
+  HUNGER_DEATH_TICKS: 50,    // ticks at max hunger before starvation death (~10 days)
+  HUNGER_EAT_THRESHOLD: 25,  // unit seeks food when hunger exceeds this
 };

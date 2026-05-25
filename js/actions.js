@@ -9,6 +9,23 @@ const ACTIONS = {
     suspicion: 0.04,
     requiresTarget: true,
     icon: '🌾',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.sabotageFood(200 + player.ageIndex * 100);
       tribe.damageMorale(0.1);
@@ -25,6 +42,23 @@ const ACTIONS = {
     suspicion: 0.12,
     requiresTarget: true,
     icon: '☠',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.killLeader();
     }
@@ -39,6 +73,23 @@ const ACTIONS = {
     suspicion: 0.03,
     requiresTarget: true,
     icon: '👤',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.agentCount = (tribe.agentCount || 0) + 1;
       Game.eventLog(`An agent is embedded in ${tribe.name}. Intelligence flows.`, 'good');
@@ -54,6 +105,23 @@ const ACTIONS = {
     suspicion: 0.06,
     requiresTarget: true,
     icon: '📜',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.boostResearch();
       Game.eventLog(`${tribe.name} experiences a surge of inspiration.`, 'good');
@@ -69,6 +137,23 @@ const ACTIONS = {
     suspicion: 0.08,
     requiresTarget: true,
     icon: '💀',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.causeDisease(0.2 + player.ageIndex * 0.05);
     }
@@ -83,6 +168,23 @@ const ACTIONS = {
     suspicion: 0.07,
     requiresTarget: true,
     icon: '⚔',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.giftWeapons();
     }
@@ -97,6 +199,23 @@ const ACTIONS = {
     suspicion: 0.15,
     requiresTarget: true,
     icon: '📜',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.damageMorale(0.15);
       tribe.applyDebuff('morale_loss', 0.3);
@@ -114,6 +233,23 @@ const ACTIONS = {
     suspicion: 0.1,
     requiresTarget: true,
     icon: '🗺',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.morale = Math.min(1, tribe.morale + 0.2);
       tribe._attackTimer = 0;
@@ -130,6 +266,23 @@ const ACTIONS = {
     suspicion: 0.09,
     requiresTarget: true,
     icon: '🔥',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       const killed = Math.floor(tribe.units.length * 0.3);
       tribe.killUnits(killed);
@@ -149,6 +302,23 @@ const ACTIONS = {
     suspicion: 0.05,
     requiresTarget: true,
     icon: '⛈',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.sabotageFood(500 + player.ageIndex * 200);
       tribe.applyDebuff('food', 0.6);
@@ -165,6 +335,23 @@ const ACTIONS = {
     suspicion: 0.1,
     requiresTarget: true,
     icon: '🧠',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.applyDebuff('research_slow', 0.5);
       player.knowledge += 20 + player.ageIndex * 10;
@@ -181,6 +368,23 @@ const ACTIONS = {
     suspicion: 0.14,
     requiresTarget: false,
     icon: '📋',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribeA, tribeB) {
       tribeA.morale = Math.min(1, tribeA.morale + 0.15);
       tribeB.morale = Math.min(1, tribeB.morale + 0.15);
@@ -199,6 +403,23 @@ const ACTIONS = {
     suspicion: 0.07,
     requiresTarget: true,
     icon: '💧',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.causeDisease(0.15 + player.ageIndex * 0.03);
       tribe.sabotageFood(100);
@@ -214,6 +435,23 @@ const ACTIONS = {
     suspicion: 0.13,
     requiresTarget: true,
     icon: '💰',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.leader.strength = Math.max(0.1, tribe.leader.strength - 0.3);
       tribe.killUnits(Math.floor(tribe.units.length * 0.2));
@@ -230,6 +468,23 @@ const ACTIONS = {
     suspicion: 0.08,
     requiresTarget: true,
     icon: '🔮',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.morale = Math.min(1, tribe.morale + 0.35);
       tribe._attackTimer = 0;
@@ -246,6 +501,23 @@ const ACTIONS = {
     suspicion: 0.1,
     requiresTarget: true,
     icon: '🦠',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.causeDisease(0.35 + player.ageIndex * 0.05);
       tribe.damageMorale(0.25);
@@ -262,6 +534,23 @@ const ACTIONS = {
     suspicion: 0.1,
     requiresTarget: true,
     icon: '💸',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.drainResources(300);
       tribe.res.food = Math.max(0, tribe.res.food - 300);
@@ -278,6 +567,23 @@ const ACTIONS = {
     suspicion: 0.05,
     requiresTarget: false,
     icon: '🕵',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribeA, tribeB) {
       player.suspicionA = Math.max(0, player.suspicionA - 0.15);
       player.suspicionB = Math.max(0, player.suspicionB - 0.15);
@@ -294,6 +600,23 @@ const ACTIONS = {
     suspicion: 0.12,
     requiresTarget: true,
     icon: '💥',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.killUnits(Math.floor(tribe.units.length * 0.4));
       // Fixed: look for fort or capitol (FORTRESS/CITY don't exist in this game)
@@ -312,6 +635,23 @@ const ACTIONS = {
     suspicion: 0.08,
     requiresTarget: true,
     icon: '🗺',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       const lost = Math.floor(tribe.units.length * 0.25);
       tribe.killUnits(lost);
@@ -329,6 +669,23 @@ const ACTIONS = {
     suspicion: 0.09,
     requiresTarget: true,
     icon: '✝',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       const factions = Math.floor(tribe.units.length * 0.3);
       tribe.killUnits(factions);
@@ -348,6 +705,23 @@ const ACTIONS = {
     suspicion: 0.14,
     requiresTarget: true,
     icon: '🏭',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.techLevel = Math.max(1, tribe.techLevel - 2);
       tribe.drainResources(400);
@@ -364,6 +738,23 @@ const ACTIONS = {
     suspicion: 0.11,
     requiresTarget: true,
     icon: '📢',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.morale = 1.0;
       tribe._attackTimer = 0;
@@ -381,6 +772,23 @@ const ACTIONS = {
     suspicion: 0.1,
     requiresTarget: true,
     icon: '🔫',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.giftWeapons();
       tribe.techLevel = Math.min(tribe.age.tribeMaxTech, tribe.techLevel + 3);
@@ -397,6 +805,23 @@ const ACTIONS = {
     suspicion: 0.08,
     requiresTarget: false,
     icon: '☢',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribeA, tribeB) {
       tribeA.units.forEach(u => u.state = 'idle');
       tribeB.units.forEach(u => u.state = 'idle');
@@ -415,6 +840,23 @@ const ACTIONS = {
     suspicion: 0.09,
     requiresTarget: true,
     icon: '💻',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe._attackTimer += 30;
       tribe._buildTimer += 30;
@@ -433,6 +875,23 @@ const ACTIONS = {
     suspicion: 0.07,
     requiresTarget: true,
     icon: '🛰',
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     execute(player, tribe) {
       tribe.killUnits(Math.floor(tribe.units.length * 0.5));
       tribe.drainResources(600);
@@ -441,6 +900,23 @@ const ACTIONS = {
   },
 };
 
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function getActionsForAge(age) {
   return age.actions.map(id => ACTIONS[id]).filter(Boolean);
 }

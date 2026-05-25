@@ -1,4 +1,21 @@
 class Renderer {
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(canvas) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d');
@@ -54,11 +71,45 @@ class Renderer {
   }
 
   // Call this from game.js after updateTerritory()
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   markTilesDirty() {
     this._tileBufDirty = true;
     this._territoryGen++;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _resize() {
     this.canvas.width = this.canvas.offsetWidth;
     this.canvas.height = this.canvas.offsetHeight;
@@ -74,6 +125,23 @@ class Renderer {
     this._tileBufDirty = true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _setupEvents() {
     const c = this.canvas;
     c.addEventListener('mousedown', e => {
@@ -103,6 +171,23 @@ class Renderer {
   }
 
   // ── Pre-compute hex corner offsets for current zoom ──────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateHexCorners() {
     if (this._hexCornersZoom === this.zoom) return;
     this._hexCornersZoom = this.zoom;
@@ -115,6 +200,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _tileToScreen(tx, ty) {
     const sz = CONFIG.HEX_SIZE;
     const vs = CONFIG.HEX_V_SCALE;
@@ -123,14 +225,82 @@ class Renderer {
     const sx = tx * sz * 1.5;
     const col0 = Math.floor(tx);
     const frac = tx - col0;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const off0 = (col0 % 2 !== 0) ? 0.5 : 0.0;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const off1 = ((col0 + 1) % 2 !== 0) ? 0.5 : 0.0;
     const off = off0 + (off1 - off0) * frac;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const sy = (ty + off) * sq3 * sz * vs;
 
     return { sx, sy };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _worldToScreen(sx, sy) {
     return {
       x: (sx - this.camX) * this.zoom + this.W / 2,
@@ -138,6 +308,23 @@ class Renderer {
     };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _worldToScreenParallax(sx, sy, px, py = px) {
     return {
       x: (sx - this.camX * px) * this.zoom + this.W / 2,
@@ -145,6 +332,23 @@ class Renderer {
     };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _screenToWorld(x, y) {
     return {
       sx: (x - this.W / 2) / this.zoom + this.camX,
@@ -152,6 +356,23 @@ class Renderer {
     };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getVisibleTileBounds(world) {
     const pad = 140;
     const nw = this._screenToWorld(-pad, -pad);
@@ -178,6 +399,23 @@ class Renderer {
     return { xMin, xMax, yMin, yMax };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateWorldBounds(world) {
     const c1 = this._tileToScreen(0, 0);
     const c2 = this._tileToScreen(world.W - 1, 0);
@@ -192,11 +430,45 @@ class Renderer {
     };
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _isOnScreen(x, y, margin = 100) {
     return x > -margin && x < this.W + margin && y > -margin && y < this.H + margin;
   }
 
   // ── Offscreen tile buffer management ──────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _isTileBufferValid(weather) {
     if (this._tileBufDirty) return false;
     if (this._tileBufZoom !== this.zoom) return false;
@@ -211,6 +483,23 @@ class Renderer {
     return true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _ensureTileBuffer() {
     const bw = this.W + this._tileBufPadding * 2;
     const bh = this.H + this._tileBufPadding * 2;
@@ -222,6 +511,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _renderTileBuffer(world, weather) {
     this._ensureTileBuffer();
     const bufCtx = this._tileCtx;
@@ -262,7 +568,41 @@ class Renderer {
         const tile = world.tiles[y][x];
         const p = this._tileToScreen(x, y);
         // Convert to buffer coordinates (buffer is offset by pad from screen)
+        /**
+         * One-line summary.
+         * 
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         * 
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         * 
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         * 
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const bx = (p.sx - this.camX) * this.zoom + this.W / 2 + pad;
+        /**
+         * One-line summary.
+         * 
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         * 
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         * 
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         * 
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const by = (p.sy - this.camY) * this.zoom + this.H / 2 + pad;
 
         if (bx < -sz * 4 || bx > bw + sz * 4 || by < -sz * 4 || by > bh + sz * 4) continue;
@@ -282,6 +622,23 @@ class Renderer {
   }
 
   // ── Optimized tile draw: pre-computed corners, takes buffer ctx + coords ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTileToBuffer(ctx, tx, ty, tile, sx, sy, sz, vs, corners) {
     const color = this._getTileColor(tile, '#c8502a', '#2a6ec8');
 
@@ -429,6 +786,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _findHoveredEntity(mx, my, tribeA, tribeB) {
     let best = null;
     let bestDist = Infinity;
@@ -439,7 +813,41 @@ class Renderer {
     ];
 
     for (const e of all) {
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const ex = (e._lx ?? e.x) + (e._ox || 0);
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const ey = (e._ly ?? e.y) + (e._oy || 0) + (e._gaitY || 0);
       const p = this._tileToScreen(ex, ey);
       const s = this._worldToScreen(p.sx, p.sy);
@@ -455,10 +863,61 @@ class Renderer {
     return best;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTooltip(entity) {
     if (!entity) return;
 
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const ex = (entity._lx ?? entity.x) + (entity._ox || 0);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const ey = (entity._ly ?? entity.y) + (entity._oy || 0) + (entity._gaitY || 0);
     const p = this._tileToScreen(ex, ey);
     const s = this._worldToScreen(p.sx, p.sy);
@@ -529,6 +988,23 @@ class Renderer {
     });
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getTileColor(tile, tribeAColor, tribeBColor) {
     const baseColors = {
       [CONFIG.TILE.WATER]: '#1a3a5c',
@@ -551,6 +1027,23 @@ class Renderer {
     return base;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _blendColor(c1, c2, t) {
     const p1 = this._parseColor(c1);
     const p2 = this._parseColor(c2);
@@ -560,6 +1053,23 @@ class Renderer {
     return `rgb(${r},${g},${b})`;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _parseColor(color) {
     const cached = this._colorCache[color];
     if (cached) return cached;
@@ -580,12 +1090,46 @@ class Renderer {
     return result;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _darken(color, factor) {
     const [r, g, b] = this._parseColor(color);
     return `rgb(${Math.round(r * (1 - factor))},${Math.round(g * (1 - factor))},${Math.round(b * (1 - factor))})`;
   }
 
   // 5-stage tree sprite. Stage 1=seedling … Stage 5=full-grown canopy tree.
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTreeSprite(ctx, x, y, zoom, stage, isJungle = false) {
     const s = zoom * 5;
     const darkCol  = isJungle ? '#0a4a08' : '#1a3a12';
@@ -649,6 +1193,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawBuilding(entity) {
     const p = this._tileToScreen(entity.x, entity.y);
     const sPos = this._worldToScreen(p.sx, p.sy);
@@ -727,6 +1288,23 @@ class Renderer {
   // Building sprite methods (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawCapitol(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) {
     const w = tw * 0.6; const h = th * 2.0;
     ctx.fillStyle = lightColor;
@@ -751,6 +1329,23 @@ class Renderer {
     ctx.beginPath(); ctx.ellipse(x, y - h, w * 0.33, th * 0.56, 0, Math.PI, 0); ctx.fill();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawFort(ctx, x, y, tw, th, s, color, darkColor) {
     const w = tw * 0.62; const h = th * 1.35;
     const tW = w * 0.18; const tH = h + th * 0.18;
@@ -765,6 +1360,23 @@ class Renderer {
     for (let i = 0; i < 5; i++) ctx.fillRect(x - w / 2 + i * mW * 2, y - h - mH, mW, mH);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawBarracks(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) {
     const w = tw * 0.52; const h = th * 1.0;
     ctx.fillStyle = color; ctx.fillRect(x - w / 2, y - h, w, h);
@@ -783,6 +1395,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawFarm(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor, entity) {
     const size = entity ? (entity.size || 1) : 1;
     const lv = entity ? (entity.level || 1) : 1;
@@ -817,6 +1446,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTower(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) {
     const w = tw * 0.22; const h = th * 2.3;
     ctx.fillStyle = color; ctx.fillRect(x - w / 2, y - h, w, h);
@@ -839,6 +1485,23 @@ class Renderer {
     ctx.closePath(); ctx.fill();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawHome(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) {
     const w = tw * 0.36; const h = th * 1.02;
     ctx.fillStyle = lightColor; ctx.fillRect(x - w / 2, y - h, w, h);
@@ -860,6 +1523,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawStorehouse(ctx, x, y, tw, th, s, color, darkColor, lightColor, roofColor) {
     const w = tw * 0.56; const h = th * 1.18;
     ctx.fillStyle = this._darken(lightColor, 0.08); ctx.fillRect(x - w / 2, y - h, w, h);
@@ -879,6 +1559,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawWall(ctx, x, y, tw, th, s, color, darkColor) {
     const w = tw * 0.68; const h = th * 0.58;
     ctx.fillStyle = this._darken(color, 0.15); ctx.fillRect(x - w / 2, y - h, w, h);
@@ -892,8 +1589,59 @@ class Renderer {
   // Unit sprite methods (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawUnit(entity) {
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const vx = (entity._lx ?? entity.x) + (entity._ox || 0);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const vy = (entity._ly ?? entity.y) + (entity._oy || 0) + (entity._gaitY || 0);
     const p = this._tileToScreen(vx, vy);
     const sPos = this._worldToScreen(p.sx, p.sy);
@@ -917,6 +1665,23 @@ class Renderer {
     }
 
     if (entity.state === 'fighting') {
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const pulseR = (entity.type === CONFIG.ENTITY.LEADER ? 7 : 5) * s;
       ctx.strokeStyle = '#ffff00'; ctx.lineWidth = 1.5 * s;
       ctx.beginPath();
@@ -925,6 +1690,23 @@ class Renderer {
     }
 
     if (entity._underFire && entity._underFire > 0) {
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const r = (entity.type === CONFIG.ENTITY.LEADER ? 6.5 : 4.5) * s;
       ctx.save();
       ctx.strokeStyle = `rgba(255,80,80,${entity._underFire / 4})`; ctx.lineWidth = 2.5 * s;
@@ -943,6 +1725,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawWarrior(ctx, x, y, s, color, darkColor) {
     const r = 5.0 * s; const cy = y - r * 1.2;
     ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.fill();
@@ -954,6 +1753,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawWorker(ctx, x, y, s, color, darkColor) {
     const r = 4.5 * s; const cy = y - r;
     ctx.fillStyle = color; ctx.beginPath();
@@ -962,6 +1778,23 @@ class Renderer {
     ctx.strokeStyle = darkColor; ctx.lineWidth = 1.0 * s; ctx.stroke();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawScout(ctx, x, y, s, color, darkColor) {
     const r = 4.0 * s; const cy = y - r;
     ctx.fillStyle = color; ctx.beginPath();
@@ -970,6 +1803,23 @@ class Renderer {
     ctx.strokeStyle = darkColor; ctx.lineWidth = 1.0 * s; ctx.stroke();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawLeader(ctx, x, y, s, color, darkColor) {
     const r = 6.5 * s; const cy = y - r * 1.25;
     ctx.fillStyle = color; ctx.beginPath(); ctx.arc(x, cy, r, 0, Math.PI * 2); ctx.fill();
@@ -989,6 +1839,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawNormal(ctx, x, y, s, color, darkColor) {
     const r = 3.2 * s; const cy = y - r * 1.0;
     ctx.fillStyle = this._darken(color, 0.12);
@@ -999,6 +1866,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawBattleLine() {
     const ctx = this.ctx;
     const midX = CONFIG.MAP_W / 2;
@@ -1016,6 +1900,23 @@ class Renderer {
   // Weather system (unchanged)
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _initWeatherParticles(type = CONFIG.WEATHER.SUNSHINE) {
     const W = this.W || 1280; const H = this.H || 720;
     this._currentWeatherType = type;
@@ -1030,6 +1931,23 @@ class Renderer {
     this._snowFlakes = Array.from({ length: snowCount }, () => ({ x: Math.random() * W, y: Math.random() * H, v: 0.6 + Math.random() * 1.4, w: (Math.random() - 0.5) * 0.7, r: 1 + Math.random() * 2, p: Math.random() * Math.PI * 2 }));
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawWeatherBackground(ctx, weather) {
     const type = weather?.type || CONFIG.WEATHER.SUNSHINE;
     const presets = {
@@ -1047,6 +1965,23 @@ class Renderer {
     if (type === CONFIG.WEATHER.FLOOD) { ctx.fillStyle = 'rgba(80,140,180,0.14)'; ctx.fillRect(0, this.H * 0.4, this.W, this.H * 0.6); }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateWeatherParticles(weather) {
     const type = weather?.type || CONFIG.WEATHER.SUNSHINE;
     if (type !== this._currentWeatherType) this._initWeatherParticles(type);
@@ -1061,6 +1996,23 @@ class Renderer {
     if (type === CONFIG.WEATHER.STORM) { if (this._lightningFlash > 0) this._lightningFlash -= 0.05; else if (Math.random() < 0.004) this._lightningFlash = 0.8; } else { this._lightningFlash = 0; }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawWeatherParticles(ctx, weather) {
     const type = weather?.type || CONFIG.WEATHER.SUNSHINE;
     for (const c of this._clouds) {
@@ -1087,15 +2039,83 @@ class Renderer {
     if (this._lightningFlash > 0) { ctx.fillStyle = `rgba(255,255,255,${this._lightningFlash * 0.35})`; ctx.fillRect(0, 0, this.W, this.H); }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _unitVisualSeed(u) {
     if (u._visSeed !== undefined) return u._visSeed;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const n = ((u.id || 0) * 131 + (u.tribe === 'a' ? 17 : 29) * 37 + (u.type || '').split('').reduce((a, c) => a + c.charCodeAt(0), 0) * 13) % 10007;
     u._visSeed = n;
     return n;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _computePurposeOffset(u, moving, mdx, mdy) {
     const seed = this._unitVisualSeed(u);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const lane = ((seed % 3) - 1); const sign = (seed % 2 === 0) ? 1 : -1;
     let nx = 0, ny = 0;
     const mLen = Math.hypot(mdx, mdy);
@@ -1127,6 +2147,23 @@ class Renderer {
   // MAIN RENDER — uses offscreen tile buffer
   // ═══════════════════════════════════════════════════════════════════════════
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   render(world, tribeA, tribeB, weather) {
     const ctx = this.ctx;
     ctx.clearRect(0, 0, this.W, this.H);
@@ -1144,7 +2181,41 @@ class Renderer {
     }
     // Blit tile buffer to main canvas with camera offset
     const pad = this._tileBufPadding;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const offsetX = (this._tileBufCamX - this.camX) * this.zoom;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const offsetY = (this._tileBufCamY - this.camY) * this.zoom;
     ctx.drawImage(this._tileCanvas, -pad + offsetX, -pad + offsetY);
 
@@ -1211,12 +2282,63 @@ class Renderer {
     if (this._hoveredEntity) this._drawTooltip(this._hoveredEntity);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawAttackLines(tribeA, tribeB) {
     const ctx = this.ctx;
     const allUnits = [...tribeA.units, ...tribeB.units];
     for (const u of allUnits) {
       if (!u.attackTarget) continue;
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const ux = (u._lx ?? u.x) + (u._ox || 0);
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const uy = (u._ly ?? u.y) + (u._oy || 0) + (u._gaitY || 0);
       const tx = u.attackTarget.x;
       const ty = u.attackTarget.y;
@@ -1241,6 +2363,23 @@ class Renderer {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _drawTowerBeams(tribeA, tribeB) {
     const ctx = this.ctx;
     for (const tribe of [tribeA, tribeB]) {

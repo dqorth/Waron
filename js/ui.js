@@ -1,4 +1,21 @@
 class UI {
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor() {
     this._selectedAction = null;
     this._selectedTarget = null;
@@ -11,6 +28,23 @@ class UI {
     this._bindModalButtons();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _createNotifContainer() {
     const div = document.createElement('div');
     div.id = 'notifications';
@@ -18,6 +52,23 @@ class UI {
     return div;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _createTooltip() {
     const div = document.createElement('div');
     div.id = 'tooltip';
@@ -25,6 +76,23 @@ class UI {
     return div;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _bindSpeedButtons() {
     document.querySelectorAll('.speed-btn').forEach(btn => {
       btn.addEventListener('click', () => {
@@ -35,6 +103,23 @@ class UI {
     });
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _bindStartButton() {
     document.getElementById('btn-start').addEventListener('click', () => {
       document.getElementById('start-screen').classList.add('hidden');
@@ -47,6 +132,23 @@ class UI {
     });
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _bindModalButtons() {
     document.getElementById('modal-cancel').addEventListener('click', () => {
       this._closeModal();
@@ -69,6 +171,23 @@ class UI {
     });
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _executeAction() {
     if (!this._selectedAction) return;
 
@@ -109,6 +228,23 @@ class UI {
     this.updateActionsList(player);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _closeModal() {
     document.getElementById('action-modal').classList.add('hidden');
     document.getElementById('target-a').classList.remove('selected');
@@ -117,6 +253,23 @@ class UI {
     this._selectedTarget = null;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   openActionModal(action) {
     this._selectedAction = action;
     this._selectedTarget = null;
@@ -141,6 +294,23 @@ class UI {
     document.getElementById('action-modal').classList.remove('hidden');
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   updateHUD(player, tribeA, tribeB, cal) {
     // Support legacy callers that pass (player, tribeA, tribeB, day, year).
     if (typeof cal === 'number') {
@@ -190,6 +360,23 @@ class UI {
       `🪵${Math.floor(rB.wood||0)}  🌾${Math.floor(rB.food||0)}  ⚙${Math.floor(rB.metal||0)}  🪨${Math.floor(rB.stone||0)}`;
 
     // Time + weather
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const weatherType = (Game.world && Game.world.weather && Game.world.weather.type)
       ? Game.world.weather.type
       : 'sunshine';
@@ -198,6 +385,23 @@ class UI {
     document.getElementById('age-display').textContent = getAgeByYear(cal.year).name.toUpperCase();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   updateActionsList(player) {
     const list = document.getElementById('actions-list');
     list.innerHTML = '';
@@ -229,6 +433,23 @@ class UI {
     });
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   notify(msg, type = '') {
     const div = document.createElement('div');
     div.className = `notif${type ? ' ' + type : ''}`;
@@ -237,6 +458,23 @@ class UI {
     setTimeout(() => div.remove(), 3000);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   addLog(msg, type = '') {
     const log = document.getElementById('event-log');
     const entry = document.createElement('div');
@@ -248,6 +486,23 @@ class UI {
     while (log.children.length > 60) log.removeChild(log.lastChild);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   showGameOver(reason, stats) {
     document.getElementById('gameover-subtitle').innerHTML = reason;
     document.getElementById('gameover-stats').innerHTML = stats;

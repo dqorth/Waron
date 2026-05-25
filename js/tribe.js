@@ -1,4 +1,21 @@
 class Tribe {
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor(id, name, startX, startY, color) {
     this.id = id;
     this.name = name;
@@ -52,6 +69,23 @@ class Tribe {
   }
 
   // ── Init ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   init(world, enemyTribe) {
     this._world = world;
     this._enemy = enemyTribe;
@@ -70,6 +104,23 @@ class Tribe {
   }
 
   // ── Tick ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tick(year) {
     this._applyDebuffDecay();
     this._updateAge(year);
@@ -86,8 +137,42 @@ class Tribe {
     this._computePower();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateAge(year) { this.age = getAgeByYear(year); }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _computePower() {
     this.power = (this.population * 0.5)
                + (this.military   * 3)
@@ -97,6 +182,23 @@ class Tribe {
   }
 
   // ── Population ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _growPopulation() {
     this._growthTimer++;
     const growRate = Math.max(4, 16 - this.techLevel);
@@ -123,6 +225,23 @@ class Tribe {
   }
 
   // ── Resources ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _gatherResources() {
     const farms   = this.buildings.filter(b => b.type === CONFIG.ENTITY.FARM);
     const homes   = this.buildings.filter(b => b.type === CONFIG.ENTITY.HOME).length;
@@ -132,6 +251,23 @@ class Tribe {
 
     const farmStorageCap = farms.reduce((sum, f) => sum + CONFIG.FOOD_STORAGE_PER_FARM * (f.level || 1) * (f.size || 1), 0);
     const foodCap        = CONFIG.FOOD_STORAGE_BASE + farmStorageCap;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const weatherType = (this._world.weather && this._world.weather.type) || CONFIG.WEATHER.SUNSHINE;
     const weatherTileMult = this._getWeatherFarmTileFactor(weatherType);
     const farmOutput = farms.reduce((sum, f) => {
@@ -197,6 +333,23 @@ class Tribe {
   }
 
   // ── Building Logic ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _doBuildLogic() {
     this._buildTimer++;
     if (this._buildTimer < 25) return;
@@ -204,6 +357,23 @@ class Tribe {
 
     if (this._expandFarmLand()) return;
 
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const count = (type) => this.buildings.filter(b => b.type === type).length;
     const hasCapitol   = count(CONFIG.ENTITY.CAPITOL)   > 0;
     const foodHalls    = count(CONFIG.ENTITY.FARM);
@@ -234,6 +404,23 @@ class Tribe {
     if (towers < 8 && this.population > 150) return this._buildNew(CONFIG.ENTITY.TOWER, true);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _canAfford(costObj) {
     for (const [res, amt] of Object.entries(costObj)) {
       if ((this.res[res] || 0) < amt) return false;
@@ -241,12 +428,46 @@ class Tribe {
     return true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _payCost(costObj) {
     for (const [res, amt] of Object.entries(costObj)) {
       this.res[res] = Math.max(0, (this.res[res] || 0) - amt);
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _expandFarmLand() {
     const farms = this.buildings.filter(b => b.type === CONFIG.ENTITY.FARM);
     if (!farms.length) return false;
@@ -258,6 +479,23 @@ class Tribe {
 
     const f = candidates[0];
     this._ensureFarmFarmland(f);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const nextSize = (f.size || 1) + 1;
     const cost = {
       wood: 14 * nextSize,
@@ -281,6 +519,23 @@ class Tribe {
     return true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _assignFarmWorkers(farms) {
     if (!farms.length) return;
 
@@ -293,7 +548,41 @@ class Tribe {
       this._ensureFarmFarmland(f);
       const cap = Math.min(8, 2 + (f.size || 1) * 2 + (f.level || 1));
       available.sort((a, b) => {
+        /**
+         * One-line summary.
+         * 
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         * 
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         * 
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         * 
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const da = (a.x - f.x) ** 2 + (a.y - f.y) ** 2;
+        /**
+         * One-line summary.
+         * 
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         * 
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         * 
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         * 
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const db = (b.x - f.x) ** 2 + (b.y - f.y) ** 2;
         return da - db;
       });
@@ -309,6 +598,23 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _buildNew(type, facingEnemy) {
     const cost = CONFIG.BUILDING_COST[type];
     if (!cost || !this._canAfford(cost)) return;
@@ -332,6 +638,23 @@ class Tribe {
   }
 
   // ── Building Upgrades ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _doUpgradeLogic() {
     this._upgradeTimer++;
     if (this._upgradeTimer < 40) return;
@@ -360,8 +683,42 @@ class Tribe {
     Game.eventLog(`${this.name} upgrades ${candidate.type.replace('_',' ')} to level ${candidate.level}.`, 'good');
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _upgradeCost(building) {
     const base = CONFIG.BUILDING_COST[building.type] || { wood: 20, metal: 10, stone: 10 };
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const lv = (building.level || 1);
     const mult = CONFIG.BUILDING_UPGRADE_MULT * lv;
     const cost = {};
@@ -373,6 +730,23 @@ class Tribe {
     return cost;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   upgradeBuilding(building) {
     if (!building || building.tribe !== this.id) return;
     const maxLv = CONFIG.BUILDING_MAX_LEVEL[building.type] || 1;
@@ -387,6 +761,23 @@ class Tribe {
   }
 
   // ── Military Spawning ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _doMilitaryLogic() {
     this._militaryTimer++;
     const spawnRate = Math.max(5, 30 - this.techLevel * 2);
@@ -436,6 +827,23 @@ class Tribe {
   }
 
   // ── Attack Logic ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _doAttackLogic() {
     this._attackTimer++;
     const aggRate = Math.max(12, 70 - this.techLevel * 6);
@@ -487,6 +895,23 @@ class Tribe {
   }
 
   // ── Unit AI ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateUnits() {
     for (let i = this.units.length - 1; i >= 0; i--) {
       const u = this.units[i];
@@ -498,6 +923,23 @@ class Tribe {
         : CONFIG.UNIT_MOVE_INTERVAL;
       const weatherMult = this._world.weatherMods ? this._world.weatherMods.moveMult : 1;
       const tile = this._world.getTile(u.x, u.y);
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const roadDiv = (tile && tile.road) ? CONFIG.UNIT_ROAD_DIVISOR : 1;
       const agilityFactor = this._agilityFactor(stats);
       const moveInterval = Math.max(1, Math.round(baseMI * weatherMult * agilityFactor / roadDiv));
@@ -751,6 +1193,23 @@ class Tribe {
   }
 
   // ── Tower Auto-Attack ──────────────────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateTowers() {
     this._towerTimer++;
     if (this._towerTimer < 6) return;
@@ -791,6 +1250,23 @@ class Tribe {
   }
 
   // ── Movement helpers — now use spatial hash for wall checks ────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _stepToward(u, tx, ty) {
     if (u.x === tx && u.y === ty) return;
     const neighbors = this._world.getNeighbors(u.x, u.y);
@@ -798,6 +1274,23 @@ class Tribe {
     for (const n of neighbors) {
       if (!this._world.isWalkable(n.x, n.y)) continue;
       if (this._world.hasEnemyWall(n.x, n.y, this.id)) continue;
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const d = (tx - n.x) ** 2 + (ty - n.y) ** 2;
       if (d < bestDist) { bestDist = d; best = n; }
     }
@@ -808,6 +1301,23 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _stepTowardVaried(u, tx, ty) {
     if (u.x === tx && u.y === ty) return;
     const neighbors = this._world.getNeighbors(u.x, u.y);
@@ -815,6 +1325,23 @@ class Tribe {
     for (const n of neighbors) {
       if (!this._world.isWalkable(n.x, n.y)) continue;
       if (this._world.hasEnemyWall(n.x, n.y, this.id)) continue;
+      /**
+       * One-line summary.
+       * 
+       * @description MANDATORY detailed explanation (2-5 sentences).
+       * 
+       * @workflow
+       * 1. Specific numbered steps
+       * 2. Include conditionals and loops
+       * 
+       * @param {Type} name - Description
+       * @returns {Type} Description
+       * 
+       * @dependencies stateManager.get(), etc.
+       * @modifies What state/DOM changes
+       * @triggers When/how called
+       * @performance O(n) complexity notes
+       */
       const d = (tx - n.x) ** 2 + (ty - n.y) ** 2;
       options.push({ n, d });
     }
@@ -833,6 +1360,23 @@ class Tribe {
     this._world.notifyEntityMoved(u);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _nearbyLeader(u) {
     return this.units.some(other =>
       other.type === CONFIG.ENTITY.LEADER &&
@@ -840,6 +1384,23 @@ class Tribe {
     );
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _applyDebuffDecay() {
     for (const key of Object.keys(this.debuffs)) {
       this.debuffs[key] = Math.max(0, this.debuffs[key] - 0.008);
@@ -847,6 +1408,23 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _placeBuilding(x, y, type) {
     const maxHp = CONFIG.BUILDING_HP[type] || 200;
     const b = { x, y, type, hp: maxHp, maxHp, tribe: this.id, level: 1 };
@@ -860,6 +1438,23 @@ class Tribe {
     if (type === CONFIG.ENTITY.FARM) this._ensureFarmFarmland(b);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _spawnUnit(x, y, type) {
     const p = this._world.findNearestWalkable(x, y);
     const stats = this._rollUnitStats(type);
@@ -876,6 +1471,23 @@ class Tribe {
     this._world.addEntity(u);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getUnitAttackValue(unitOrType) {
     const type = typeof unitOrType === 'string' ? unitOrType : unitOrType.type;
     const stats = typeof unitOrType === 'string' ? null : unitOrType.stats;
@@ -889,27 +1501,112 @@ class Tribe {
     return 1.5 + strength * 0.2;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getWorkerBuildSpeed(unit) {
     const strength = unit.stats ? unit.stats.strength : (CONFIG.UNIT_STATS_BASE[CONFIG.ENTITY.WORKER]?.strength || 5);
     return 1.2 + strength * 0.32;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getUnitMaxHp(baseHp, stats) {
     const enduranceMult = 0.6 + (stats.endurance / 10) * 0.8;
     return Math.max(2, Math.round(baseHp * enduranceMult));
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _agilityFactor(stats) {
     const f = 1.0 - (stats.agility - 5) * 0.06;
     return Math.max(0.55, Math.min(1.45, f));
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _applyDefenseReduction(unit, rawDamage) {
     const defense = unit.stats ? unit.stats.defense : (CONFIG.UNIT_STATS_BASE[unit.type]?.defense || 5);
     const reduction = Math.max(0, Math.min(0.60, defense * 0.04));
     return rawDamage * (1 - reduction);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _shouldRetreat(unit) {
     const hpFrac = unit.hp / Math.max(1, unit.maxHp);
     if (hpFrac > 0.55) return false;
@@ -920,6 +1617,23 @@ class Tribe {
     return Math.random() > holdChance;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _tryDefect(unit) {
     if (unit.type === CONFIG.ENTITY.LEADER) return false;
 
@@ -928,6 +1642,23 @@ class Tribe {
 
     const hpFrac = unit.hp / Math.max(1, unit.maxHp);
     const moralePenalty = Math.max(0, 0.7 - this.morale);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const baseChance = (6.2 - loyalty) * 0.015 + moralePenalty * 0.04 + (hpFrac < 0.35 ? 0.015 : 0);
     const chance = Math.max(0, Math.min(0.16, baseChance));
     if (Math.random() >= chance) return false;
@@ -940,12 +1671,46 @@ class Tribe {
     return true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _rollUnitStats(type) {
     const base = CONFIG.UNIT_STATS_BASE[type] || {
       strength: 5, loyalty: 5, agility: 5, tenacity: 5, endurance: 5, defense: 5,
     };
     const v = CONFIG.UNIT_STATS_VARIANCE || 0.8;
     const techAdj = Math.max(0, (this.techLevel - 1) * 0.08);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const roll = (k) => {
       const r = base[k] + (Math.random() * 2 - 1) * v + techAdj;
       return Math.max(1, Math.min(10, parseFloat(r.toFixed(2))));
@@ -962,6 +1727,23 @@ class Tribe {
   }
 
   // ── Hunger System (single definition — duplicate removed) ──────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _updateHunger() {
     const foodBuildings = this.buildings.filter(b =>
       b.type === CONFIG.ENTITY.STOREHOUSE || b.type === CONFIG.ENTITY.CAPITOL
@@ -1010,12 +1792,46 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _homeCapacityByLevel(level) {
     if (level >= 3) return 6;
     if (level === 2) return 4;
     return 3;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _syncPopulationUnits() {
     const special = this.units.filter(u => u.type !== CONFIG.ENTITY.NORMAL);
     const normal = this.units.filter(u => u.type === CONFIG.ENTITY.NORMAL);
@@ -1042,12 +1858,46 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getFarmMaxTiles(level) {
     if (level <= 1) return 3;
     if (level === 2) return 6;
     return 10;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getFarmBiomeBaseYield(tileType) {
     const T = CONFIG.TILE;
     if (tileType === T.WATER || tileType === T.MOUNTAIN) return 0.0;
@@ -1064,6 +1914,23 @@ class Tribe {
     return 2.0;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _getWeatherFarmTileFactor(type) {
     const W = CONFIG.WEATHER;
     if (type === W.SUNSHINE) return 1.15;
@@ -1076,6 +1943,23 @@ class Tribe {
     return 1.0;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _ensureFarmFarmland(farm) {
     if (!farm.farmland) farm.farmland = [];
     if (!farm.farmland.length) {
@@ -1086,6 +1970,23 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _findExpandableFarmPlot(farm) {
     const occupiedByFarms = new Set();
     for (const fb of this.buildings) {
@@ -1108,6 +2009,23 @@ class Tribe {
     return null;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _seedStartingHomes(cx, cy) {
     const neededHomes = Math.max(1, Math.ceil(this.population / this._homeCapacityByLevel(1)));
     let placed = 0;
@@ -1126,6 +2044,23 @@ class Tribe {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _despawnUnitAtIndex(index) {
     const u = this.units[index];
     if (!u) return;
@@ -1133,21 +2068,89 @@ class Tribe {
     this.units.splice(index, 1);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _despawnUnitByObject(unit) {
     const idx = this.units.indexOf(unit);
     if (idx !== -1) this._despawnUnitAtIndex(idx);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _randName() {
     const names = ['Uruk','Karan','Shet','Borak','Mira','Neth','Cyra','Dorath','Elka','Forath'];
     return names[Math.floor(Math.random() * names.length)];
   }
 
   // ── Player Influence API ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   applyDebuff(key, strength) {
     this.debuffs[key] = Math.min(1, (this.debuffs[key] || 0) + strength);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   killLeader() {
     const old = this.leader.name;
     this.leader = { name: this._randName(), strength: 0.3 + Math.random() * 0.4 };
@@ -1157,6 +2160,23 @@ class Tribe {
     Game.eventLog(`${this.name} leader ${old} is eliminated. Command fractures.`, 'warn');
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   killUnits(count) {
     const warriors = this.units.filter(u => u.type === CONFIG.ENTITY.WARRIOR);
     const toKill = Math.min(count, warriors.length);
@@ -1168,15 +2188,100 @@ class Tribe {
     this.military = this.units.filter(u => u.type === CONFIG.ENTITY.WARRIOR || u.type === CONFIG.ENTITY.LEADER).length;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   boostResearch()      { this.applyDebuff('research_boost', 0.5); }
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   boostMorale()        { this.morale = Math.min(1, this.morale + 0.3); }
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   damageMorale(amount) { this.morale = Math.max(0.05, this.morale - amount); this.applyDebuff('morale_loss', amount); }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   sabotageFood(amount) {
     this.res.food = Math.max(0, this.res.food - amount);
     this.applyDebuff('food', 0.4);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   causeDisease(severity) {
     this.applyDebuff('disease', severity);
     const killed = Math.floor(this.population * severity * 0.2);
@@ -1184,6 +2289,23 @@ class Tribe {
     Game.eventLog(`Disease ravages ${this.name}. ${killed} perish.`, 'danger');
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   giftWeapons() {
     this.techLevel = Math.min(this.age.tribeMaxTech, this.techLevel + 2);
     const b = this.buildings.find(bd => bd.type === CONFIG.ENTITY.BARRACKS) || this.buildings[0];
@@ -1194,16 +2316,67 @@ class Tribe {
   }
 
   // ── Fixed: direct resource manipulation instead of broken setter ──
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   drainResources(amount) {
     const total = this.res.wood + this.res.metal + this.res.stone;
     if (total <= 0) return;
     const drain = Math.min(amount, total);
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const ratio = (total - drain) / total;
     this.res.wood  *= ratio;
     this.res.metal *= ratio;
     this.res.stone *= ratio;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   isEliminated() {
     return !this.buildings.some(b => b.type === CONFIG.ENTITY.CAPITOL);
   }

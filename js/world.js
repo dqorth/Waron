@@ -1,4 +1,21 @@
 class World {
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   constructor() {
     this.W = CONFIG.MAP_W;
     this.H = CONFIG.MAP_H;
@@ -24,10 +41,44 @@ class World {
     this.generate();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   generate() {
     this.tiles = [];
     const W = this.W;
     const H = this.H;
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const seedOffset = (CONFIG.MAP_SEED % 999983) / 999983;
 
     const elevNoise = this._buildNoise(W, H, 7, seedOffset);
@@ -77,6 +128,23 @@ class World {
         }
 
         const yieldTable = CONFIG.TILE_YIELD[type];
+        /**
+         * One-line summary.
+         * 
+         * @description MANDATORY detailed explanation (2-5 sentences).
+         * 
+         * @workflow
+         * 1. Specific numbered steps
+         * 2. Include conditionals and loops
+         * 
+         * @param {Type} name - Description
+         * @returns {Type} Description
+         * 
+         * @dependencies stateManager.get(), etc.
+         * @modifies What state/DOM changes
+         * @triggers When/how called
+         * @performance O(n) complexity notes
+         */
         const resourceNode = (yieldTable && type !== TILE.WATER && type !== TILE.MOUNTAIN)
           ? {
               max: CONFIG.TILE_RESOURCE_MAX,
@@ -135,11 +203,45 @@ class World {
   }
 
   // ── Spatial hash helpers ────────────────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _spatialKey(x, y) {
     const cs = this._spatialCellSize;
     return ((x / cs) | 0) + ',' + ((y / cs) | 0);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _spatialInsert(entity) {
     const key = this._spatialKey(entity.x, entity.y);
     if (!this._spatialGrid[key]) this._spatialGrid[key] = new Set();
@@ -148,6 +250,23 @@ class World {
     entity._spatialKey = key;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _spatialRemove(entity) {
     const key = entity._spatialKey;
     if (key && this._spatialGrid[key]) {
@@ -158,6 +277,23 @@ class World {
     entity._spatialKey = undefined;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _spatialMove(entity) {
     const newKey = this._spatialKey(entity.x, entity.y);
     if (newKey === entity._spatialKey) return;
@@ -166,6 +302,23 @@ class World {
   }
 
   // ── Resource regen optimization ─────────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _rebuildRegenList() {
     this._regenTiles = [];
     for (let y = 0; y < this.H; y++) {
@@ -178,12 +331,46 @@ class World {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _markTileNeedsRegen(x, y) {
     // Only add if not already tracked (simple — we accept minor dupes, cleaned on tick)
     this._regenTiles.push({ x, y });
   }
 
   // ── Noise generation (unchanged) ───────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _buildNoise(W, H, octaves, seedShift) {
     const data = [];
     for (let y = 0; y < H; y++) {
@@ -207,6 +394,23 @@ class World {
     return data;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _smoothNoise(x, y) {
     const ix = Math.floor(x);
     const iy = Math.floor(y);
@@ -215,6 +419,23 @@ class World {
     const ux = fx * fx * (3 - 2 * fx);
     const uy = fy * fy * (3 - 2 * fy);
 
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const r = (nx, ny) => {
       const n = Math.sin(nx * 127.1 + ny * 311.7 + 43758.5453) * 43758.5453;
       return n - Math.floor(n);
@@ -226,12 +447,46 @@ class World {
       + r(ix + 1, iy + 1) * ux * uy;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getTile(x, y) {
     if (x < 0 || x >= this.W || y < 0 || y >= this.H) return null;
     return this.tiles[y][x];
   }
 
   // ── Optimized: only iterate tiles that actually need regen ─────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tickResources() {
     const regen = CONFIG.TILE_RESOURCE_REGEN;
     const surviving = [];
@@ -247,6 +502,23 @@ class World {
     this.tickTrees();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   tickTrees() {
     for (const key of Object.keys(this.treeMap)) {
       const tree = this.treeMap[key];
@@ -259,6 +531,23 @@ class World {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   harvestTree(x, y) {
     const key = `${x},${y}`;
     const tree = this.treeMap[key];
@@ -268,6 +557,23 @@ class World {
     return wood;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   plantTree(x, y) {
     const key = `${x},${y}`;
     if (this.treeMap[key]) return false;
@@ -277,10 +583,44 @@ class World {
     return true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getTreeAt(x, y) {
     return this.treeMap[`${x},${y}`] || null;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getNearbyTree(x, y, range = 8) {
     let nearest = null;
     let nearestDist = Infinity;
@@ -292,6 +632,23 @@ class World {
     return nearest;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   harvestTile(tx, ty, multiplier = 1) {
     const tile = this.getTile(tx, ty);
     if (!tile || !tile.resourceNode) return null;
@@ -313,6 +670,23 @@ class World {
     return gained;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   isWalkable(x, y) {
     const t = this.getTile(x, y);
     if (!t) return false;
@@ -320,7 +694,41 @@ class World {
   }
 
   // Flat-top odd-q offset neighbors.
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getNeighbors(tx, ty) {
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const dirs = (tx % 2 === 0)
       ? [[1, 0], [1, -1], [0, -1], [-1, -1], [-1, 0], [0, 1]]
       : [[1, 1], [1, 0], [0, -1], [-1, 0], [-1, 1], [0, 1]];
@@ -330,11 +738,45 @@ class World {
       .filter(n => n.x >= 0 && n.x < this.W && n.y >= 0 && n.y < this.H);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   setRoad(tx, ty) {
     const t = this.getTile(tx, ty);
     if (t && t.type !== CONFIG.TILE.WATER) t.road = true;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   addEntity(entity) {
     entity.id = this._nextEntityId++;
     this.entities.push(entity);
@@ -342,6 +784,23 @@ class World {
     return entity;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   removeEntity(id) {
     const entity = this._entityById[id];
     if (entity) this._spatialRemove(entity);
@@ -349,6 +808,23 @@ class World {
   }
 
   // ── O(1) spatial lookup instead of O(N) linear scan ────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getEntitiesAt(x, y) {
     const key = this._spatialKey(x, y);
     const ids = this._spatialGrid[key];
@@ -362,6 +838,23 @@ class World {
   }
 
   // Check if a wall belonging to a specific tribe blocks a tile
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   hasEnemyWall(x, y, myTribeId) {
     const key = this._spatialKey(x, y);
     const ids = this._spatialGrid[key];
@@ -373,11 +866,45 @@ class World {
     return false;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   getEntitiesByTribe(tribeId) {
     return this.entities.filter(e => e.tribe === tribeId);
   }
 
   // ── Cached territory count ─────────────────────────────────────────────
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   countTerritory(tribeId) {
     if (this._territoryDirty) {
       this._recomputeTerritoryCount();
@@ -386,6 +913,23 @@ class World {
     return this._territoryCount[tribeId] || 0;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   _recomputeTerritoryCount() {
     this._territoryCount = { a: 0, b: 0 };
     for (let y = 0; y < this.H; y++) {
@@ -396,6 +940,23 @@ class World {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   updateTerritory(tribeA, tribeB) {
     const W = this.W;
     const H = this.H;
@@ -406,6 +967,23 @@ class World {
       }
     }
 
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const mark = (tx, ty, tribe, radius) => {
       const r2 = radius * radius;
       const yMin = Math.max(0, ty - radius);
@@ -424,6 +1002,23 @@ class World {
       }
     };
 
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     const getRadius = (btype) => {
       if (btype === CONFIG.ENTITY.CAPITOL) return 7;
       if (btype === CONFIG.ENTITY.FORT) return 5;
@@ -437,6 +1032,23 @@ class World {
     this._territoryGen = (this._territoryGen || 0) + 1;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   findNearestWalkable(x, y) {
     for (let r = 0; r < 10; r++) {
       for (let dy = -r; dy <= r; dy++) {
@@ -451,6 +1063,23 @@ class World {
   }
 
   // Notify spatial grid that an entity moved (called by Tribe after unit steps)
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   notifyEntityMoved(entity) {
     this._spatialMove(entity);
   }

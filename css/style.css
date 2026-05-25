@@ -154,11 +154,15 @@ body {
 
 #event-log-container {
   flex: 1;
-  max-height: 130px;
+  min-height: 120px;
+  max-height: 180px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
 }
 
 #event-log {
-  max-height: 100px;
+  flex: 1;
   overflow-y: auto;
   font-size: 10px;
   font-family: 'Cinzel', serif;
@@ -183,7 +187,8 @@ body {
   border: 1px solid var(--panel-border);
   padding: 8px 14px;
   border-radius: 4px;
-  min-width: 110px;
+  width: 420px;
+  flex-shrink: 0;
 }
 
 #time-display {

@@ -113,6 +113,23 @@ const AGES = [
   },
 ];
 
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function getAgeByYear(year) {
   for (let i = AGES.length - 1; i >= 0; i--) {
     if (year >= AGES[i].yearStart) return AGES[i];
@@ -120,10 +137,44 @@ function getAgeByYear(year) {
   return AGES[0];
 }
 
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function getAgeIndex(ageId) {
   return AGES.findIndex(a => a.id === ageId);
 }
 
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function getNextAge(currentAgeId) {
   const idx = getAgeIndex(currentAgeId);
   return idx < AGES.length - 1 ? AGES[idx + 1] : null;

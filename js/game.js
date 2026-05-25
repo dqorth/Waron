@@ -1,4 +1,21 @@
 // Main game controller — accessed globally as `Game`
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 const Game = (() => {
   let world, tribeA, tribeB, player, renderer, ui;
   let speed = 1;       // 0 = paused
@@ -12,6 +29,23 @@ const Game = (() => {
   let _cal = { timePeriodIdx:0, timePeriodName:'Dawn', day:1, dayInMonth:1, month:1,
                monthName:'Ashveil', year:1, season:'spring', seasonName:'Spring' };
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function init() {
     const canvas = document.getElementById('game-canvas');
     renderer = new Renderer(canvas);
@@ -19,6 +53,23 @@ const Game = (() => {
     _requestLoop();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function start() {
     world = new World();
     player = new Player();
@@ -42,24 +93,109 @@ const Game = (() => {
     eventLog('Keep them fighting. Keep them balanced. Be never discovered.', 'warn');
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function reset() {
     running = false;
     speed = 1;
     totalTicks = 0;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function setSpeed(s) {
     speed = s;
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function eventLog(msg, type) {
     if (ui) ui.addLog(msg, type);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function notify(msg, type) {
     if (ui) ui.notify(msg, type);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _tick() {
     if (!running) return;
 
@@ -101,6 +237,23 @@ const Game = (() => {
     _checkEndConditions();
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _advanceTribeTech(tribe) {
     const maxTech = tribe.age.tribeMaxTech;
     const techThreshold = 50 + tribe.techLevel * 30;
@@ -113,6 +266,23 @@ const Game = (() => {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _checkEndConditions() {
     const totalPower = tribeA.power + tribeB.power || 1;
     const fracA = tribeA.power / totalPower;
@@ -180,6 +350,23 @@ const Game = (() => {
     }
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _gameOver(reason, byBalance) {
     running = false;
     const stats = `
@@ -193,7 +380,41 @@ const Game = (() => {
     ui.showGameOver(reason, stats);
   }
 
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   function _requestLoop() {
+    /**
+     * One-line summary.
+     * 
+     * @description MANDATORY detailed explanation (2-5 sentences).
+     * 
+     * @workflow
+     * 1. Specific numbered steps
+     * 2. Include conditionals and loops
+     * 
+     * @param {Type} name - Description
+     * @returns {Type} Description
+     * 
+     * @dependencies stateManager.get(), etc.
+     * @modifies What state/DOM changes
+     * @triggers When/how called
+     * @performance O(n) complexity notes
+     */
     function loop(timestamp) {
       requestAnimationFrame(loop);
 
@@ -241,6 +462,23 @@ const Game = (() => {
 })();
 
 // ── Calendar helper ────────────────────────────────────────────────────────────
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function _getCalendar(ticks) {
   const TPD = CONFIG.TICKS_PER_DAY;   // 5
   const DPM = CONFIG.DAYS_PER_MONTH;  // 27
@@ -249,6 +487,23 @@ function _getCalendar(ticks) {
 
   const timePeriodIdx = ticks % TPD;
   const totalDays     = Math.floor(ticks / TPD);
+  /**
+   * One-line summary.
+   * 
+   * @description MANDATORY detailed explanation (2-5 sentences).
+   * 
+   * @workflow
+   * 1. Specific numbered steps
+   * 2. Include conditionals and loops
+   * 
+   * @param {Type} name - Description
+   * @returns {Type} Description
+   * 
+   * @dependencies stateManager.get(), etc.
+   * @modifies What state/DOM changes
+   * @triggers When/how called
+   * @performance O(n) complexity notes
+   */
   const dayInMonth    = (totalDays % DPM) + 1;
   const monthIdx      = Math.floor(totalDays / DPM) % MPY;
   const month         = monthIdx + 1;
@@ -304,6 +559,23 @@ const _weatherEventMsgs = {
   snow:     ['Snow falls silently, blanketing the land in white.','A bitter snowstorm sweeps through the valleys.','Ice and snow grip the land. Movement becomes treacherous.'],
 };
 
+/**
+ * One-line summary.
+ * 
+ * @description MANDATORY detailed explanation (2-5 sentences).
+ * 
+ * @workflow
+ * 1. Specific numbered steps
+ * 2. Include conditionals and loops
+ * 
+ * @param {Type} name - Description
+ * @returns {Type} Description
+ * 
+ * @dependencies stateManager.get(), etc.
+ * @modifies What state/DOM changes
+ * @triggers When/how called
+ * @performance O(n) complexity notes
+ */
 function _tickWeather(season) {
   _weather.timer++;
   if (_weather.timer < _weather.duration) return;
