@@ -128,16 +128,45 @@
   </div>
 </div>
 
-<script src="js/dev.js"></script>
-<script src="js/config.js"></script>
-<script src="js/ages.js"></script>
-<script src="js/time_dilation.js"></script>
-<script src="js/world.js"></script>
-<script src="js/tribe.js"></script>
-<script src="js/player.js"></script>
-<script src="js/actions.js"></script>
-<script src="js/renderer.js"></script>
-<script src="js/ui.js"></script>
+<!-- Config (data + lookups) -->
+<script src="js/config/dev.js"></script>
+<script src="js/config/config.js"></script>
+<script src="js/config/ages.js"></script>
+<script src="js/config/time-dilation.js"></script>
+
+<!-- World subsystems (loaded before world.js) -->
+<script src="js/world/territory.js"></script>
+<script src="js/world/trees.js"></script>
+<script src="js/world/world.js"></script>
+<script src="js/world/fog.js"></script>
+<script src="js/world/wildlife.js"></script>
+
+<!-- Systems -->
+<script src="js/systems/diplomacy.js"></script>
+<script src="js/systems/calendar.js"></script>
+<script src="js/systems/weather.js"></script>
+<script src="js/systems/fracture.js"></script>
+<script src="js/systems/player.js"></script>
+<script src="js/systems/actions.js"></script>
+
+<!-- Tribe subsystems (loaded before tribe.js) -->
+<script src="js/tribe/economy.js"></script>
+<script src="js/tribe/building.js"></script>
+<script src="js/tribe/military.js"></script>
+<script src="js/tribe/population.js"></script>
+<script src="js/tribe/unit-ai.js"></script>
+<script src="js/tribe/tribe.js"></script>
+
+<!-- Render subsystems (loaded before renderer.js) -->
+<script src="js/render/tiles.js"></script>
+<script src="js/render/buildings.js"></script>
+<script src="js/render/units.js"></script>
+<script src="js/render/effects.js"></script>
+<script src="js/render/combat.js"></script>
+<script src="js/render/renderer.js"></script>
+
+<!-- UI & Game -->
+<script src="js/ui/ui.js"></script>
 <script src="js/game.js"></script>
 </body>
 </html>

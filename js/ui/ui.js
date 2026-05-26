@@ -405,6 +405,24 @@ class UI {
     document.getElementById('balance-fill-a').style.width = (fracA * 100) + '%';
     document.getElementById('balance-fill-b').style.width = (fracB * 100) + '%';
 
+    // Diplomacy indicator (below balance bar)
+    if (typeof Game !== 'undefined' && Game.diplomacy) {
+      let dipEl = document.getElementById('diplomacy-indicator');
+      if (!dipEl) {
+        dipEl = document.createElement('div');
+        dipEl.id = 'diplomacy-indicator';
+        dipEl.style.cssText = 'text-align:center;font-size:10px;font-family:Cinzel,serif;margin-top:2px;letter-spacing:1px;';
+        const balanceBar = document.getElementById('balance-bar');
+        if (balanceBar && balanceBar.parentNode) {
+          balanceBar.parentNode.insertBefore(dipEl, balanceBar.nextSibling);
+        }
+      }
+      const summary = Game.diplomacy.getSummary('a', 'b');
+      const stateColors = { hostile:'#e04030', wary:'#c08020', neutral:'#c8c0a8', cordial:'#60a060', allied:'#40c0e0' };
+      dipEl.style.color = stateColors[summary.state] || '#c8c0a8';
+      dipEl.textContent = `Relations: ${summary.stateLabel.toUpperCase()} (${summary.score > 0 ? '+' : ''}${Math.round(summary.score)})${summary.hasTreaty ? ' 🕊 TREATY' : ''}`;
+    }
+
     // Player stats
     document.getElementById('stat-age').textContent = player.age.name;
     document.getElementById('stat-essence').textContent = Math.floor(player.essence);

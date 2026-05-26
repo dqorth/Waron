@@ -1,113 +1,104 @@
-# Waron
+# WARON — The Shadow Keeper
 
-Waron is a strategic flat-top hex-grid simulation game where two factions, **Ashan** (Tribe A) and **Koru** (Tribe B), clash in an endless conflict. 
+A strategy simulation where two tribes clash at the dawn of civilization. You are the Shadow Keeper — an unseen force that feeds on conflict. Your goal: keep both tribes fighting forever. If either side wins, they find you. If either side discovers your influence, they unite against you.
 
-As the player, you do not directly control units. Instead, you act as the **Shadow Keeper**—a hidden manipulator operating from the shadows. Your core objective is to **maintain balance** between the two warring tribes. If either tribe achieves total dominance, or if you act too conspicuously and a tribe discovers your influence, you lose.
+## How to Play
 
----
+Open `index.html` in a modern browser. No server needed.
 
-## Core Gameplay Dynamics
+**Controls:**
+- Click and drag to pan the map
+- Scroll wheel to zoom in/out
+- Speed buttons (1x, 2x, 4x, pause) control simulation speed
+- Click influence actions on the right panel to manipulate tribes
+- Select a target tribe in the action modal, then execute
 
-### 1. The Balancing Act
-The game is a delicate balancing act of power and territory.
-* **Tribe A (Ashan)**: Starts on the west side of the map.
-* **Tribe B (Koru)**: Starts on the east side of the map.
-* **The Power Balance**: You must monitor the relative power fractions of each tribe. If one tribe achieves **`CONFIG.BALANCE_WARN` (70%)** or **`CONFIG.BALANCE_CRIT` (82%)** of the total power, you must intervene to assist the underdog. If one tribe hits **`CONFIG.BALANCE_LOSE` (95%)**, they win the war, and you lose.
+**Win condition:** There is none. You survive as long as possible.
 
-### 2. Suspicion & Discovery
-Interventions are not free. Every shadow action you take increases your **Suspicion** in the eyes of the targeted tribe.
-* **Suspicion Decay**: Suspicion slowly decays over time by default (**`CONFIG.SUSPICION_DECAY`** per tick).
-* **Thresholds**: 
-  - **`CONFIG.SUSPICION_WARN` (60%)**: Tribes begin to notice patterns.
-  - **`CONFIG.SUSPICION_CRIT` (80%)**: Alert levels rise.
-  - **`CONFIG.SUSPICION_LOSE` (100%)**: The target tribe discovers your hand. The two tribes will immediately unite, end their war, and hunt you down (resulting in game over).
+**Lose conditions:**
+- One tribe eliminates the other (they find you in their victory)
+- One tribe's suspicion of you reaches 100% (they discover the pattern)
+- Power imbalance exceeds 95% (dominant tribe conquers and notices you)
 
-### 3. Dual Age Progression Systems
-The concept of "Ages" in Waron operates under a split-progression design. The era of the tribes and the era of the player are tracked and advanced **independently**:
+## Game Modes
 
-1. **Tribe Age (Time-Based)**: Faction progression is tied strictly to the calendar year. As years pass, the world automatically advances to later ages, which raises their maximum population capacity, technology ceilings, and military multipliers.
-2. **Player Age (Threshold-Based)**: Your progression as the Shadow Keeper is tied to resource thresholds. You only advance to the next Age when you possess enough accumulated **Essence** and **Player Knowledge** (gained passively over time). Advancing your age unlocks more advanced and powerful shadow actions.
+### Fracture Mode (default)
+One tribe begins at the center of the map. After a period of peaceful growth (120–250 ticks), an internal crisis fractures the tribe. The splinter faction packs supplies, marches to a new location, and founds a rival settlement. The war begins when they arrive.
 
-| Age | Time Period (Tribe) | Max Population (Tribe) | Max Tech Level (Tribe) | Military Scale (Tribe) | Player Requirements (Essence / Knowledge) | Unlocked Player Actions |
-|---|---|---|---|---|---|---|
-| **Stone Age** | Year 1 - 500 | 60 | 2 | 1.0 | 0 Essence / 0 Knowledge | Sabotage Food, Cause Disease, Gift Weapons |
-| **Bronze Age** | Year 501 - 1200 | 200 | 5 | 2.5 | 300 Essence / 80 Knowledge | Incite Riot, Forge False Treaty, Border Dispute |
-| **Iron Age** | Year 1201 - 2500 | 600 | 10 | 5.0 | 1,200 Essence / 250 Knowledge | Manipulate Weather, Kidnap Scholar, Forge Evidence |
-| **Classical Age** | Year 2501 - 5000 | 2,000 | 18 | 10.0 | 3,500 Essence / 600 Knowledge | Poison Wells, Corrupt General, Inspire Prophet |
-| **Medieval Age** | Year 5001 - 10000 | 8,000 | 30 | 20.0 | 10,000 Essence / 1,500 Knowledge | Plague Release, Economic Sabotage, Spy Network |
-| **Renaissance** | Year 10001 - 20000 | 30,000 | 50 | 40.0 | 35,000 Essence / 4,000 Knowledge | Munitions Accident, Mislead Expedition, Religious Schism |
-| **Industrial Age** | Year 20001 - 50000 | 200,000 | 80 | 100.0 | 120,000 Essence / 12,000 Knowledge | Industrial Sabotage, Mass Propaganda, Secret Arms Deal |
-| **Atomic Age** | Year 50001+ | 2,000,000 | 150 | 500.0 | 500,000 Essence / 50,000 Knowledge | Nuclear Scare, Cyber Disruption, Satellite Interference |
+Five fracture narratives: succession crisis, religious schism, territorial dispute, famine revolt, betrayal. Selected randomly or forced via `dev.js`.
 
----
+### Classic Mode
+Two tribes spawn on opposite sides of the map, already at war. Set `DEV.STARTING_TRIBES = 2` in `dev.js`.
 
-## Technical & Simulation Mechanics
+## Systems
 
-### 1. Hex-Grid Map & Resources (`js/world.js`)
-The world is a flat-top hex grid of size **192 x 192**. Different tile types yield different resources:
-* **Resources**: Wood, Food, Metal, Stone.
-* **Tile Yields**:
-  - **Grass**: Food (3)
-  - **Wetland / Jungle**: High Food yields (4 - 5)
-  - **Mountain**: Metal (4)
-  - **Stone / Tundra**: Stone (2 - 4)
-  - **Desert**: Low Food (1)
-  - **Forest**: Does not yield passive resources; wood must be harvested directly from Tree entities.
+### Economy
+Four resources: **wood** (from trees), **food** (from farms), **metal** (passive + tile harvesting), **stone** (passive + tile harvesting). Each has storage caps expanded by storehouses. Food spoils over time.
 
-### 2. Time & Weather Systems (`js/game.js`)
-* **Calendar**:
-  - 1 Tick = 1 Time Period (Dawn, Morning, Day, Dusk, Night).
-  - 5 Ticks = 1 Day.
-  - 27 Days = 1 Month (13 months per year, total of 351 days per year).
-* **Weather**:
-  - Weather changes dynamically, influenced by the current season.
-  - Weather types like **Storm**, **Drought**, **Flood**, and **Snow** introduce simulation modifiers (e.g., snow increases movement times, droughts accelerate food spoilage and cripple farm yields).
+### Population
+Growth requires homes (capacity) and food (fuel). Disease and food debuffs slow growth. Units spawn from buildings: warriors from barracks, workers from capitol, scouts from capitol.
 
-### 3. Faction Simulation (`js/tribe.js`)
-Tribes operate autonomously:
-* **Buildings**: They build Capitols, Forts, Barracks, Farms, Towers, Homes, and Storehouses using their harvested resources.
-* **Units**: Factions recruit Workers, Warriors, Scouts, and Leaders.
-* **Unit Attributes**: Each unit has individual attributes (Strength, Loyalty, Agility, Tenacity, Endurance, Defense) with slight variances.
-* **Hunger Mechanic**: Units get hungry over time. If they cannot access food, they will eventually starve.
+### Hunger & Food Carry
+Every unit has personal hunger and a **carried food supply**. Units eat from their personal carry first, only returning to food buildings when carry is empty. Carry capacity scales with age — Stone Age units carry 3 days of food, adding 1 day per age advancement. This enables long-range exploration and military campaigns.
 
----
+### Military
+Warriors form **armies** that estimate supply requirements before marching. Supply calculation considers distance to target and campaign duration. Armies draw food from tribe reserves. If supplies deplete mid-campaign, units eat from personal carry and eventually retreat.
 
-## Codebase Map & Automated Documentation
+### Wildlife
+Huntable animals spawn across the map by biome — deer on grasslands, boar in forests, fish in wetlands. Units can hunt them for carried food, extending operational range during exploration and military campaigns. Animals wander, flee from nearby units, and respawn over time.
 
-The Waron codebase is fully documented using a strict, structured JSDoc layout describing the function workflow, parameters, return types, dependencies, modified states, triggers, and Big-O performance.
+### Fog of War
+Unexplored territory is shrouded in darkness. Units and buildings reveal surrounding tiles — scouts see farther (6 tiles), towers see far (7 tiles), civilians see little (2 tiles). Previously explored areas dim when no longer in sight range. The player sees the combined vision of both tribes.
 
-A Python-based AI doc-agent is provided to scan, automatically format, and inject detailed JSDocs directly into the JavaScript files.
+### Diplomacy
+Tribes have a relation score (-100 to +100) mapped to five states: hostile, wary, neutral, cordial, allied. Relations naturally drift toward slight hostility. Attacks worsen relations; treaties improve them temporarily. The diplomatic state gates attack probability — allied tribes never attack, hostile tribes always do.
 
-### How to Run the Doc Generator
+### Weather
+Seven weather types cycle seasonally: sunshine, overcast, rain, storm, drought, flood, snow. Weather affects farm output, unit movement speed, and food spoilage.
 
-1. **Install Python library**:
-   ```bash
-   pip install google-generativeai
-   ```
+### Ages
+Eight progression ages from Stone to Atomic, each unlocking new influence actions, raising population caps, and scaling military power. Ages advance when essence and knowledge thresholds are met.
 
-2. **Run the script**:
-   Make sure to export your API key first. You can also override the default model.
-   ```bash
-   export GEMINI_API_KEY="your_api_key_here"
-   export GEMINI_MODEL="gemini-2.5-flash"  # Optional: defaults to gemini-2.5-flash
-   
-   python3 generate_codebase_map.py
-   ```
+## File Structure
 
-The script will:
-1. Scan `/js` for all JavaScript modules.
-2. Send undecorated functions to the Gemini API to analyze logic and complexities.
-3. Automatically write JSDoc headers directly back into the `.js` files.
-4. Output a comprehensive codebase outline in `/documentation/CODEBASE_MAP.md`.
-
----
-
-## Getting Started
-
-To run the game locally, you only need to serve the root directory. You can use any lightweight local web server.
-
-For example, using Python:
-```bash
-python3 -m http.server 8000
 ```
-Then navigate to `http://localhost:8000` in your web browser.
+Waron/
+├── index.html              — Entry point, HUD layout, modals
+├── README.md
+├── css/
+│   └── style.css           — All visual styling
+├── js/
+│   ├── dev.js              — Developer config (tweak without touching core)
+│   ├── config.js           — Game constants and balance values
+│   ├── ages.js             — Age definitions and progression
+│   ├── time_dilation.js    — Time scaling system
+│   ├── world.js            — Map generation, spatial hash, territory
+│   ├── fog.js              — Fog of war visibility system
+│   ├── diplomacy.js        — Inter-tribe relations and treaties
+│   ├── wildlife.js         — Huntable animal spawning and behavior
+│   ├── tribe.js            — Tribe AI, economy, military, hunger
+│   ├── player.js           — Shadow Keeper state and progression
+│   ├── actions.js          — Player influence actions
+│   ├── renderer.js         — Canvas rendering, tile buffer, sprites
+│   ├── ui.js               — HUD updates, modals, event log
+│   └── game.js             — Main loop, tick, fracture, founding
+└── documentation/
+    ├── DEVELOPMENT.md      — Technical reference for developers
+    ├── DESIGN.md           — Game design document
+    ├── STATUS.md           — Development progress tracker
+    └── REFACTOR.md         — Architecture and refactoring plan
+```
+
+## Quick Start for Developers
+
+1. Open `js/dev.js` — all tunable parameters in one file
+2. Set `DEV.DEBUG_LOG = true` for console output
+3. Set `DEV.STARTING_TRIBES = 2` to skip fracture and test combat
+4. Set `DEV.INVINCIBLE_TRIBES = true` to disable lose conditions
+5. Adjust multipliers to speed up/slow down any system
+6. See `documentation/DEVELOPMENT.md` for architecture details
+7. See `documentation/REFACTOR.md` for the ES module migration plan
+
+## License
+
+[Your license here]
